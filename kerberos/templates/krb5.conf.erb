@@ -1,0 +1,32 @@
+#File Managed by Puppet
+
+#This file contains Kerberos configuration information, including the locations of KDCs 
+#and admin servers for the Kerberos realms of interest, defaults for the current realm 
+#and for Kerberos applications, and mappings of hostnames onto Kerberos realms. 
+
+[libdefaults]
+    default_realm = <%= realm %>
+    dns_lookup_realm = false
+    dns_lookup_kdc = false
+    ticket_lifetime = 24h
+    forwardable = true
+    udp_preference_limit = 1000000
+    default_tkt_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
+    default_tgs_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
+    permitted_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
+
+[realms]
+    <%= realm %> = {
+        kdc = <%= kdc_server %>:<%= kdc_port %>
+        admin_server = <%= kdc_server %>:<%= admin_port %>
+        default_domain = <%= domain %>
+    }
+
+[domain_realm]
+    .<%= domain %> = <%= realm %>
+     <%= domain %> = <%= realm %>
+
+[logging]
+    kdc = FILE:/var/log/krb5kdc.log
+    admin_server = FILE:/var/log/kadmin.log
+    default = FILE:/var/log/krb5lib.log

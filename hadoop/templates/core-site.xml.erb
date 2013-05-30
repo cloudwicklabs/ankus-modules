@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- File Managed by Puppet-->
+<% namenode_hosts = hadoop_namenode_host.to_a -%>
+<configuration>
+  <property>
+    <!-- URI of NN. Fully qualified. No IP.-->
+    <name>fs.defaultFS</name>
+    <% if ha != "disabled" -%>
+    <value>hdfs://<%= hadoop_ha_nameservice_id %></value>
+    <% else -%>
+    <value>hdfs://<%= namenode_hosts[0] %>:<%= hadoop_namenode_port%></value>
+    <% end -%>
+  </property>
+  <property>
+    <name>hadoop.security.authentication</name>
+    <value><%= hadoop_security_authentication %></value>
+  </property>
+  <% if hadoop_snappy_codec == "enabled" -%>
+  <property>
+    <name>io.compression.codecs</name>
+    <value>org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,org.apache.hadoop.io.compress.SnappyCodec</value>
+  </property>
+  <% end %>
+  <% if @hadoop_config_fs_inmemory_size_mb %>
+  <property>
+    <name>fs.inmemory.size.mb</name>
+    <value><%= @hadoop_config_fs_inmemory_size_mb %></value>
+  </property>
+  <% end %>
+  <property>
+    <name>io.file.buffer.size</name>
+    <value><%= hadoop_config_io_file_buffer_size %></value>
+  </property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value><%= hadoop_config_hadoop_tmp_dir %></value>
+  </property>
+  <property>
+    <name>hadoop.security.authorization</name>
+    <value><%= hadoop_config_security_authorization %></value>
+  </property>
+  <property>
+    <name>io.bytes.per.checksum</name>
+    <value><%= hadoop_config_io_bytes_per_checksum %></value>
+  </property>
+  <property>
+    <name>fs.trash.interval</name>
+    <value><%= hadoop_config_fs_trash_interval %></value>
+  </property>
+  <!-- uncomment below to enable rack awareness for hadoop-->
+  <!--property>
+    <name>net.topology.script.file.name</name>
+    <value>/etc/hadoop/conf/topology.rb</value>
+  </property-->
+  <% if hue == "enabled" -%>
+  <!-- Hue WebHDFS proxy user setting -->
+  <property>
+    <name>hadoop.proxyuser.hue.hosts</name>
+    <value>*</value>
+  </property>
+  <property>
+    <name>hadoop.proxyuser.hue.groups</name>
+    <value>*</value>
+  </property>
+  <% end %>
+  <% if impala == "enabled" -%>
+  <property>
+    <name>dfs.client.read.shortcircuit</name>
+    <value>true</value>
+  </property>
+  <% end %>
+</configuration>

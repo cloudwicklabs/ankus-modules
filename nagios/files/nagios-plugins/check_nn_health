@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+PROGNAME=`basename $0`
+VERSION="Version 1.0"
+
+ST_OK=0
+ST_WR=1
+ST_CR=2
+ST_UK=3
+
+print_help() {
+    echo "$PROGNAME $VERSION"
+    echo ""
+    echo "$PROGNAME is a Nagios plugin to check the Namenode Health"
+    echo ""
+    exit $ST_UK
+}
+while [ -n "$1" ]; do
+	case "$1" in
+		--help|-h)
+			print_help
+			exit $ST_UK
+			;;
+		*)
+			echo "Unkown argument: $1"
+			print_help
+			exit $ST_UK
+			;;
+		esac
+	shift
+done
+get_vals() {
+    HEALTH=`sudo -u hdfs /usr/bin/hdfs fsck / | grep -m1 "Status:" | awk '{print $2}'`
+}
+do_output() {
+	output="Namenode Health Status is: ${HEALTH}"
+}
+
+get_vals
+do_output
+
+if [ "$HEALTH" = "HEALTHY" ]
+then
+	echo "${output}"
+	exit $ST_OK
+else
+	echo "${output}"
+	exit $ST_CR
+fi

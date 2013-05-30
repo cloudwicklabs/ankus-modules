@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- File Managed by puppet -->
+<configuration>
+  <property>
+    <name>hbase.cluster.distributed</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>hbase.zookeeper.quorum</name>
+    <value><%= zookeeper_quorum %></value>
+  </property>
+
+  <property>
+    <name>hbase.rootdir</name>
+    <value><%= rootdir %></value>
+  </property>
+
+  <property>
+    <name>dfs.support.append</name>
+    <value>true</value>
+  </property>
+
+<% if auth == "kerberos" %>
+  <property> 
+    <name>hbase.regionserver.kerberos.principal</name> 
+    <value>hbase/_HOST@<%= kerberos_realm %></value> 
+    </property> 
+  <property> 
+    <name>hbase.regionserver.keytab.file</name> 
+    <value>/etc/hbase.keytab</value> 
+  </property>
+  <property> 
+    <name>hbase.master.kerberos.principal</name> 
+    <value>hbase/_HOST@<%= kerberos_realm %></value> 
+  </property> 
+  <property> 
+    <name>hbase.master.keytab.file</name> 
+    <value>/etc/hbase.keytab</value> 
+  </property>
+<% end %>
+</configuration>

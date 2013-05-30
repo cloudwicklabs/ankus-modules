@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--File Managed by puppet -->
+<configuration>
+<% if hadoop_mapreduce_framework == "mr1" %>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value><%= hadoop_jobtracker_host %>:<%= hadoop_jobtracker_rpc_port %></value>
+  </property>
+  <property>
+    <name>mapred.local.dir</name>
+    <value><%= mapred_data_dirs.join(",") %></value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>mapred.system.dir</name>
+    <value>/mapred/system</value>
+  </property>
+  <% if hadoop_snappy_codec == "enabled" -%>
+  <property>
+    <name>mapred.compress.map.output</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>mapred.map.output.compression.codec</name>
+    <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+  </property>
+  <% end %>
+<% if hadoop_security_authentication == "kerberos" %>
+  <!-- JobTracker security configs -->
+  <property>
+    <name>mapreduce.jobtracker.kerberos.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobtracker.kerberos.https.principal</name>
+    <value>host/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobtracker.keytab.file</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+  <!-- TaskTracker security configs -->
+  <property>
+    <name>mapreduce.tasktracker.kerberos.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.kerberos.https.principal</name>
+    <value>host/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.keytab.file</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+  <!-- TaskController settings -->
+  <property>
+    <name>mapreduce.tasktracker.taskcontroller</name>
+    <value>org.apache.hadoop.mapred.LinuxTaskController</value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.group</name>
+    <value>mapred</value>
+  </property>
+<% end %>
+<% end %>
+<% if hadoop_mapreduce_framework == "mr2" %>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.address</name>
+    <value><%= hadoop_jobhistory_host %>:10020</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value><%= hadoop_jobhistory_host %>:19888</value>
+  </property>
+  <% if hadoop_snappy_codec == "enabled" -%>
+  <property>
+    <name>mapreduce.map.output.compress</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>mapred.map.output.compress.codec</name>
+    <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+  </property>
+  <% end %>
+<% if hadoop_security_authentication == "kerberos" %>
+  <!-- HistoryServer security configs -->
+  <property>
+    <name>mapreduce.jobhistory.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.keytab</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+<% end %>
+<% end %>
+  <property>
+    <name>mapred.child.java.opts</name>
+    <value>-Xmx<%= hadoop_config_mapred_child_java_opts %>m</value>
+  </property>
+  <property>
+    <name>mapreduce.task.io.sort.mb</name>
+    <value><%= hadoop_config_io_sort_mb %></value>
+  </property>
+  <property>
+    <name>mapreduce.task.io.sort.factor</name>
+    <value><%= hadoop_config_io_sort_factor %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobtracker.handler.count</name>
+    <value><%= hadoop_config_mapred_job_tracker_handler_count %></value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>mapreduce.map.speculative</name>
+    <value><%= hadoop_config_mapred_map_tasks_speculative_execution %></value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.shuffle.parallelcopies</name>
+    <value><%= hadoop_config_mapred_reduce_parallel_copies %></value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.speculative</name>
+    <value><%= hadoop_config_mapred_reduce_tasks_speculative_execution %></value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.map.tasks.maximum</name>
+    <value><%= hadoop_config_mapred_tasktracker_map_tasks_maximum %></value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.reduce.tasks.maximum</name>
+    <value><%= hadoop_config_mapred_tasktracker_reduce_tasks_maximum %></value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>mapreduce.job.reduces</name>
+    <value><%= hadoop_config_mapred_reduce_tasks %></value>
+  </property>
+  <property>
+    <name>mapred.output.compression.type</name>
+    <value>BLOCK</value>
+  </property>
+  <property>
+    <name>mapreduce.map.output.compress</name>
+    <value><%= hadoop_config_use_map_compression %></value>
+  </property>
+  <property>
+    <name>mapreduce.job.reduce.slowstart.completedmaps</name>
+    <value><%= hadoop_config_mapred_reduce_slowstart_completed_maps %></value>
+  </property>
+  <% if hue == "enabled" -%>
+  <property>
+    <name>jobtracker.thrift.address</name>
+    <value>0.0.0.0:9290</value>
+  </property>
+  <property>
+    <name>mapred.jobtracker.plugins</name>
+    <value>org.apache.hadoop.thriftfs.ThriftJobTrackerPlugin</value>
+    <description>Comma-separated list of jobtracker plug-ins to be activated.</description>
+  </property>
+  <% end %>
+</configuration>

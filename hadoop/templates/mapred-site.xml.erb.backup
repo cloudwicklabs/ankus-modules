@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--File Managed by puppet -->
+<configuration>
+
+<% if hadoop_mapreduce_framework == "mr1" %>
+  <property>
+    <name>mapred.job.tracker</name>
+    <value><%= hadoop_jobtracker_host %>:<%= hadoop_jobtracker_rpc_port %></value>
+  </property>
+  <property>
+    <name>mapred.local.dir</name>
+    <value><%= mapred_data_dirs.join(",") %></value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>mapred.system.dir</name>
+    <value>/mapred/system</value>
+  </property>  
+<% if hadoop_security_authentication == "kerberos" %>
+  <!-- JobTracker security configs -->
+  <property>
+    <name>mapreduce.jobtracker.kerberos.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobtracker.kerberos.https.principal</name>
+    <value>host/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobtracker.keytab.file</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+  
+  <!-- TaskTracker security configs -->
+  <property>
+    <name>mapreduce.tasktracker.kerberos.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.kerberos.https.principal</name>
+    <value>host/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.keytab.file</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+  
+  <!-- TaskController settings -->
+  <property>
+    <name>mapreduce.tasktracker.taskcontroller</name>
+    <value>org.apache.hadoop.mapred.LinuxTaskController</value>
+  </property>
+  <property>
+    <name>mapreduce.tasktracker.group</name>
+    <value>mapred</value>
+  </property>
+<% end %>
+<% end %>
+
+
+<% if hadoop_mapreduce_framework == "mr2" %>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.address</name>
+    <value><%= hadoop_jobhistory_host %>:10020</value>
+  </property>
+
+  <property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value><%= hadoop_jobhistory_host %>:19888</value>
+  </property>
+
+<% if hadoop_security_authentication == "kerberos" %>
+  <!-- HistoryServer security configs -->
+  <property>
+    <name>mapreduce.jobhistory.principal</name>
+    <value>mapred/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.keytab</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+<% end %>
+<% end %>
+  <!-- TODO: organize into mr1 and mr2 specific -->
+  <!-- property>
+    <name>mapreduce.jobtracker.staging.root.dir</name>
+    <value>/user</value>
+  </property -->
+
+  <property>
+    <name>mapred.child.java.opts</name>
+    <value>-Xmx<%= hadoop_config_mapred_child_java_opts %>m</value>
+  </property>
+
+  <property>
+    <!-- set this to ~1.5x the heap size in mapred.child.java.opts -->
+    <name>mapred.child.ulimit</name>
+    <value><%= hadoop_config_mapred_child_ulimit %></value>
+  </property>
+
+  <property>
+    <name>io.sort.mb</name>
+    <value><%= hadoop_config_io_sort_mb %></value>
+  </property>
+
+  <property>
+    <name>io.sort.factor</name>
+    <value><%= hadoop_config_io_sort_factor %></value>
+  </property>
+
+  <property>
+    <name>mapred.job.tracker.handler.count</name>
+    <value><%= hadoop_config_mapred_job_tracker_handler_count %></value>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>mapred.map.tasks.speculative.execution</name>
+    <value><%= hadoop_config_mapred_map_tasks_speculative_execution %></value>
+  </property>
+  
+  <property>
+    <name>mapred.reduce.parallel.copies</name>
+    <value><%= hadoop_config_mapred_reduce_parallel_copies %></value>
+  </property>
+
+  <property>
+    <name>mapred.reduce.tasks.speculative.execution</name>
+    <value><%= hadoop_config_mapred_reduce_tasks_speculative_execution %></value>
+  </property>
+
+  <property>
+    <name>mapred.tasktracker.map.tasks.maximum</name>
+    <value><%= hadoop_config_mapred_tasktracker_map_tasks_maximum %></value>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>mapred.tasktracker.reduce.tasks.maximum</name>
+    <value><%= hadoop_config_mapred_tasktracker_reduce_tasks_maximum %></value>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>mapred.reduce.tasks</name>
+    <value><%= hadoop_config_mapred_reduce_tasks %></value>
+  </property>
+
+  <property>
+    <name>tasktracker.http.threads</name>
+    <value><%= hadoop_config_tasktracker_http_threads %></value>
+    <final>true</final>
+  </property>
+
+  <property>
+    <name>mapred.output.compression.type</name>
+    <value>BLOCK</value>
+    <description>If the job outputs are to compressed as
+    SequenceFiles, how should they be compressed? Should be one of
+    NONE, RECORD or BLOCK.</description>
+  </property>
+
+  <property>
+    <name>mapred.compress.map.output</name>
+    <value><%= hadoop_config_use_map_compression %></value>
+  </property>
+
+  <property>
+    <name>mapred.reduce.slowstart.completed.maps</name>
+    <value><%= hadoop_config_mapred_reduce_slowstart_completed_maps %></value>
+  </property>
+
+
+</configuration>

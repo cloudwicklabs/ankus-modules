@@ -1,0 +1,17 @@
+#File Managed by Puppet
+#default: on
+#Description: NRPE (Nagios Remote Plugin Executor)
+service nrpe
+{
+        flags           = REUSE
+        socket_type     = stream    
+ 		port  = 5666    
+        wait            = no
+        user            = <%= scope.lookupvar('nagios::nrpe::nagiosuser') %>
+ 		group  = <%= scope.lookupvar('nagios::nrpe::nagiosgroup') %>
+        server          = /usr/sbin/nrpe
+        server_args     = -c /etc/nagios/nrpe.cfg --inetd
+        log_on_failure  += USERID
+        disable         = no
+ 		only_from       = <%= nagiosserver %>	
+}

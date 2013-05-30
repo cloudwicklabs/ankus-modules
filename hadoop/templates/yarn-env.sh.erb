@@ -1,0 +1,79 @@
+#File Managed by puppet
+
+<% def shell_config(shell_var, *puppet_var)
+     puppet_var = puppet_var[0] || shell_var.downcase
+     if has_variable? puppet_var
+        return "export #{shell_var}=#{scope.lookupvar(puppet_var)}"
+     else
+        return "#export #{shell_var}="
+     end
+   end %>
+
+# The java implementation to use.  Required.
+<%= shell_config("JAVA_HOME", "hadoop_java_home") %>
+
+# User for YARN daemons
+export HADOOP_YARN_USER=${HADOOP_YARN_USER:-yarn}
+
+# resolve links - $0 may be a softlink
+export YARN_CONF_DIR="${YARN_CONF_DIR:-$YARN_HOME/conf}"
+
+JAVA=$JAVA_HOME/bin/java
+#JAVA_HEAP_MAX=-Xmx1000m
+
+# check envvars which might override default args
+#if [ "$YARN_HEAPSIZE" != "" ]; then
+  #echo "run with heapsize $YARN_HEAPSIZE"
+#  JAVA_HEAP_MAX="-Xmx""$YARN_HEAPSIZE""m"
+  #echo $JAVA_HEAP_MAX
+#fi
+
+# CLASSPATH initially contains $YARN_CONF_DIR
+CLASSPATH="${YARN_CONF_DIR}"
+CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
+
+# so that filenames w/ spaces are handled correctly in loops below
+IFS=
+
+
+# default log directory & file
+if [ "$YARN_LOG_DIR" = "" ]; then
+  YARN_LOG_DIR="$YARN_HOME/logs"
+fi
+if [ "$YARN_LOGFILE" = "" ]; then
+  YARN_LOGFILE='yarn.log'
+fi
+
+# default policy file for service-level authorization
+if [ "$YARN_POLICYFILE" = "" ]; then
+  YARN_POLICYFILE="hadoop-policy.xml"
+fi
+
+# restore ordinary behaviour
+unset IFS
+
+# Extra Java CLASSPATH elements.  Optional.
+<%= shell_config("HADOOP_CLASSPATH") %>
+
+# Extra Java runtime options.  Empty by default.
+<%= shell_config("HADOOP_OPTS") %>
+
+# Command specific options appended to HADOOP_OPTS when specified
+<%= shell_config("YARN_RESOURCEMANAGER_OPTS") %>
+<%= shell_config("YARN_NODEMANAGER_OPTS") %>
+<%= shell_config("YARN_PROXYSERVER_OPTS") %>
+<%= shell_config("HADOOP_JOB_HISTORYSERVER_OPTS") %>
+
+
+YARN_OPTS="$YARN_OPTS -Dhadoop.log.dir=$YARN_LOG_DIR"
+YARN_OPTS="$YARN_OPTS -Dyarn.log.dir=$YARN_LOG_DIR"
+YARN_OPTS="$YARN_OPTS -Dhadoop.log.file=$YARN_LOGFILE"
+YARN_OPTS="$YARN_OPTS -Dyarn.log.file=$YARN_LOGFILE"
+YARN_OPTS="$YARN_OPTS -Dyarn.home.dir=$YARN_COMMON_HOME"
+YARN_OPTS="$YARN_OPTS -Dyarn.id.str=$YARN_IDENT_STRING"
+YARN_OPTS="$YARN_OPTS -Dhadoop.root.logger=${YARN_ROOT_LOGGER:-INFO,console}"
+YARN_OPTS="$YARN_OPTS -Dyarn.root.logger=${YARN_ROOT_LOGGER:-INFO,console}"
+if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
+  YARN_OPTS="$YARN_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
+fi
+YARN_OPTS="$YARN_OPTS -Dyarn.policy.file=$YARN_POLICYFILE"

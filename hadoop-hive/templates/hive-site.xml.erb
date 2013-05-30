@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- File Managed by puppet -->
+<configuration>
+
+<!-- Hive Execution Parameters -->
+
+<% if hbase_install == "enabled" %>
+<property>
+  <name>hbase.master</name>
+  <value><%= hbase_master %></value>
+  <description>http://wiki.apache.org/hadoop/Hive/HBaseIntegration</description>
+</property>
+
+<property>
+  <name>hbase.zookeeper.quorum</name>
+  <value><%= hbase_zookeeper_quorum %></value>
+  <description>http://wiki.apache.org/hadoop/Hive/HBaseIntegration</description>
+</property>
+<% end %>
+
+<property>
+  <name>javax.jdo.option.ConnectionURL</name>
+  <value>jdbc:postgresql://<%= hadoop_controller %>/hive_metastore</value>
+  <description>JDBC connect string for a JDBC metastore</description>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionDriverName</name>
+  <value>org.postgresql.Driver</value>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionUserName</name>
+  <value>hiveuser</value>
+</property>
+
+<property>
+  <name>javax.jdo.option.ConnectionPassword</name>
+  <value>hiveuser</value>
+</property>
+
+<property>
+  <name>datanucleus.autoCreateSchema</name>
+  <value>true</value>
+</property>
+
+<property>
+  <name>hive.hwi.war.file</name>
+  <value>/usr/lib/hive/lib/hive-hwi-0.7.0-cdh3u1-SNAPSHOT.war</value>
+  <description>This is the WAR file with the jsp content for Hive Web Interface</description>
+</property>
+
+</configuration>

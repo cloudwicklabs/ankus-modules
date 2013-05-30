@@ -1,0 +1,10 @@
+/**
+ * File Managed by Puppet
+ */
+Client {
+     com.sun.security.auth.module.Krb5LoginModule required
+     useKeyTab=true
+     useTicketCache=false
+     keyTab="/etc/hbase.keytab"
+     principal="hbase/<%= fqdn %>@<%= kerberos_realm %>";
+};

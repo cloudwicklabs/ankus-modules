@@ -1,0 +1,4 @@
+# File managed by Puppet
+
+# Override JAVA_HOME detection for all bigtop packages
+export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>

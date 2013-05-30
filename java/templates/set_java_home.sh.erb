@@ -1,0 +1,4 @@
+#File Managed by Puppet
+#!/bin/bash
+export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>
+export PATH=$PATH:$JAVA_HOME/bin
