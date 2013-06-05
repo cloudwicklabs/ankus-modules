@@ -29,7 +29,7 @@
 #
 
 class hadoop-oozie {
-
+  require utilities
   class client(
     $kerberos_realm = hiera('hadoop_kerberos_realm', '')
     ) {

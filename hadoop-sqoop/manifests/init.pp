@@ -26,7 +26,7 @@
 #
 
 class hadoop-sqoop {
-
+    require utilities
     package { "sqoop":
       ensure => latest,
     }

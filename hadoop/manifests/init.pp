@@ -198,6 +198,7 @@ class hadoop {
 
   class common {
     include java
+    require utilities #contains repositories
     #common variables
     #hadoop-env.sh
     $hadoop_java_home = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
@@ -255,13 +256,6 @@ class hadoop {
     $ganglia_server = hiera("ganglia_server")
     $hadoop_mapreduce = hiera('mapreduce')
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
-
-    yumrepo { "cloudera-repo":
-      descr => "CDH Repository",
-      baseurl => 'http://archive.cloudera.com/cdh4/redhat/6/x86_64/cdh/4/',
-      enabled => 1,
-      gpgcheck => 0,
-    }
 
     file {
       "/etc/hadoop/conf/createdir.sh":

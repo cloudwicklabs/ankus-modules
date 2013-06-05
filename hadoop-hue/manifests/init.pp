@@ -32,6 +32,7 @@ class hadoop-hue (
   $hadoop_security_authentication = hiera('hadoop_security_authentication', 'simple'),
   )
   {
+    require utilities
     $ha = hiera('ha')
     $impala = hiera('impala', 'disabled')
     $hadoop_namenode_host = hiera('hadoop_namenode')

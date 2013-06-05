@@ -27,6 +27,8 @@ class hbase {
 
   include java
 
+  require utilities
+
   class client-package  {
     package { "hbase":
       ensure => latest,

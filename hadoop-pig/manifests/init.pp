@@ -26,6 +26,7 @@
 #
 
 class hadoop-pig {
+  require utilities
   package { "pig":
     ensure => latest,
   }

@@ -27,7 +27,7 @@
 #
 
 class hadoop-hive {
-
+  require utilities
   $hbase_install = hiera('hbase_install')
   $hadoop_controller = hiera('controller')
   $impala = hiera('impala', 'disabled')
