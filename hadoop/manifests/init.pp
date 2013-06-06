@@ -253,7 +253,11 @@ class hadoop {
       #include hadoop::kerberos
     }
     #hadoop-metrics2.properties
-    $ganglia_server = hiera("ganglia_server")
+    $monitoring = hiera('monitoring', 'disabled')
+    if ($monitoring == 'enabled') {
+      $ganglia_server = hiera("ganglia_server")
+    }
+    #map-reduce
     $hadoop_mapreduce = hiera('mapreduce')
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
 
@@ -285,10 +289,12 @@ class hadoop {
         require => Package["hadoop"],
     }
 
-    file {
-      "/etc/hadoop/conf/hadoop-metrics2.properties":
-        content => template("hadoop/hadoop-metrics2.properties.erb"),
-        require => Package["hadoop"],
+    if ($monitoring == 'enabled') {
+      file {
+        "/etc/hadoop/conf/hadoop-metrics2.properties":
+          content => template("hadoop/hadoop-metrics2.properties.erb"),
+          require => Package["hadoop"],
+      }
     }
 
     file {
@@ -464,7 +470,7 @@ class hadoop {
     #mapred-site.xml
     $hadoop_mapreduce = hiera('mapreduce')
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
-    $hadoop_mapreduce_master = $hadoop_mapreduce['master_node']
+    $hadoop_mapreduce_master = $hadoop_mapreduce['master']
     $hadoop_jobtracker_host = $hadoop_mapreduce_master
     $hadoop_jobtracker_rpc_port = hiera('hadoop_jobtracker_port', 8021)
     $num_of_nodes = hiera('number_of_nodes')

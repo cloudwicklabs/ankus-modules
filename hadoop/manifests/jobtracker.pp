@@ -1,10 +1,11 @@
 class hadoop::jobtracker (
-	$hadoop_jobtracker_host = hiera('hadoop_jobtracker_host', "$fqdn"),
-	$hadoop_jobtracker_rpc_port = hiera('hadoop_jobtracker_port', 8021),
+  $hadoop_jobtracker_rpc_port = hiera('hadoop_jobtracker_port', 8021),
   $hadoop_security_authentication = hiera('security', 'simple'),
   $data_dirs = hiera('hadoop_data_dirs', ['/tmp/data']),
   $impala = hiera('impala', 'disabled'),
 	) inherits hadoop::common-mapreduce {
+
+
 
   	package { "hadoop-0.20-mapreduce-jobtracker":
   		ensure => installed,

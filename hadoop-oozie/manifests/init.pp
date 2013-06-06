@@ -29,10 +29,11 @@
 #
 
 class hadoop-oozie {
-  require utilities
+
   class client(
     $kerberos_realm = hiera('hadoop_kerberos_realm', '')
     ) {
+    require utilities
     package { "oozie-client":
       ensure => latest,
     }
@@ -43,7 +44,7 @@ class hadoop-oozie {
     $hadoop_controller = hiera('controller'),
     $hadoop_security_authentication = hiera('security')
     ) {
-
+    require utilities
     if($hadoop_security_authentication == "kerberos") {
       require kerberos::client
       kerberos::host_keytab { "oozie":
