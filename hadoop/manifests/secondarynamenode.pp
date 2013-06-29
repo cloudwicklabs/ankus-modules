@@ -33,4 +33,17 @@ class hadoop::secondarynamenode (
 
         Kerberos::Host_keytab <| tag == "hdfs" |> -> Service["hadoop-hdfs-secondarynamenode"]
     }
+
+    #log_stash
+    if ($log_aggregation == 'enabled') {
+      require logstash::lumberjack
+      Service['hadoop-hdfs-secondarynamenode'] ->
+      logstash::lumberjack {
+        logstash_host => $logstash_server,
+        logstash_port => 5672,
+        daemon_name => 'lumberjack_secondarynamenode',
+        field => "snn-${::fqdn}",
+        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-secondarynamenode*.log']
+      }
+    }
 }

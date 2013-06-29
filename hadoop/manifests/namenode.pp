@@ -206,25 +206,38 @@ class hadoop::namenode (
 
     #creating hdfs directories required for all services
     if ($::fqdn == $first_namenode) {
-    hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/tmp/hadoop-mapred", "/tmp/hadoop-mapred/mapred", "/tmp/hadoop-mapred/mapred/staging" ]:
-    auth           => hiera('security'),
-    hdfs_dirs_meta => { "/tmp"                              =>  { perm => "777", user => "hdfs"   },
-                        "/mapred"                           => { perm => "755", user => "mapred" },
-                        "/mapred/system"                    => { perm => "755", user => "mapred" },
-                        "/system"                           => { perm => "755", user => "hdfs"   },
-                        "/user"                             => { perm => "755", user => "hdfs"   },
-                        "/hbase"                            => { perm => "755", user => "hbase"  },
-                        "/benchmarks"                       => { perm => "777", user => "hdfs"   },
-                        "/user/jenkins"                     => { perm => "777", user => "jenkins"},
-                        "/user/history"                     => { perm => "777", user => "mapred" },
-                        "/user/root"                        => { perm => "777", user => "root"   },
-                        "/user/hive"                        => { perm => "777", user => "hive"   },
-                        "/user/oozie"                       => { perm => "777", user => "oozie"  },
-                        "/user/hue"                         => { perm => "777", user => "hue"    },
-                        "/tmp/hadoop-mapred"                => { perm => "777", user => "hdfs" },
-                        "/tmp/hadoop-mapred/mapred"         => { perm => "777", user => "hdfs" },
-                        "/tmp/hadoop-mapred/mapred/staging" => { perm => "777", user => "hdfs" },
-                      },
+      hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/tmp/hadoop-mapred", "/tmp/hadoop-mapred/mapred", "/tmp/hadoop-mapred/mapred/staging" ]:
+        auth           => hiera('security'),
+        hdfs_dirs_meta => { "/tmp"                              => { perm => "777", user => "hdfs"   },
+                            "/mapred"                           => { perm => "755", user => "mapred" },
+                            "/mapred/system"                    => { perm => "755", user => "mapred" },
+                            "/system"                           => { perm => "755", user => "hdfs"   },
+                            "/user"                             => { perm => "755", user => "hdfs"   },
+                            "/hbase"                            => { perm => "755", user => "hbase"  },
+                            "/benchmarks"                       => { perm => "777", user => "hdfs"   },
+                            "/user/jenkins"                     => { perm => "777", user => "jenkins"},
+                            "/user/history"                     => { perm => "777", user => "mapred" },
+                            "/user/root"                        => { perm => "777", user => "root"   },
+                            "/user/hive"                        => { perm => "777", user => "hive"   },
+                            "/user/oozie"                       => { perm => "777", user => "oozie"  },
+                            "/user/hue"                         => { perm => "777", user => "hue"    },
+                            "/tmp/hadoop-mapred"                => { perm => "777", user => "hdfs"   },
+                            "/tmp/hadoop-mapred/mapred"         => { perm => "777", user => "hdfs"   },
+                            "/tmp/hadoop-mapred/mapred/staging" => { perm => "777", user => "hdfs"   },
+                          },
+        }
     }
-  }
+
+    #log_stash
+    if ($log_aggregation == 'enabled') {
+      require logstash::lumberjack
+      Service['hadoop-hdfs-namenode'] ->
+      logstash::lumberjack {
+        logstash_host => $logstash_server,
+        logstash_port => 5672,
+        daemon_name => 'lumberjack_namenode',
+        field => "namenode-${::fqdn}",
+        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-namenode*.log']
+      }
+    }
  }

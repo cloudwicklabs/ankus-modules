@@ -38,4 +38,18 @@ class hadoop::jobtracker (
   	if ($hadoop_security_authentication == "kerberos") {
   		Kerberos::Host_keytab <| tag == "mapred" |> -> Service["hadoop-0.20-mapreduce-jobtracker"]
   	}
+
+    #log_stash
+    if ($log_aggregation == 'enabled') {
+      require logstash::lumberjack
+      Service['hadoop-0.20-mapreduce-jobtracker'] ->
+      logstash::lumberjack {
+        logstash_host => $logstash_server,
+        logstash_port => 5672,
+        daemon_name => 'lumberjack_jobtracker',
+        field => "jobtracker-${::fqdn}",
+        logfiles => ['/var/log/hadoop-0.20-mapreduce/hadoop*jobtracker*.log']
+      }
+    }
+
 }

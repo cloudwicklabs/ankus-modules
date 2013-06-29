@@ -40,4 +40,16 @@ class hadoop::datanode (
       include hadoop::impala
     }
 
+    #log_stash
+    if ($log_aggregation == 'enabled') {
+      require logstash::lumberjack
+      Service['hadoop-hdfs-datanode'] ->
+        logstash::lumberjack {
+        logstash_host => $logstash_server,
+        logstash_port => 5672,
+        daemon_name => 'lumberjack_datanode',
+        field => "datanode-${::fqdn}",
+        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-datanode*.log']
+      }
+    }
 }

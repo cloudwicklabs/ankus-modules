@@ -257,6 +257,13 @@ class hadoop {
     if ($monitoring == 'enabled') {
       $ganglia_server = hiera("ganglia_server")
     }
+
+    #log aggregation
+    $log_aggregation = hiera('log_aggregation', 'disabled')
+    if ($log_aggregation == 'enabled') {
+      $logstash_server = hiera('logstash_server')
+    }
+
     #map-reduce
     $hadoop_mapreduce = hiera('mapreduce')
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']

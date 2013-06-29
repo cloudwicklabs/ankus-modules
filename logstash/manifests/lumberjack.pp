@@ -26,9 +26,9 @@
 # https://github.com/jordansissel/lumberjack/issues/41
 
 class logstash::lumberjack(
-  $daemon_name = 'lumberjack_default',
   $logstash_host,
   $logstash_port = 5672,
+  $daemon_name = 'lumberjack_default',
   $field = 'lumberjack_host1',
   $logfiles = undef
   ) {
