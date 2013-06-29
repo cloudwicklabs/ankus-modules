@@ -1,0 +1,52 @@
+#File managed by Puppet
+input {
+  redis {
+    host => "<%= @ipaddress %>"
+    type => "redis-input"
+    data_type => "list"
+    key => "logstash"
+  }
+
+  lumberjack {
+    port => 5672
+    ssl_certificate => "/etc/ssl/logstash.pub"
+    ssl_key => "/etc/ssl/logstash.key"
+    #key name to identify events coming from lumberjack, used in filtering events
+    type => "lumberjack"
+  }
+}
+
+filter {
+  #Lumberjack sends custom fields. Use those for multi-user kibana access control, tagging
+  mutate {
+    add_tag => [ "%{customer}" ]
+  }
+  mutate {
+    remove => [ "customer" ]
+  }
+  grep {
+    type => "lumberjack"
+    match => [ "@message", "(.+)" ]
+    drop => true
+    add_tag => [ "grepped" ]
+  }
+  multiline {
+    type => "lumberjack"
+    pattern => "(^\d+\serror)|(^.+Exception: .+)|(^\s+at .+)|(^\s+... \d+ more)|(^\s*Caused by:.+)"
+    what => "previous"
+  }
+  grep {
+    type => "lumberjack"
+    tags => [ "multiline" ]
+    add_field => [ "stacktrace", "true" ]
+  }
+}
+
+output {
+  #stdout {
+  #  debug => true
+  #}
+  elasticsearch {
+    cluster => "logstash"
+  }
+}

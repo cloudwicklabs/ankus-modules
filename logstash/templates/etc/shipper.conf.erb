@@ -1,0 +1,19 @@
+#File managed by Puppet
+input {
+  file {
+    type => "syslog"
+    path => <%= @logs_path %>
+    exclude => ["*.gz", "shipper.log"]
+    debug => true
+  }
+}
+output {
+  #stdout {
+  #  debug => true
+  #}
+  redis {
+    host => "<%= @indexer %>"
+    data_type => "list"
+    key => "logstash"
+  }
+}

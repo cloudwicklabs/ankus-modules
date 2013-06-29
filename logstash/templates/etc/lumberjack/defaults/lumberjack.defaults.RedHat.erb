@@ -1,0 +1,13 @@
+#File managed by Puppet
+#Start lumberjack
+START=true
+#lumberjack bin options
+#options:
+# --field used to specify custom fields, use them to set fields like type and other custom attributes relevant to each log
+# --host is the logstash indexer
+# --port is port logstash indexer is listening for lumberjack input
+# --ssl-ca-file is the ssl certificate to validate lumberjack host
+LUMBERJACK_OPTIONS="--field customer=<%= @field %> --host <%= @logstash_host %> --port <%= @logstash_port %> --ssl-ca-path /etc/ssl/logstash.pub"
+
+#files lumberjack should ship events from, also takes globs like /var/log/*.log
+LUMBERJACK_FILELIST="<%= @logfiles_path.join(' ') %>"
