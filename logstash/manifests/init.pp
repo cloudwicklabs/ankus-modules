@@ -44,8 +44,6 @@ class logstash(
 
   if $role == 'indexer' {
     notice('installing role logstash indexer (server)')
-    #requires java module
-    class { 'java': } ->
     class { 'logstash::redis': } ->
     class { 'logstash::elasticsearch': } ->
     class { 'logstash::kibana': } ->
@@ -63,7 +61,6 @@ class logstash(
       fail("\"${role}\" requires hostname|ip of indexer")
     }
     #requires java module
-    class { 'java': } ->
     class { 'logstash::package': } ->
     class { 'logstash::config':
       role => $role,

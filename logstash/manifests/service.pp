@@ -1,4 +1,6 @@
 class logstash::service {
+
+  include java
   # Write defaults file if we have one
   file { "${logstash::params::defaults_location}/logstash":
     ensure => present,
@@ -38,6 +40,7 @@ class logstash::service {
   # Use the single instance
   service { 'logstash':
     ensure => running,
-    enable => true
+    enable => true,
+    require => File["java-app-dir"]
   }
 }
