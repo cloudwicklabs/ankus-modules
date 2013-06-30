@@ -36,14 +36,13 @@ class hadoop::secondarynamenode (
 
     #log_stash
     if ($log_aggregation == 'enabled') {
-      require logstash::lumberjack
-      Service['hadoop-hdfs-secondarynamenode'] ->
-      logstash::lumberjack {
+      logstash::lumberjack_conf { 'secondarynamenode':
         logstash_host => $logstash_server,
         logstash_port => 5672,
         daemon_name => 'lumberjack_secondarynamenode',
-        field => "snn-${::fqdn}",
-        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-secondarynamenode*.log']
+        field => "secondarynamenode-${::fqdn}",
+        logfiles => ['/var/log/hadoop-0.20-mapreduce/hadoop-hdfs-secondarynamenode*.log'],
+        require => Service['hadoop-hdfs-secondarynamenode']
       }
     }
 }

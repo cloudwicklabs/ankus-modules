@@ -228,16 +228,16 @@ class hadoop::namenode (
         }
     }
 
-    #log_stash
-    if ($log_aggregation == 'enabled') {
-      require logstash::lumberjack
-      Service['hadoop-hdfs-namenode'] ->
-      logstash::lumberjack {
-        logstash_host => $logstash_server,
-        logstash_port => 5672,
-        daemon_name => 'lumberjack_namenode',
-        field => "namenode-${::fqdn}",
-        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-namenode*.log']
-      }
+  #log_stash
+  if ($log_aggregation == 'enabled') {
+    #require logstash::lumberjack_def
+    logstash::lumberjack_conf { 'namenode':
+      logstash_host => $logstash_server,
+      logstash_port => 5672,
+      daemon_name => 'lumberjack_namenode',
+      field => "namenode-${::fqdn}",
+      logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-namenode*.log'],
+      require => Service['hadoop-hdfs-namenode']
     }
+  }
  }

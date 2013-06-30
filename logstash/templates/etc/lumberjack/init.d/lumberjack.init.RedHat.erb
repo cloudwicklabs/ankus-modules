@@ -22,7 +22,7 @@ fi
 LOG_DIR=/var/log/lumberjack
 
 #lumberjack log file
-LOG_FILE=${LOG_DIR}/${NAME.log
+LOG_FILE=${LOG_DIR}/${NAME}.log
 
 #Nice level
 NICE=19
@@ -62,11 +62,12 @@ do_start()
         mkdir -p "${LOG_DIR}"
     fi
 
-    ${LUMBERJACK_BIN} ${LUMBERJACK_OPTIONS} ${LUMBERJACK_FILELIST} & > /dev/null 1>&1 &
+    ${LUMBERJACK_BIN} ${LUMBERJACK_OPTIONS} ${LUMBERJACK_FILELIST} > ${LOG_FILE} 2>&1 &
 
     RETVAL=$?
+    local PID=$!
     sleep 2
-    local PID=`pgrep -f "${${LUMBERJACK_BIN} ${LUMBERJACK_OPTIONS} ${LUMBERJACK_FILELIST}}"`
+    #local PID=`ps aux | grep 'lumberjack' | grep -v grep | grep "${LUMBERJACK_FILELIST}"`
     echo $PID > ${PID_FILE}
     success
 }

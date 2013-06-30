@@ -22,16 +22,14 @@ class hadoop::tasktracker (
   		Kerberos::Host_keytab <| tag == "mapred" |> -> Service["hadoop-0.20-mapreduce-tasktracker"]
   	}
 
-    #log_stash
     if ($log_aggregation == 'enabled') {
-      require logstash::lumberjack
-      Service['hadoop-0.20-mapreduce-tasktracker'] ->
-      logstash::lumberjack {
+      logstash::lumberjack_conf { 'tasktracker':
         logstash_host => $logstash_server,
         logstash_port => 5672,
         daemon_name => 'lumberjack_tasktracker',
         field => "tasktracker-${::fqdn}",
-        logfiles => ['/var/log/hadoop-hdfs/hadoop*tasktracker*.log']
+        logfiles => ['/var/log/hadoop-0.20-mapreduce/hadoop*tasktracker*.log'],
+        require => Service['hadoop-0.20-mapreduce-tasktracker']
       }
     }
 }

@@ -25,55 +25,20 @@
 # https://github.com/jordansissel/lumberjack/issues/49
 # https://github.com/jordansissel/lumberjack/issues/41
 
-class logstash::lumberjack(
-  $logstash_host,
-  $logstash_port = 5672,
-  $daemon_name = 'lumberjack_default',
-  $field = 'lumberjack_host1',
-  $logfiles = undef
-  ) {
+class logstash::lumberjack {
 
   notice('installing role lumberjack (agent)')
-  #lumberjack agent requires
-  # - a indexer(hostname|ip) to send events to
-  # - a list of log files to monitor
-  # - field_name used for tag
-  # - port on which logstash is listening for lumberjack input
-  if $logstash_host == undef {
-    fail("\"${role}\" requires hostname|ip of indexer")
-  }
-  if $logfiles == undef {
-    fail("\"${role}\" requires array of log files to send to logstash indexer")
-  }
-  if $field == undef {
-    $lumberjack_tag_fields = 'lumberjack_host'
-  } else {
-    $lumberjack_tag_fields = $lj_fields
-  }
 
   case $::operatingsystem {
     'RedHat', 'CentOS': {
       $pkg_provider = 'rpm'
       $package_name = 'lumberjack-0.0.30-1.x86_64.rpm'
       $tmpsource = "/tmp/${package_name}"
-      $initfile = template("${module_name}/etc/lumberjack/init.d/lumberjack.init.RedHat.erb")
-      $defaults_file_path = "/etc/sysconfig/${daemon_name}"
-      # if no logfiles are passed, monitor system default log files
-      if ! $logfiles {
-        $logfiles = [ '/var/log/messages', '/var/log/secure' ]
-      }
-      $defaults_file = template("${module_name}/etc/lumberjack/defaults/lumberjack.defaults.RedHat.erb")
     }
     'Debian', 'Ubuntu': {
       $pkg_provider = 'dpkg'
       $package_name = 'lumberjack_0.0.30_amd64.deb'
       $tmpsource = "/tmp/${package_name}"
-      $initfile = template("${module_name}/etc/lumberjack/init.d/lumberjack.init.Debian.erb")
-      $defaults_file_path = "/etc/default/${daemon_name}"
-      if ! $logfiles {
-        $logfiles = [ '/var/log/syslog', '/var/log/dmesg', '/var/log/auth.log' ]
-      }
-      $defaults_file = template("${module_name}/etc/lumberjack/defaults/lumberjack.defaults.Debian.erb")
     }
     default: {
       fail("${module_name} provides no package for ${::operatingsystem}")
@@ -89,41 +54,15 @@ class logstash::lumberjack(
     before => Package[$package_name]
   }
 
+  file { '/etc/ssl/logstash.pub':
+    ensure => file,
+    source => "puppet:///modules/${module_name}/lumberjack/logstash.pub",
+    before => Package[$package_name]
+  }
+
   package { $package_name:
     ensure => installed,
     source => $tmpsource,
     provider => $pkg_provider
-  }
-
-  file { "/etc/init.d/$daemon_name":
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    content => $initfile,
-    before  => Service[$daemon_name]
-  }
-
-  file { $defaults_file_path:
-    ensure => present,
-    owner => 'root',
-    group => 'root',
-    mode => '0755',
-    content => $defaults_file,
-    before => Service[$daemon_name]
-  }
-
-  file { '/etc/ssl/logstash.pub':
-    ensure => file,
-    source => "puppet:///modules/${module_name}/lumberjack/logstash.pub",
-    before => Service[$daemon_name]
-  }
-
-  service { $daemon_name:
-    enable => true,
-    ensure => running,
-    hasrestart => true,
-    hasstatus => true,
-    require => Package[$package_name]
   }
 }

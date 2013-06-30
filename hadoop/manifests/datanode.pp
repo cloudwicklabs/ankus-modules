@@ -42,14 +42,14 @@ class hadoop::datanode (
 
     #log_stash
     if ($log_aggregation == 'enabled') {
-      require logstash::lumberjack
-      Service['hadoop-hdfs-datanode'] ->
-        logstash::lumberjack {
+      #require logstash::lumberjack_def
+      logstash::lumberjack_conf { 'datanode':
         logstash_host => $logstash_server,
         logstash_port => 5672,
         daemon_name => 'lumberjack_datanode',
         field => "datanode-${::fqdn}",
-        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-datanode*.log']
+        logfiles => ['/var/log/hadoop-hdfs/hadoop-hdfs-datanode*.log'],
+        require => Service['hadoop-hdfs-datanode']
       }
     }
 }
