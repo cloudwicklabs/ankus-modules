@@ -32,13 +32,15 @@ class logstash::lumberjack {
   case $::operatingsystem {
     'RedHat', 'CentOS': {
       $pkg_provider = 'rpm'
-      $package_name = 'lumberjack-0.0.30-1.x86_64.rpm'
-      $tmpsource = "/tmp/${package_name}"
+      $package = 'lumberjack-0.0.30-1.x86_64.rpm'
+      $package_name = inline_template("<%= @package[0..-5] %>")
+      $tmpsource = "/tmp/${package}"
     }
     'Debian', 'Ubuntu': {
       $pkg_provider = 'dpkg'
       $package_name = 'lumberjack_0.0.30_amd64.deb'
-      $tmpsource = "/tmp/${package_name}"
+      $package_name = inline_template("<%= @package[0..-5] %>")
+      $tmpsource = "/tmp/${package}"
     }
     default: {
       fail("${module_name} provides no package for ${::operatingsystem}")
@@ -47,7 +49,7 @@ class logstash::lumberjack {
 
   file { $tmpsource:
     ensure => present,
-    source => "puppet:///modules/${module_name}/lumberjack/${package_name}",
+    source => "puppet:///modules/${module_name}/lumberjack/${package}",
     backup => false,
     owner => 'root',
     group => 'root',

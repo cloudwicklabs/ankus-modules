@@ -19,7 +19,8 @@ define logstash::lumberjack_conf (
 
   case $::operatingsystem {
     'RedHat', 'CentOS': {
-      $package_name = 'lumberjack-0.0.30-1.x86_64.rpm'
+      $package = 'lumberjack-0.0.30-1.x86_64.rpm'
+      $package_name = inline_template("<%= @package[0..-5] %>")
       $initfile = template("${module_name}/etc/lumberjack/init.d/lumberjack.init.RedHat.erb")
       $defaults_file_path = "/etc/sysconfig/${daemon_name}"
       # if no logfiles are passed, monitor system default log files
@@ -31,7 +32,8 @@ define logstash::lumberjack_conf (
       $defaults_file = template("${module_name}/etc/lumberjack/defaults/lumberjack.defaults.RedHat.erb")
     }
     'Debian', 'Ubuntu': {
-      $package_name = 'lumberjack_0.0.30_amd64.deb'
+      $package = 'lumberjack_0.0.30_amd64.deb'
+      $package_name = inline_template("<%= @package[0..-5] %>")
       $initfile = template("${module_name}/etc/lumberjack/init.d/lumberjack.init.Debian.erb")
       $defaults_file_path = "/etc/default/${daemon_name}"
       if ! $logfiles {
