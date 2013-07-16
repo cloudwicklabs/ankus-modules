@@ -43,7 +43,7 @@ class zookeeper {
     include java
     package { "zookeeper":
       ensure => installed,
-      require => File["java-app-dir"],
+      require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
     }
   }
 
@@ -58,7 +58,7 @@ class zookeeper {
     include java
     package { "zookeeper-server":
       ensure => installed,
-      require => File["java-app-dir"],
+      require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
     }
 
     service { "zookeeper-server":
