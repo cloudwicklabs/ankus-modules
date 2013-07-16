@@ -1,43 +1,181 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<!-- File Managed by puppet -->
+<!-- File Managed by puppet, any changes will be overwritten -->
 <configuration>
   <property>
     <name>hbase.cluster.distributed</name>
     <value>true</value>
   </property>
-
   <property>
     <name>hbase.zookeeper.quorum</name>
     <value><%= zookeeper_quorum %></value>
   </property>
-
   <property>
     <name>hbase.rootdir</name>
     <value><%= rootdir %></value>
   </property>
-
   <property>
     <name>dfs.support.append</name>
     <value>true</value>
   </property>
-
-<% if auth == "kerberos" %>
-  <property> 
-    <name>hbase.regionserver.kerberos.principal</name> 
-    <value>hbase/_HOST@<%= kerberos_realm %></value> 
-    </property> 
-  <property> 
-    <name>hbase.regionserver.keytab.file</name> 
-    <value>/etc/hbase.keytab</value> 
+    <property>
+    <name>hbase.master.port</name>
+    <value><%= hiera(hbase_master_port) %></value>
   </property>
-  <property> 
-    <name>hbase.master.kerberos.principal</name> 
-    <value>hbase/_HOST@<%= kerberos_realm %></value> 
-  </property> 
-  <property> 
-    <name>hbase.master.keytab.file</name> 
-    <value>/etc/hbase.keytab</value> 
+  <property>
+    <name>hbase.master.info.port</name>
+    <value><%= hiera(hbase_master_dash_port) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.port</name>
+    <value><%= hiera(hbase_regionserver_port) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.info.port</name>
+    <value><%= hiera(hbase_regionserver_dash_port) %></value>
+  </property>
+  <property>
+    <name>hbase.client.write.buffer</name>
+    <value><%= hiera(hbase_client_write_buffer) %></value>
+  </property>
+  <property>
+    <name>hbase.client.pause</name>
+    <value><%= hiera(hbase_client_pause_period_ms) %></value>
+  </property>
+  <property>
+    <name>hbase.client.retries.number</name>
+    <value><%= hiera(hbase_client_retry_count) %></value>
+  </property>
+  <property>
+    <name>hbase.client.scanner.caching</name>
+    <value><%= hiera(hbase_client_scanner_prefetch_rows) %></value>
+  </property>
+  <property>
+    <name>hbase.client.keyvalue.maxsize</name>
+    <value><%= hiera(hbase_client_max_keyvalue_size) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.lease.period</name>
+    <value><%= hiera(hbase_regionserver_lease_period) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.handler.count</name>
+    <value><%= hiera(hbase_regionserver_handler_count) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.regionSplitLimit</name>
+    <value><%= hiera(hbase_regionserver_split_limit) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.msginterval</name>
+    <value><%= hiera(hbase_regionserver_msg_period) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.optionallogflushinterval</name>
+    <value><%= hiera(hbase_regionserver_log_flush_period) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.logroll.period</name>
+    <value><%= hiera(hbase_regionserver_logroll_period) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.thread.splitcompactcheckfrequency</name>
+    <value><%= hiera(hbase_regionserver_split_check_period) %></value>
+  </property>
+  <property>
+    <name>hbase.server.thread.wakefrequency</name>
+    <value><%= hiera(hbase_regionserver_worker_period) %></value>
+  </property>
+  <property>
+    <name>hbase.balancer.period</name>
+    <value><%= hiera(hbase_regionserver_balancer_period) %></value>
+  </property>
+  <property>
+    <name>hbase.regions.slop</name>
+    <value><%= hiera(hbase_regionserver_balancer_slop) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.global.memstore.upperLimit</name>
+    <value><%= hiera(hbase_memstore_flush_upper_heap_pct) %></value>
+  </property>
+  <property>
+    <name>hbase.regionserver.global.memstore.lowerLimit</name>
+    <value><%= hiera(hbase_memstore_flush_lower_heap_pct) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.memstore.flush.size</name>
+    <value><%= hiera(hbase_memstore_flush_size_trigger) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.preclose.flush.size</name>
+    <value><%= hiera(hbase_memstore_preflush_trigger) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.memstore.block.multiplier</name>
+    <value><%= hiera(hbase_memstore_flush_stall_trigger) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.memstore.mslab.enabled</name>
+    <value><%= hiera(hbase_memstore_mslab_enabled) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.max.filesize</name>
+    <value><%= hiera(hbase_regionserver_max_filesize) %></value>
+  </property>
+  <property>
+    <name>hbase.hstore.compactionThreshold</name>
+    <value><%= hiera(hbase_compaction_files_trigger)  %></value>
+  </property>
+  <property>
+    <name>hbase.hstore.blockingStoreFiles</name>
+    <value><%= hiera(hbase_compaction_pause_trigger) %></value>
+  </property>
+  <property>
+    <name>hbase.hstore.blockingWaitTime</name>
+    <value><%= hiera(hbase_compaction_pause_time) %></value>
+  </property>
+  <property>
+    <name>hbase.hstore.compaction.max</name>
+    <value><%= hiera(hbase_compaction_max_combine_files) %></value>
+  </property>
+  <property>
+    <name>hbase.hregion.majorcompaction</name>
+    <value><%= hiera(hbase_compaction_period) %></value>
+  </property>
+  <property>
+    <name>hbase.mapreduce.hfileoutputformat.blocksize</name>
+    <value><%= hiera(hbase_regionserver_hfile_block_size) %></value>
+  </property>
+  <property>
+    <name>hfile.block.cache.size</name>
+    <value><%= hiera(hbase_regionserver_block_cache_size) %></value>
+  </property>
+  <%- if hiera(hbase_regionserver_required_codecs).to_s != "" %>
+  <property>
+    <name>hbase.regionserver.codecs</name>
+    <value><%= hiera(hbase_regionserver_required_codecs) %></value>
+  </property>
+  <% end %>
+  <property>
+    <name>hbase.hash.type</name>
+    <value><%= hiera(hbase_regionserver_hash_type) %></value>
+  </property>
+<% if auth == "kerberos" %>
+  <property>
+    <name>hbase.regionserver.kerberos.principal</name>
+    <value>hbase/_HOST@<%= kerberos_realm %></value>
+    </property>
+  <property>
+    <name>hbase.regionserver.keytab.file</name>
+    <value>/etc/hbase.keytab</value>
+  </property>
+  <property>
+    <name>hbase.master.kerberos.principal</name>
+    <value>hbase/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>hbase.master.keytab.file</name>
+    <value>/etc/hbase.keytab</value>
   </property>
 <% end %>
 </configuration>
