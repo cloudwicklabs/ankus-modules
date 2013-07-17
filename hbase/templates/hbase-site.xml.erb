@@ -12,7 +12,7 @@
   </property>
   <property>
     <name>hbase.rootdir</name>
-    <value><%= rootdir %></value>
+    <value><%= scope.lookupvar('hadoop::common::hadoop_namenode_uri') %><%= rootdir %></value>
   </property>
   <property>
     <name>dfs.support.append</name>

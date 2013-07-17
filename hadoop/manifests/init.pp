@@ -221,9 +221,10 @@ class hadoop {
     }
     $hadoop_namenode_host = hiera('hadoop_namenode')
     $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
-    $hadoop_namenode_uri   = $hadoop_ha ? {
-      "disabled" => "hdfs://$hadoop_namenode_host:$hadoop_namenode_port",
-      default    => "hdfs://${hadoop_ha_nameservice_id}:8020",
+    if (ha == "enabled") {
+      $hadoop_namenode_uri = "hdfs://${hadoop_ha_nameservice_id}"
+    } else {
+      $hadoop_namenode_uri = "hdfs://${hadoop_namenode_host}:${hadoop_namenode_port}"
     }
     $hadoop_security_authentication = hiera('security', 'simple')
     $hadoop_snappy_codec = hiera('hadoop_snappy_codec', 'disabled')
