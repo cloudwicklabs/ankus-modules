@@ -76,6 +76,16 @@ class hbase {
   $hbase_regionserver_port =                hiera(hbase_regionserver_port)
   $hbase_regionserver_dash_port =           hiera(hbase_regionserver_dash_port)
   $hbase_regionserver_jmx_dash_port =       hiera(hbase_regionserver_jmx_dash_port)
+  #log aggregation
+  $log_aggregation = hiera('log_aggregation', 'disabled')
+  if ($log_aggregation == 'enabled') {
+    $logstash_server = hiera('logstash_server')
+  }
+  #monitoring
+  $monitoring = hiera('monitoring', 'disabled')
+  if ($monitoring == 'enabled') {
+    $ganglia_server = hiera("ganglia_server")
+  }
 
   class client-package  {
     package { "hbase":

@@ -39,6 +39,7 @@ class hbase::regionserver(
     ) inherits hbase {
 
     include hbase::client-package
+    require hadoop::common-hdfs
 
     package { "hbase-regionserver":
       ensure => latest,
@@ -53,6 +54,14 @@ class hbase::regionserver(
     file { "/etc/hbase/conf/hbase-env.sh":
       content => template("hbase/hbase-env.sh.erb"),
       require => Package["hbase"],
+    }
+
+    if ($monitoring == 'enabled') {
+      file {
+        "/etc/hbase/conf/hadoop-metrics.properties":
+        content => template("hbase/hadoop-metrics.properties.erb"),
+        require => Package["hbase-regionserver"],
+      }
     }
 
     service { "hbase-regionserver":
@@ -77,4 +86,17 @@ class hbase::regionserver(
 
     Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-regionserver"]
     }
+
+  #log_stash
+  if ($log_aggregation == 'enabled') {
+    #require logstash::lumberjack_def
+    logstash::lumberjack_conf { 'hbaseregionserver':
+      logstash_host => $logstash_server,
+      logstash_port => 5672,
+      daemon_name => 'lumberjack_hbaseregionserver',
+      field => "hbaseregionserver-${::fqdn}",
+      logfiles => ['/var/log/hbase/hbase-hbase-regionserver*.log'],
+      require => Service['hbase-regionserver']
+    }
+  }
 }

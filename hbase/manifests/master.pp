@@ -56,6 +56,14 @@ class hbase::master(
       require => Package["hbase"],
     }
 
+    if ($monitoring == 'enabled') {
+      file {
+        "/etc/hbase/conf/hadoop-metrics.properties":
+        content => template("hbase/hadoop-metrics.properties.erb"),
+        require => Package["hbase-master"],
+      }
+    }
+
     service { "hbase-master":
       ensure => running,
       require => Package["hbase-master"],
@@ -78,4 +86,18 @@ class hbase::master(
 
     Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-master"]
   }
+
+  #log_stash
+  if ($log_aggregation == 'enabled') {
+    #require logstash::lumberjack_def
+    logstash::lumberjack_conf { 'hbasemaster':
+      logstash_host => $logstash_server,
+      logstash_port => 5672,
+      daemon_name => 'lumberjack_hbasemaster',
+      field => "hbasemaster-${::fqdn}",
+      logfiles => ['/var/log/hbase/hbase-hbase-master*.log'],
+      require => Service['hbase-master']
+    }
+  }
+
 }
