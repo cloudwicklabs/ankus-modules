@@ -36,7 +36,7 @@ class hbase::regionserver(
     $zookeeper_quorum = hiera('zookeeper_ensemble'),
     $heap_size = hiera('hbase_heap_size', '1024'),
     $auth = hiera('security', 'simple'),
-    ) {
+    ) inherits hbase {
 
     include hbase::client-package
 

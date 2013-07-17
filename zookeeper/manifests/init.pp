@@ -39,7 +39,7 @@ class zookeeper {
 
   require utilities
 
-  class client {
+  class client inherits zookeeper {
     include java
     package { "zookeeper":
       ensure => installed,
@@ -53,7 +53,7 @@ class zookeeper {
     $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>')),
     $kerberos_domain = hiera('hadoop_kerberos_domain', inline_template('<%= domain %>')),
     $security = hiera('security', 'simple')
-    )
+    ) inherits zookeeper
     {
     include java
     package { "zookeeper-server":

@@ -20,12 +20,12 @@ export HBASE_HEAPSIZE=<%= heap_size %>
 export HBASE_OPTS="$HBASE_OPTS -ea -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true"
 
 # JVM options
-export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS -Xms<%= hiera(hbase_master_java_heap_size_max) %> -Xmx<%= hiera(hbase_master_java_heap_size_max) %> -XX:NewSize=<%= hiera(hbase_master_java_heap_size_new) %> -XX:MaxNewSize=<%= hiera(hbase_master_java_heap_size_new) %>"
-export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Xms<%= hiera(hbase_regionserver_java_heap_size_max) %> -Xmx<%= hiera(hbase_regionserver_java_heap_size_max) %> -XX:NewSize=<%= hiera(hbase_regionserver_java_heap_size_new) %> -XX:MaxNewSize=<%= hiera(hbase_regionserver_java_heap_size_new) %>"
+export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS -Xms<%= hbase_master_java_heap_size_max %> -Xmx<%= hbase_master_java_heap_size_max %> -XX:NewSize=<%= hbase_master_java_heap_size_new %> -XX:MaxNewSize=<%= hbase_master_java_heap_size_new %>"
+export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Xms<%= hbase_regionserver_java_heap_size_max %> -Xmx<%= hbase_regionserver_java_heap_size_max %> -XX:NewSize=<%= hbase_regionserver_java_heap_size_new %> -XX:MaxNewSize=<%= hbase_regionserver_java_heap_size_new %>"
 
 # GC options
-export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS <%= hiera(hbase_master_gc_tuning_options) %> <%= hiera(hbase_master_gc_log_opts) %> -Xloggc:/var/log/hbase/hbase-master-gc.log"
-export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS <%= hiera(hbase_regionserver_gc_tuning_opts) %> <%= hiera(hbase_regionserver_gc_log_opts) %> -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
+export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS <%= hbase_master_gc_tuning_options %> <%= hbase_master_gc_log_opts %> -Xloggc:/var/log/hbase/hbase-master-gc.log"
+export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS <%= hbase_regionserver_gc_tuning_opts %> <%= hbase_regionserver_gc_log_opts %> -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
 
 
 <% if auth == "kerberos" -%>
@@ -46,8 +46,8 @@ export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Djava.security.auth.lo
 # export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10102"
 # export HBASE_THRIFT_OPTS="$HBASE_THRIFT_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10103"
 # export HBASE_ZOOKEEPER_OPTS="$HBASE_ZOOKEEPER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10104"
-export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=<%= hiera(hbase_master_jmx_dash_port) %>"
-export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=<%= hiera(hbase_regionserver_jmx_dash_port) %>"
+# export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=<%= hbase_master_jmx_dash_port %>"
+# export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=<%= hbase_regionserver_jmx_dash_port %>"
 
 # File naming hosts on which HRegionServers will run.  $HBASE_HOME/conf/regionservers by default.
 # export HBASE_REGIONSERVERS=${HBASE_HOME}/conf/regionservers
