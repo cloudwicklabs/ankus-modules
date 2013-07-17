@@ -39,6 +39,7 @@ class hbase::master(
     ) inherits hbase {
 
     include hbase::client-package
+    require hadoop::common-hdfs
 
     package { "hbase-master":
       ensure => latest,
