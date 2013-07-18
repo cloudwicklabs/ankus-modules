@@ -76,14 +76,21 @@ class nagios::nrpe(
   $critical_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.50].max.round %>")
   $ha = hiera('hadoop_ha')
   $mapreduce = hiera('mapreduce')
+  $hbase = hiera('hbase_install')
   $hadoop_mapreduce_framework = $mapreduce['type']
   $namnode_host = hiera('hadoop_namenode')
-  $first_namenode = inline_template("<%= namnode_host.to_a[0] %>")
+  $second_namenode = inline_template("<%= namnode_host.to_a[1] %>")
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
   }
   if ($hadoop_mapreduce_framework == "mr1") {
     $jobtracker_host = $mapreduce['master_node']
+  }
+  if ($hbase == 'enabled') {
+    $hbase_master = hiera('hbase_master')
+  }
+  if ($ha == "enabled") or ($hbase == "enabled") {
+    $zookeepers = hiera('zookeeper_quorum')
   }
 	case $operatingsystem {
 		/RedHat|CentOS|Fedora/: {
@@ -186,10 +193,10 @@ class nagios::nrpe(
 		}
 
 		# service { "$nrpeservice":
-  # 		ensure    => running,
-  # 		enable    => true,
-  # 		pattern   => "$nrpepattern",
-  # 		subscribe => File["$nrpedir/nrpe.cfg"],
+    # 	ensure    => running,
+    # 	enable    => true,
+    # 	pattern   => "$nrpepattern",
+    # 	subscribe => File["$nrpedir/nrpe.cfg"],
 		# 	require   => [Package[$nrpepackage], Service["xinetd"], File["nrpe-config-file","nrpe-file"]],
 		# }
 	}
@@ -298,6 +305,8 @@ class nagios::nrpe(
 		err ("operatingsystem $nsostype not valid, please change the parameter value.")
 	}
 
+    # Plugins common to all clients
+
     @@nagios_service{ "check_load_${::fqdn}":
     	check_command				=>	'check_nrpe!check_load!2.0,2.0,0.9 2.0,2.0,1.0',
     	service_description	=>	'Load',
@@ -328,17 +337,8 @@ class nagios::nrpe(
     	service_description	=>	'Zombie Processes',
     }
 
-    if ($::fqdn == $first_namenode) {
-      @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
-        check_command       =>  'check_nrpe!check_hadoop_dfs',
-        service_description =>  'HDFS Datanodes Status',
-      }
+    # Plugins related to hadoop
 
-      @@nagios_service{ "check_nn_health_${::fqdn}":
-        check_command       =>  'check_nrpe!check_nn_health',
-        service_description =>  'HDFS Health Status',
-      }
-    }
     if ($ha == "disabled") {
       if ($::fqdn == $secondarynamenode_host) {
         @@nagios_service{ "check_snn_health_${::fqdn}":
@@ -346,7 +346,23 @@ class nagios::nrpe(
           service_description =>  'HDFS SecondaryNameNode Status',
         }
       }
-    } else {  #ha does not require snn
+      #TODO monitor journal nodes count
+    }
+    else {
+      # check hadoop_hdfs status from first namenode only
+      if ($::fqdn == inline_template("<%= namnode_host.to_a[0] %>")) {
+        @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
+          check_command       =>  'check_nrpe!check_hadoop_dfs',
+          service_description =>  'HDFS Datanodes Status',
+        }
+      }
+      if $::fqdn in $hadoop_namenode {
+        @@nagios_service{ "check_nn_health_${::fqdn}":
+          check_command       =>  'check_nrpe!check_nn_health',
+          service_description =>  'HDFS NameNode Health Status',
+        }
+      }
+      #ha does not require snn
       #make sure to purge snn service if exists
         @@nagios_service{ "check_snn_health_${::fqdn}":
           check_command       =>  'check_nrpe!check_snn_status',
@@ -354,16 +370,35 @@ class nagios::nrpe(
           ensure => absent,
         }
     }
-
     if ($::fqdn == $jobtracker_host) {
       @@nagios_service{ "check_jt_status_${::fqdn}":
         check_command       =>  'check_nrpe!check_jt_status',
         service_description =>  'Hadoop Jobtracker Status',
       }
-
       @@nagios_service{ "check_mr_tts_${::fqdn}":
         check_command       =>  'check_nrpe!check_mr_tts',
         service_description =>  'MapReduce TaskTrackers Status',
+      }
+    }
+
+    # Plugins related to hbase
+
+    if ($hbase == 'enabled') {
+      if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
+        @@nagios_service{ "check_hbase_${::fqdn}":
+          check_command => 'check_nrpe!check_hbase_status',
+          service_description =>  'HBase RegionServers Status',
+        }
+      }
+      if $::fqdn in $hbase_master {
+        # check hbase master process
+      }
+    }
+
+    # Zookeepers
+    if ($ha == "enabled") or ($hbase == "enabled") {
+      if $::fqdn in $zookeepers {
+        # check zookeeper process
       }
     }
 
