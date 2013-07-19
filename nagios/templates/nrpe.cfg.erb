@@ -216,7 +216,9 @@ command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/ch
 command[check_regionserver_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rs_status
 command[check_hbase_onlineregions]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase_onlineregions
 <% end %>
-
+<% if @ha == "enabled" %>
+command[check_jn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jn_status
+<% end %>
 # The following examples allow user-supplied arguments and can
 # only be used if the NRPE daemon was compiled with support for
 # command arguments *AND* the dont_blame_nrpe directive in this

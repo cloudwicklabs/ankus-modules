@@ -93,6 +93,9 @@ class nagios::nrpe(
   if ($ha == "enabled") or ($hbase == "enabled") {
     $zookeepers = hiera('zookeeper_quorum')
   }
+  if ($ha == "enabled") {
+    $journalnodes = hiera('journal_quorum')
+  }
 	case $operatingsystem {
 		/RedHat|CentOS|Fedora/: {
 		  $nrpeservice 	= "nrpe"
@@ -372,6 +375,12 @@ class nagios::nrpe(
         @@nagios_service{ "check_nn_health_${::fqdn}":
           check_command       =>  'check_nrpe!check_nn_health',
           service_description =>  'HDFS NameNode Health Status',
+        }
+      }
+      if $::fqdn in $journalnodes {
+        @@nagios_service{ "check_jn_status_${::fqdn}":
+          check_command       =>  'check_nrpe!check_jn_status',
+          service_description =>  'HDFS JournalNode Status',
         }
       }
       #ha does not require snn
