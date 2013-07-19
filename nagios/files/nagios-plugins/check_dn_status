@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ===
-# Nagios plugin to check if the HBase Reagion Server is Alive or Not
+# Nagios plugin to check if the HDFS DataNode is Alive or Not
 # ===
 
 require 'optparse'
@@ -13,8 +13,8 @@ ST_UK = 3
 
 options = {}
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: #{$PROGRAM_NAME} -p <hbase regionserver port>"
-  opts.on( '-p', '--port <port>', 'Port on which RegionServer is listerning') do |p|
+  opts.banner = "Usage: #{$PROGRAM_NAME} -p <hdfs datanode port>"
+  opts.on( '-p', '--port <port>', 'Port on which datanode is listerning') do |p|
     options[:port] = p
   end
   opts.on('-h', '--help', 'Display this screen') do
@@ -25,7 +25,7 @@ end
 
 begin
   optparse.parse!
-  options[:port] ||= 60020
+  options[:port] ||= 50075
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument
   puts $!.to_s
   puts optparse
@@ -33,17 +33,17 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 end
 
 netstat_status = `netstat -plten | grep -m1 #{options[:port]} | awk '{print $6}'`
-daemon_status = `/etc/init.d/hbase-regionserver status`
-ps_status = if `ps aux | grep -v grep | grep java | grep hbase`
+daemon_status = `/etc/init.d/hadoop-hdfs-datanode status`
+ps_status = if `ps aux | grep -v grep | grep java | grep datanode`
               true
             else
               false
             end
 
 if netstat_status.include?('LISTEN') and daemon_status.include?('running') and ps_status
-  puts "RegionServer is running and listerning on #{options[:port]}"
+  puts "Datanode is running and listerning on #{options[:port]}"
   exit ST_OK
 else
-  puts "RegionServer is not listerning on #{options[:port]}"
+  puts "Datanode is not listerning on #{options[:port]}"
   exit ST_CR
 end

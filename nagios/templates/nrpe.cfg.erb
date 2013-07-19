@@ -203,6 +203,8 @@ command[check_nn_health]=<%= scope.lookupvar('nagios::params::user1') %>/check_n
 command[check_snn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_snn_status
 command[check_jt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jt_status
 command[check_hadoop_dfs]=<%= scope.lookupvar('nagios::params::user1') %>/check_hadoop_dfs -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
+command[check_dn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_dn_status
+command[check_tt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_tt_status
 command[check_mr_tts]=<%= scope.lookupvar('nagios::params::user1') %>/check_mr_tts -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 command[check_hbase_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 <% if @ha == "enabled" or @hbase == "enabled" %>

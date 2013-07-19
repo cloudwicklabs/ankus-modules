@@ -340,6 +340,17 @@ class nagios::nrpe(
 
     # Plugins related to hadoop
 
+    if $::fqdn in $slaves {
+      @@nagios_service{ "check_datanode_${::fqdn}":
+        check_command => 'check_nrpe!check_dn_status',
+        service_description =>  'HDFS Datanode Status',
+      }
+      @@nagios_service{ "check_tasktracker_${::fqdn}":
+        check_command => 'check_nrpe!check_tt_status',
+        service_description =>  'MapReduce TaskTracker Status',
+      }
+    }
+
     if ($ha == "disabled") {
       if ($::fqdn == $secondarynamenode_host) {
         @@nagios_service{ "check_snn_health_${::fqdn}":
