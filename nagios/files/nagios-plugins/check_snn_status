@@ -8,12 +8,13 @@ ST_CR=2
 ST_UK=3
 
 print_help() {
-    echo "$PROGNAME $VERSION"
-    echo ""
-    echo "$PROGNAME is a Nagios plugin to check if the SecondaryNameNode is Alive or Not"
-    echo ""
-    exit $ST_UK
+  echo "$PROGNAME $VERSION"
+  echo ""
+  echo "$PROGNAME is a Nagios plugin to check if the SecondaryNameNode is Alive or Not"
+  echo ""
+  exit $ST_UK
 }
+
 while [ -n "$1" ]; do
 	case "$1" in
 		--help|-h)
@@ -28,13 +29,16 @@ while [ -n "$1" ]; do
 		esac
 	shift
 done
+
 get_vals() {
-    NS=`netstat -plten | grep -m1 "50090" | awk '{print $6}'`
+  NS=`netstat -plten | grep -m1 "50090" | awk '{print $6}'`
 	ST=`/etc/init.d/hadoop-hdfs-secondarynamenode status | grep -m1 "running" | awk '{print $5}'`
 }
+
 do_output() {
 	output="SecondaryNameNode is : ${ST} and listing on the port 50090"
 }
+
 dont_output() {
 	fail_output="SecondaryNameNode is Dead or not listing on port 50090"
 }

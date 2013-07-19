@@ -123,12 +123,12 @@ class nagios::nrpe(
  	}
 
 	file { "$nrpedir/nrpe.cfg":
-	    mode    => "644",
-	    owner   => $nagiosuser,
-	    group   => $nagiosgroup,
-			alias		=> "nrpe-config-file",
-	    content => template("nagios/nrpe.cfg.erb"),
-	    require => Package[$nrpepackage],
+    mode    => "644",
+    owner   => $nagiosuser,
+    group   => $nagiosgroup,
+  	alias		=> "nrpe-config-file",
+    content => template("nagios/nrpe.cfg.erb"),
+    require => Package[$nrpepackage],
 	}
 
 #@BEGIN COMMENT ME!
@@ -364,11 +364,11 @@ class nagios::nrpe(
       }
       #ha does not require snn
       #make sure to purge snn service if exists
-        @@nagios_service{ "check_snn_health_${::fqdn}":
-          check_command       =>  'check_nrpe!check_snn_status',
-          service_description =>  'HDFS SecondaryNameNode Status',
-          ensure => absent,
-        }
+      @@nagios_service{ "check_snn_health_${::fqdn}":
+        check_command       =>  'check_nrpe!check_snn_status',
+        service_description =>  'HDFS SecondaryNameNode Status',
+        ensure => absent,
+      }
     }
     if ($::fqdn == $jobtracker_host) {
       @@nagios_service{ "check_jt_status_${::fqdn}":
@@ -391,14 +391,39 @@ class nagios::nrpe(
         }
       }
       if $::fqdn in $hbase_master {
-        # check hbase master process
+        @@nagios_service{ "check_hmaster_daemon_${::fqdn}":
+          check_command => 'check_nrpe!check_hmaster_daemon',
+          service_description =>  'HBase Master Status',
+        }
       }
     }
 
-    # Zookeepers
+    # Zookeepers Daemons count
+    if ($hbase == "enabled") {
+      #monitor zks port from hbasemaster
+      if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
+        @@nagios_service{ "check_zks_status_${::fqdn}":
+          check_command       =>  'check_nrpe!check_zk_status',
+          service_description =>  'Zookeepers Status',
+        }
+      }
+    } elsif ($ha == "enabled") {
+      if ($::fqdn == inline_template("<%= namnode_host.to_a[0] %>")) {
+        @@nagios_service{ "check_zks_status_${::fqdn}":
+          check_command       =>  'check_nrpe!check_zk_status',
+          service_description =>  'Zookeepers Status',
+        }
+      }
+    }
+
+    #Zookeepers daemons
     if ($ha == "enabled") or ($hbase == "enabled") {
       if $::fqdn in $zookeepers {
         # check zookeeper process
+        @@nagios_service{ "check_zks_daemon_${::fqdn}":
+          check_command       =>  'check_nrpe!check_zk_daemon',
+          service_description =>  'Zookeepers Daemon Status',
+        }
       }
     }
 

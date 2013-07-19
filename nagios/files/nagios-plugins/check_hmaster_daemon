@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+
+# ===
+# Nagios plugin to check if the HBase Master is Alive or Not
+# ===
+
+require 'optparse'
+
+ST_OK = 0
+ST_WR = 1
+ST_CR = 2
+ST_UK = 3
+
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} -p <zookeeper port>"
+  opts.on( '-p', '--port <port>', 'Port on which HbaseMaster is listerning') do |p|
+    options[:port] = p
+  end
+  opts.on('-h', '--help', 'Display this screen') do
+    puts opts
+    exit
+  end
+end
+
+begin
+  optparse.parse!
+  options[:port] ||= 60000
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $!.to_s
+  puts optparse
+  exit
+end
+
+netstat_status = `netstat -plten | grep -m1 #{options[:port]} | awk '{print $6}'`
+daemon_status = `/etc/init.d/hbase-master status`
+ps_status = if `ps aux | grep -v grep | grep java | grep hbase`
+              true
+            else
+              false
+            end
+
+if netstat_status.include?('LISTEN') and daemon_status.include?('running') and ps_status
+  puts "HBaseMaster is running and listerning on #{options[:port]}"
+  exit ST_OK
+else
+  puts "HBaseMaster is not listerning on #{options[:port]}"
+  exit ST_CR
+end

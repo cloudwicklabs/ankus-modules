@@ -1,0 +1,90 @@
+#!/usr/bin/env ruby
+
+# ===
+# Nagios plugin to monitor zookeeper(s) tcp port
+# ===
+
+require 'socket'
+require 'optparse'
+
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} -z <zookeepers_list> -w <dead server % warning> -c <dead server % critical>"
+  options[:verbose] = false
+  opts.on( '-v', '--verbose', 'Output more information') do
+    options[:verbose] = true
+  end
+  opts.on('-z s1,s2,s3', '--zookeepers s1,s2,s3', 'List to zookeeper servers to monitor', Array) do |z|
+    options[:zookeepers] = z
+  end
+  opts.on('-p', '--port <zookeeper port>', 'List to zookeeper servers to monitor') do |p|
+    options[:port] = p
+  end
+  opts.on('-w', '--warning <percent of servers dead>', 'Percentage of dead servers to warn upon') do |w|
+    options[:warning] = w
+    options[:warning_float] = w.to_i/100.0
+  end
+  opts.on('-c', '--critical <percentage of servers dead', 'Percentage of dead servers to critical upon') do |c|
+    options[:critical] = c
+    options[:critical_float] = c.to_i/100.0
+  end
+  opts.on('-h', '--help', 'Display this screen') do
+    puts opts
+    puts "Usage Ex: Throw warning if 20% of servers go down and thorw critical if 40% of servers go down"
+    puts "\t#{$PROGRAM_NAME} -w 20 -c 40 -z s1.cw.com,s2.cw.com,s3.cw.com"
+    exit
+  end
+end
+
+begin
+  optparse.parse!
+  mandatory = [:warning,:critical,:zookeepers]
+  missing = mandatory.select{ |param| options[param].nil? }
+  unless missing.empty?
+    puts "Missing options: #{missing.join(', ')}"
+    puts optparse
+    exit
+  end
+  options[:port] ||= 2181 #if port isn't specified use default 2181
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $!.to_s
+  puts optparse
+  exit
+end
+
+results = {}
+results[:dead_servers] = 0
+results[:live_servers] = 0
+results[:total_servers] = options[:zookeepers].length
+
+options[:zookeepers].each do |zk|
+  begin
+    sock = TCPSocket.new(zk, options[:port])
+    sock.write 'stat'
+    results[zk] = sock.read
+    sock.close
+    results[:live_servers] += 1
+  rescue SocketError
+    results[:dead_servers] += 1
+  end
+end
+
+ratio = (results[:dead_servers].to_f / results[:total_servers].to_f)
+
+if options[:verbose]
+  puts "Total number of zookeeper servers in cluster: #{results[:total_servers]}"
+  puts "Number of live zookeeper servers: #{results[:live_servers].to_s}"
+  puts "Number of dead zookeeper servers: #{results[:dead_servers].to_s}"
+  puts "Ratio of live to dead: #{ratio.to_s}"
+end
+
+if ratio > options[:critical_float]
+  puts "Critical number of servers dead: #{results[:dead_servers]}"
+  exit 2
+elsif ratio > options[:warning_float]
+  puts "Warning number of servers dead #{results[:dead_servers]}"
+  exit 1
+else
+  puts 'Okay amount of live servers'
+  exit 0
+end

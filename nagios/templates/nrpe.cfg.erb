@@ -169,8 +169,6 @@ include_dir=/etc/nrpe.d/
 include_dir=/etc/nagios/nrpe.d/
 <%end %>
 
-
-
 # COMMAND DEFINITIONS
 # Command definitions that this daemon will run.  Definitions
 # are in the following format:
@@ -207,6 +205,13 @@ command[check_jt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_j
 command[check_hadoop_dfs]=<%= scope.lookupvar('nagios::params::user1') %>/check_hadoop_dfs -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 command[check_mr_tts]=<%= scope.lookupvar('nagios::params::user1') %>/check_mr_tts -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 command[check_hbase_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
+<% if @ha == "enabled" or @hbase == "enabled" %>
+command[check_zk_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_status -z <%= @zookeepers.join(',') %> -w 20 -c 40
+command[check_zk_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_daemon
+<% end %>
+<% if @hbase == "enabled" %>
+command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_hmaster_daemon
+<% end %>
 
 # The following examples allow user-supplied arguments and can
 # only be used if the NRPE daemon was compiled with support for
