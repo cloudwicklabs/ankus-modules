@@ -214,6 +214,7 @@ command[check_zk_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_z
 <% if @hbase == "enabled" %>
 command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_hmaster_daemon
 command[check_regionserver_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rs_status
+command[check_hbase_onlineregions]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase_onlineregions
 <% end %>
 
 # The following examples allow user-supplied arguments and can

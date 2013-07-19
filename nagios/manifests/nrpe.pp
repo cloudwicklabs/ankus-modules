@@ -424,6 +424,10 @@ class nagios::nrpe(
           check_command       =>  'check_nrpe!check_zk_status',
           service_description =>  'Zookeepers Status',
         }
+        @@nagios_service{ "check_hbase_onlineregions_${::fqdn}":
+          check_command       =>  'check_nrpe60!check_hbase_onlineregions',
+          service_description =>  'HBase Online Regions per RS',
+        }
       }
     } elsif ($ha == "enabled") {
       if ($::fqdn == inline_template("<%= namnode_host.to_a[0] %>")) {

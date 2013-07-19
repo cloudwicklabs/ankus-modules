@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+# ===
+# Nagios plugin to check number of hbase online regions per region server
+# ===
+
+#Arrays to store hosts and their regionsOnLine respectively
+declare -a HOSTS_ARRAY
+declare -a REGIONS_ARRAY
+message=""
+EXIT_STATUS=0
+
+OUTPUT=`echo "status 'simple'" | hbase shell`
+if [[ ${PIPESTATUS[1]} -ne 0 ]]; then
+  message="[Unknown] Hbase shell command not found in path"
+  exit 3
+fi
+
+#Find data between patterns 'live servers' and 'dead servers'
+#Bug: New line characters are stripped away from output if variable is not quoted properly
+start=`echo "$OUTPUT" | grep -n 'live servers' | head -n1 | cut -d: -f1`
+stop=`echo "$OUTPUT" | tail -n +$start | grep -n 'dead servers' | cut -d: -f1`
+stop=$(($stop + $start - 1))
+
+#Trim the output from captured output
+TRIMMED_OUTPUT=`echo "$OUTPUT" | sed "$start,$stop!d" | sed -e '1d' -e '$d'`
+
+#Process data
+#set IFS to read line by line
+nodes_count=0
+regions_count=0
+while IFS= read -r line
+do
+  echo $line | grep -q "numberOfOnlineRegions"
+  [ $? -eq 0 ] && {
+    #echo "processing regions count"
+    regions_online=`echo $line | awk '{print $2}' | cut -d= -f2`
+    #echo ${regions_online%?}
+    REGIONS_ARRAY[$regions_count]=${regions_online%?}
+    ((++regions_count))
+  } || {
+    #echo "processing nodes"
+    node=`echo $line | cut -d: -f1`
+    #echo $node
+    HOSTS_ARRAY[$nodes_count]=$node
+    ((++nodes_count))
+  }
+done <<< "$TRIMMED_OUTPUT" #if while is used with pipe, counters will be out of scope
+
+#Build a output string
+for ((i=0; i<${nodes_count}; i++)); do
+  message="${message}Node: ${HOSTS_ARRAY[$i]} \t RegionsOnLine: ${REGIONS_ARRAY[$i]} \n"
+  if [ ${REGIONS_ARRAY[$i]} -ge 90 ]; then
+    message="$message [WARNING] Node: ${HOSTS_ARRAY[$i]} has regions count > 90"
+    EXIT_STATUS=2
+  fi
+done
+echo -e $message
+exit $EXIT_STATUS
