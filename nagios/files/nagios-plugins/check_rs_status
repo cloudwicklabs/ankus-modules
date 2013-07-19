@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ===
-# Nagios plugin to check if the HBase Master is Alive or Not
+# Nagios plugin to check if the HBase Reagion Server is Alive or Not
 # ===
 
 require 'optparse'
@@ -13,7 +13,7 @@ ST_UK = 3
 
 options = {}
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: #{$PROGRAM_NAME} -p <hmaster port>"
+  opts.banner = "Usage: #{$PROGRAM_NAME} -p <hbase regionserver port>"
   opts.on( '-p', '--port <port>', 'Port on which HbaseMaster is listerning') do |p|
     options[:port] = p
   end
@@ -25,7 +25,7 @@ end
 
 begin
   optparse.parse!
-  options[:port] ||= 60000
+  options[:port] ||= 60020
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument
   puts $!.to_s
   puts optparse
@@ -33,7 +33,7 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 end
 
 netstat_status = `netstat -plten | grep -m1 #{options[:port]} | awk '{print $6}'`
-daemon_status = `/etc/init.d/hbase-master status`
+daemon_status = `/etc/init.d/hbase-regionserver status`
 ps_status = if `ps aux | grep -v grep | grep java | grep hbase`
               true
             else
@@ -41,9 +41,9 @@ ps_status = if `ps aux | grep -v grep | grep java | grep hbase`
             end
 
 if netstat_status.include?('LISTEN') and daemon_status.include?('running') and ps_status
-  puts "HBaseMaster is running and listerning on #{options[:port]}"
+  puts "RegionServer is running and listerning on #{options[:port]}"
   exit ST_OK
 else
-  puts "HBaseMaster is not listerning on #{options[:port]}"
+  puts "RegionServer is not listerning on #{options[:port]}"
   exit ST_CR
 end

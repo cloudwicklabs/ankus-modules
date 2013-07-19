@@ -80,6 +80,7 @@ class nagios::nrpe(
   $hadoop_mapreduce_framework = $mapreduce['type']
   $namnode_host = hiera('hadoop_namenode')
   $second_namenode = inline_template("<%= namnode_host.to_a[1] %>")
+  $slaves = hiera('slave_nodes')
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
   }
@@ -394,6 +395,12 @@ class nagios::nrpe(
         @@nagios_service{ "check_hmaster_daemon_${::fqdn}":
           check_command => 'check_nrpe!check_hmaster_daemon',
           service_description =>  'HBase Master Status',
+        }
+      }
+      if $::fqdn in $slaves {
+        @@nagios_service{ "check_regionserver_${::fqdn}":
+          check_command => 'check_nrpe!check_regionserver_status',
+          service_description =>  'HBase RegionServer Status',
         }
       }
     }
