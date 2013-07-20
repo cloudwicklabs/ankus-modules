@@ -221,7 +221,7 @@ class hadoop {
     }
     $hadoop_namenode_host = hiera('hadoop_namenode')
     $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
-    if (ha == "enabled") {
+    if ($ha == "enabled") {
       $hadoop_namenode_uri = "hdfs://${hadoop_ha_nameservice_id}"
     } else {
       $hadoop_namenode_uri = "hdfs://${hadoop_namenode_host}:${hadoop_namenode_port}"

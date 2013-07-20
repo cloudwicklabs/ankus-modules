@@ -78,8 +78,8 @@ class nagios::nrpe(
   $mapreduce = hiera('mapreduce')
   $hbase = hiera('hbase_install')
   $hadoop_mapreduce_framework = $mapreduce['type']
-  $namnode_host = hiera('hadoop_namenode')
-  $second_namenode = inline_template("<%= namnode_host.to_a[1] %>")
+  $namenode_hosts = hiera('hadoop_namenode')
+  $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
   $slaves = hiera('slave_nodes')
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
@@ -365,13 +365,13 @@ class nagios::nrpe(
     }
     else {
       # check hadoop_hdfs status from first namenode only
-      if ($::fqdn == inline_template("<%= namnode_host.to_a[0] %>")) {
+      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
         @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
           check_command       =>  'check_nrpe!check_hadoop_dfs',
           service_description =>  'HDFS Datanodes Status',
         }
       }
-      if $::fqdn in $hadoop_namenode {
+      if $::fqdn in $namenode_hosts {
         @@nagios_service{ "check_nn_health_${::fqdn}":
           check_command       =>  'check_nrpe!check_nn_health',
           service_description =>  'HDFS NameNode Health Status',
@@ -439,7 +439,7 @@ class nagios::nrpe(
         }
       }
     } elsif ($ha == "enabled") {
-      if ($::fqdn == inline_template("<%= namnode_host.to_a[0] %>")) {
+      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
         @@nagios_service{ "check_zks_status_${::fqdn}":
           check_command       =>  'check_nrpe!check_zk_status',
           service_description =>  'Zookeepers Status',
