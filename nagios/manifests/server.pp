@@ -75,18 +75,18 @@ class nagios::server inherits nagios {
   }
 
   service {
-        $nagiosservice:         #BUG: Fix me! Initial start of nagios failing, even with configurations in place?
-         ensure      => running,
-         alias       => 'nagios',
-         hasstatus   => true,
-         hasrestart  => true,
-         require     => [ Package[$nagiospackage],
-                          File["${nagios::params::rootdir}/nagios.cfg",
-                               "${nagios::params::rootdir}/commands/generic-commands.cfg",
-                               "${nagios::params::rootdir}/contacts/generic-contact.cfg",
-                               "${nagios::params::rootdir}/hosts/generic-host.cfg",
-                               "${nagios::params::rootdir}/services/generic-service.cfg",
-                               "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
+        # $nagiosservice:         #BUG: Fix me! Initial start of nagios failing, even with configurations in place?
+        #  ensure      => running,
+        #  alias       => 'nagios',
+        #  hasstatus   => true,
+        #  hasrestart  => true,
+        #  require     => [ Package[$nagiospackage],
+        #                   File["${nagios::params::rootdir}/nagios.cfg",
+        #                        "${nagios::params::rootdir}/commands/generic-commands.cfg",
+        #                        "${nagios::params::rootdir}/contacts/generic-contact.cfg",
+        #                        "${nagios::params::rootdir}/hosts/generic-host.cfg",
+        #                        "${nagios::params::rootdir}/services/generic-service.cfg",
+        #                        "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
        'postfix':
        	 ensure		   =>	running,
        	 enable		   =>	true,
@@ -97,6 +97,19 @@ class nagios::server inherits nagios {
        	 enable		   =>	true,
        	 hasrestart	 =>	true,
        	 require	   =>	Package[$apachepackage];
+    }
+
+    exec { "nagios-start":
+      command     => "${nagios::params::basename} -v ${nagios::params::conffile} && /etc/init.d/${nagios::params::basename} start",
+      path        => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ],
+      unless      => "ps aux | grep nagios3 | grep -qv grep",
+      require     => [ Package[$nagiospackage],
+                          File["${nagios::params::rootdir}/nagios.cfg",
+                               "${nagios::params::rootdir}/commands/generic-commands.cfg",
+                               "${nagios::params::rootdir}/contacts/generic-contact.cfg",
+                               "${nagios::params::rootdir}/hosts/generic-host.cfg",
+                               "${nagios::params::rootdir}/services/generic-service.cfg",
+                               "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
     }
 
     exec { "nagios-restart":
@@ -153,7 +166,7 @@ class nagios::server inherits nagios {
         command => "/bin/chmod g+x /var/lib/nagios3/rw",
         user => "root",
         require => [ Package[$apachepackage, $nagiospackage], Exec['modify-user-account'] ],
-        before => Service[$nagiosservice]
+        before => Exec['nagios-start']
       }
     }
 
@@ -165,7 +178,6 @@ class nagios::server inherits nagios {
       		owner	  =>	root,
   			  group 	=>	root,
   			  require	=>	Package[$nagiospackage],
-      		notify  => Service[$nagiosservice],
       		content => template("nagios/nagios.cfg.erb");
     	"${nagios::params::rootdir}/servers":
       		ensure  => directory,
