@@ -41,9 +41,19 @@ class zookeeper {
 
   class client inherits zookeeper {
     include java
-    package { "zookeeper":
-      ensure => installed,
-      require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "zookeeper":
+          ensure => installed,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ]
+        }
+      }
+      'CentOS': {
+        package { "zookeeper":
+          ensure => installed,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
+        }
+      }
     }
   }
 
@@ -56,9 +66,19 @@ class zookeeper {
     ) inherits zookeeper
     {
     include java
-    package { "zookeeper-server":
-      ensure => installed,
-      require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "zookeeper-server":
+          ensure => installed,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ]
+        }
+      }
+      'CentOS': {
+        package { "zookeeper-server":
+          ensure => installed,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
+        }
+      }
     }
 
     service { "zookeeper-server":
