@@ -6,7 +6,14 @@ class ganglia::server (
   include ganglia::client
   include ganglia::webserver
 
-  $ganglia_server_pkg = 'ganglia-gmetad'
+  case $operatingsystem {
+    'Ubuntu': {
+      $ganglia_server_pkg = 'gmetad'
+    }
+    'CentOS': {
+      $ganglia_server_pkg = 'ganglia-gmetad'
+    }
+  }
 
   package {$ganglia_server_pkg:
     ensure => present,
@@ -16,6 +23,7 @@ class ganglia::server (
   service { "gmetad":
     ensure  =>  running,
     enable  => true,
+    status => 'ps aux | grep gmetad | grep -qv grep',
     require => Package[$ganglia_server_pkg];
   }
 

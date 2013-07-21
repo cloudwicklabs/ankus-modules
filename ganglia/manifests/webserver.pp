@@ -1,6 +1,18 @@
 class ganglia::webserver {
 
-  $ganglia_webserver_pkg = 'ganglia-web'
+  case $operatingsystem {
+    'Ubuntu': {
+      $ganglia_webserver_pkg = 'ganglia-webfrontend'
+      $ganglia_webserver_path = '/etc/apache2/sites-enabled/ganglia'
+      $ganglia_apache_conf = 'ganglia.Debian.erb'
+    }
+    'CentOS': {
+      $ganglia_webserver_pkg = 'ganglia-web'
+      $ganglia_webserver_path = '/etc/httpd/conf.d/ganglia.conf'
+      $ganglia_apache_conf = 'ganglia.RedHat.erb'
+    }
+  }
+
   include ganglia
 
   package {$ganglia_webserver_pkg:
@@ -8,9 +20,9 @@ class ganglia::webserver {
     alias  => 'ganglia_webserver',
   }
 
-  file {'/etc/httpd/conf.d/ganglia.conf':
+  file {$ganglia_webserver_path:
      ensure  => present,
      require => Package['ganglia_webserver'],
-     content => template('ganglia/ganglia.erb');
-   }
+     content => template("ganglia/$ganglia_apache_conf");
+  }
 }
