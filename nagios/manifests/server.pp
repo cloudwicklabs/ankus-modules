@@ -109,7 +109,6 @@ class nagios::server inherits nagios {
   	exec { "nagios-reload":
     	command     => "${nagios::params::basename} -v ${nagios::params::conffile} && /etc/init.d/${nagios::params::basename} reload",
     	require		  => Package[$nagiospackage],
-    	path 		    => "/usr/sbin",
     	refreshonly => true,
   	}
 
@@ -119,13 +118,22 @@ class nagios::server inherits nagios {
    		refreshonly => true,
   	}
 
-  	exec { "modify-user-account":
-		  command	  =>	"/usr/sbin/usermod -a -G nagios apache",
-      unless    =>  "/bin/cat /etc/group | /bin/grep nagios | /bin/cut -d: -f4 | /bin/grep apache",
-		  user      =>	"root",
-		  logoutput	=> true,
-		  require	  =>	Package[$apachepackage, $nagiospackage],
-	  }
+    if $operatingsystem =~ /RedHat|CentOS|Fedora/ {
+    	exec { "modify-user-account":
+  		  command	  =>	"/usr/sbin/usermod -a -G nagios apache",
+        unless    =>  "/bin/cat /etc/group | /bin/grep nagios | cut -d: -f4 | /bin/grep apache",
+  		  user      =>	"root",
+  		  logoutput	=> true,
+  		  require	  =>	Package[$apachepackage, $nagiospackage],
+  	  }
+    } else {
+      # ubuntu doesn't come with default htpasswd file
+      file { "${nagios::params::rootdir}/htpasswd.users":
+        ensure => present,
+        source => "puppet:///modules/nagios/htpasswd.users",
+        require => Package[$apachepackage, $nagiospackage],
+      }
+    }
 
 	  user { "www-data":
 	    ensure     => present,
