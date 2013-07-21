@@ -1,57 +1,49 @@
-#!/usr/bin/env bash
-PROGNAME=`basename $0`
-VERSION="Version 1.0"
+#!/usr/bin/env ruby
 
-ST_OK=0
-ST_WR=1
-ST_CR=2
-ST_UK=3
+# ===
+# Nagios plugin to check if the MR JobTracker is Alive or Not
+# ===
 
-print_help() {
-    echo "$PROGNAME $VERSION"
-    echo ""
-    echo "$PROGNAME is a Nagios plugin to check if the JOBTRACKER is Alive or Not"
-    echo ""
-    exit $ST_UK
-}
+require 'optparse'
 
-while [ -n "$1" ]; do
-	case "$1" in
-		--help|-h)
-			print_help
-			exit $ST_UK
-			;;
-		*)
-			echo "Unkown argument: $1"
-			print_help
-			exit $ST_UK
-			;;
-		esac
-	shift
-done
+ST_OK = 0
+ST_WR = 1
+ST_CR = 2
+ST_UK = 3
 
-get_vals() {
-  NS=`netstat -plten | grep -m1 "50030" | awk '{print $6}'`
-	ST=`/etc/init.d/hadoop-0.20-mapreduce-jobtracker status | grep -m1 "running" | awk '{print $5}'`
-}
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$PROGRAM_NAME} -p <hdfs jobtracker port>"
+  opts.on( '-p', '--port <port>', 'Port on which jobtracker is listerning') do |p|
+    options[:port] = p
+  end
+  opts.on('-h', '--help', 'Display this screen') do
+    puts opts
+    exit
+  end
+end
 
-do_output() {
-	output="Resource Manager is : ${ST} and listing on the port 50030"
-}
+begin
+  optparse.parse!
+  options[:port] ||= 50030
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $!.to_s
+  puts optparse
+  exit
+end
 
-dont_output() {
-	fail_output="Resource Manager is Dead and not listing on port 50030"
-}
+netstat_status = `netstat -plten | grep -m1 #{options[:port]} | awk '{print $6}'`
+daemon_status = `/etc/init.d/hadoop-0.20-mapreduce-jobtracker status`
+ps_status = if `ps aux | grep -v grep | grep java | grep jobtracker`
+              true
+            else
+              false
+            end
 
-get_vals
-do_output
-
-if [ "$NS" = "LISTEN" -a "$ST" = "running..." ]
-then
-	echo "${output}"
-	exit $ST_OK
+if netstat_status.include?('LISTEN') and daemon_status.include?('running') and ps_status
+  puts "JobTracker is running and listerning on #{options[:port]}"
+  exit ST_OK
 else
-	dont_output
-	echo "${fail_output}"
-	exit $ST_CR
-fi
+  puts "JobTracker is not listerning on #{options[:port]}"
+  exit ST_CR
+end

@@ -84,8 +84,8 @@ class nagios::nrpe(
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
   }
-  if ($hadoop_mapreduce_framework == "mr1") {
-    $jobtracker_host = $mapreduce['master_node']
+  if ($mapreduce['type'] == "mr1") {
+    $jobtracker_host = $mapreduce['master']
   }
   if ($hbase == 'enabled') {
     $hbase_master = hiera('hbase_master')
@@ -361,7 +361,16 @@ class nagios::nrpe(
           service_description =>  'HDFS SecondaryNameNode Status',
         }
       }
-      #TODO monitor journal nodes count
+      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
+        @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
+          check_command       =>  'check_nrpe!check_hadoop_dfs',
+          service_description =>  'HDFS Datanodes Status',
+        }
+        @@nagios_service{ "check_nn_health_${::fqdn}":
+          check_command       =>  'check_nrpe!check_nn_health',
+          service_description =>  'HDFS NameNode Health Status',
+        }
+      }
     }
     else {
       # check hadoop_hdfs status from first namenode only

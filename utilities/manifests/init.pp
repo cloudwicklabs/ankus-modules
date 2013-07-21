@@ -18,7 +18,7 @@ class utilities {
         release         => "precise-impala1",
         repos           => " contrib",
         include_src     => true,
-        require         => Apt::Source['cloudera_precise']
+        #require         => Apt::Source['cloudera_precise'] # this causes a dependency cycle
       }
     }
     'CentOS': {

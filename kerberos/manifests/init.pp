@@ -4,16 +4,16 @@
 #                 kerberos::kdc::admin_server
 #             kerberos::client
 #             kerberos::server
-# 
+#
 # == Definitions: principal
-#                 host_keytab            
+#                 host_keytab
 #
 # This module will install and manage kerberos server and clients
 #
 # === Parameters
 #
 # [*kerberos_domain*]
-#   domain name for the kerberos realm, default value is domain name 
+#   domain name for the kerberos realm, default value is domain name
 #   of the system
 #
 # [*kerberos_realm*]
@@ -65,25 +65,25 @@ class kerberos {
     $keytab_export_dir = "/var/lib/cw_keytabs"
 
     case $operatingsystem {
-        'Ubuntu': {
-            $package_name_kdc    = 'krb5-kdc'
-            $service_name_kdc    = 'krb5-kdc'
-            $package_name_admin  = 'krb5-admin-server'
-            $service_name_admin  = 'krb5-admin-server'
-            $package_name_client = 'krb5-user'
-            $exec_path           = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-            $kdc_etc_path        = '/etc/krb5kdc/'
-        }
-        # default assumes CentOS, Redhat 5 series
-        default: {
-            $package_name_kdc    = 'krb5-server'
-            $service_name_kdc    = 'krb5kdc'
-            $package_name_admin  = 'krb5-libs'
-            $service_name_admin  = 'kadmin'
-            $package_name_client = 'krb5-workstation'
-            $exec_path           = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/kerberos/sbin:/usr/kerberos/bin'
-            $kdc_etc_path        = '/var/kerberos/krb5kdc/'
-        }
+      'Ubuntu': {
+          $package_name_kdc    = 'krb5-kdc'
+          $service_name_kdc    = 'krb5-kdc'
+          $package_name_admin  = 'krb5-admin-server'
+          $service_name_admin  = 'krb5-admin-server'
+          $package_name_client = 'krb5-user'
+          $exec_path           = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+          $kdc_etc_path        = '/etc/krb5kdc/'
+      }
+      # default assumes CentOS, Redhat 5 series
+      default: {
+          $package_name_kdc    = 'krb5-server'
+          $service_name_kdc    = 'krb5kdc'
+          $package_name_admin  = 'krb5-libs'
+          $service_name_admin  = 'kadmin'
+          $package_name_client = 'krb5-workstation'
+          $exec_path           = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/kerberos/sbin:/usr/kerberos/bin'
+          $kdc_etc_path        = '/var/kerberos/krb5kdc/'
+      }
     }
 
     file { "/etc/krb5.conf":
@@ -100,7 +100,7 @@ class kerberos {
     }
 
     # Required for SPNEGO
-    @principal { "HTTP": 
+    @principal { "HTTP":
 
     }
   }
@@ -137,10 +137,10 @@ class kerberos {
 
     exec { "kdb5_util":
       path => $exec_path,
-      command => "rm -f /etc/kadm5.keytab ; kdb5_util -P cthulhu -r ${realm} create -s && kadmin.local -q 'cpw -pw secure kadmin/admin'",      
+      command => "rm -f /etc/kadm5.keytab ; kdb5_util -P cthulhu -r ${realm} create -s && kadmin.local -q 'cpw -pw secure kadmin/admin'",
       creates => "${kdc_etc_path}/stash",
       subscribe => File["${kdc_etc_path}/kdc.conf"],
-      # refreshonly => true, 
+      # refreshonly => true,
       require => [Package["$package_name_kdc"], File["${kdc_etc_path}/kdc.conf"], File["/etc/krb5.conf"]],
     }
 
@@ -158,8 +158,8 @@ class kerberos {
       package { "$package_name_admin":
         ensure => installed,
         require => Package["$package_name_kdc"],
-      } 
-  
+      }
+
       service { "$service_name_admin":
         ensure => running,
         require => [Package["$package_name_admin"], Service["$service_name_kdc"]],
@@ -175,18 +175,18 @@ class kerberos {
     package { $package_name_client:
       ensure => installed,
     }
-  
+
   }
 
   class server {
     include kerberos::client
 
-    class { "kerberos::kdc": } 
+    class { "kerberos::kdc": }
     ->
-    Class["kerberos::client"] 
+    Class["kerberos::client"]
 
     class { "kerberos::kdc::admin_server": }
-    -> 
+    ->
     Class["kerberos::client"]
   }
 
@@ -203,10 +203,10 @@ class kerberos {
       command => "kadmin -w secure -p kadmin/admin -q 'addprinc -randkey $principal'",
       unless => "kadmin -w secure -p kadmin/admin -q listprincs | grep -q $principal",
       require => Package[$kerberos::site::package_name_client],
-    } 
+    }
     ->
     exec { "xst.$title":
-      path    => $kerberos::site::exec_path, 
+      path    => $kerberos::site::exec_path,
       command => "kadmin -w secure -p kadmin/admin -q 'xst -k $keytab $principal'",
       unless  => "klist -kt $keytab 2>/dev/null | grep -q $principal",
       require => File[$kerberos::site::keytab_export_dir],
@@ -216,7 +216,7 @@ class kerberos {
   define host_keytab($princs = undef, $spnego = disabled) {
     $keytab = "/etc/$title.keytab"
 
-    $requested_princs = $princs ? { 
+    $requested_princs = $princs ? {
       undef   => [ $title ],
       default => $princs,
     }

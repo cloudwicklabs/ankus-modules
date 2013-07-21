@@ -102,13 +102,14 @@ class nagios::server inherits nagios {
     exec { "nagios-restart":
     	command     => "${nagios::params::basename} -v ${nagios::params::conffile} && /etc/init.d/${nagios::params::basename} restart",
     	require		  => Package[$nagiospackage],
-    	path 		    => "/usr/sbin",
+    	path        => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ],
     	refreshonly => true,
   	}
 
   	exec { "nagios-reload":
     	command     => "${nagios::params::basename} -v ${nagios::params::conffile} && /etc/init.d/${nagios::params::basename} reload",
     	require		  => Package[$nagiospackage],
+      path        => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ],
     	refreshonly => true,
   	}
 
