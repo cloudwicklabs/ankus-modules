@@ -118,6 +118,13 @@ class nagios::server inherits nagios {
    		refreshonly => true,
   	}
 
+    user { "www-data":
+      ensure     => present,
+      groups     => "nagios",
+      membership => minimum,
+      require    => Package[$apachepackage, $nagiospackage],
+    }
+
     if $operatingsystem =~ /RedHat|CentOS|Fedora/ {
     	exec { "modify-user-account":
   		  command	  =>	"/usr/sbin/usermod -a -G nagios apache",
@@ -129,27 +136,25 @@ class nagios::server inherits nagios {
     } else {
       # ubuntu doesn't come with default htpasswd file
       file { "${nagios::params::rootdir}/htpasswd.users":
-        ensure => present,
-        source => "puppet:///modules/nagios/htpasswd.users",
+        ensure  => present,
+        source  => "puppet:///modules/nagios/htpasswd.users",
         require => Package[$apachepackage, $nagiospackage],
       }
+      exec { "modify-user-account":
+        command   => "/usr/sbin/usermod -a -G nagios www-data",
+        unless    =>  "/bin/cat /etc/group | /bin/grep nagios | cut -d: -f4 | /bin/grep www-data",
+        user      => "root",
+        logoutput => true,
+        require   => [ Package[$apachepackage, $nagiospackage], User['www-data'] ]
+      }
+      #fix the permission of /var/lib/nagios3/rw so that user 'nagiosadmin' can execute external_commands
+      exec { "fix_rw_permissions":
+        command => "/bin/chmod g+x /var/lib/nagios3/rw",
+        user => "root",
+        require => [ Package[$apachepackage, $nagiospackage], Exec['modify-user-account'] ],
+        before => Service[$nagiosservice]
+      }
     }
-
-	  user { "www-data":
-	    ensure     => present,
-	    groups     => "nagios",
-	    membership => minimum,
-	    require    => Package[$apachepackage, $nagiospackage],
-	  }
-
-  	#TODO:generalize for ubuntu
-  	# File {
-  	# 	owner	=>	root,
-  	# 	group 	=>	root,
-  	# 	require	=>	Package["nagios"],
-  	# 	source  => undef,
-  	# 	content => undef,
-  	# }
 
   	file {
     	"${nagios::params::rootdir}/nagios.cfg":
@@ -254,39 +259,6 @@ class nagios::server inherits nagios {
    			notify	=> Exec["nagios-reload"];
    	}
 
-	# file { "${nagios::params::rootdir}/servers/host-nagioserver.cfg":
-	# 	ensure		=>	present,
-	# 	owner		=>	"root",
-	# 	mode 		=>	"0644",
- #  		group 		=>	"root",
- #  		require		=>	Package["nagios"],
-	# 	before		=>	[ Nagios_host["localhost"], Nagios_hostextinfo["localhost"], Nagios_service["localhost"] ],
-	# }
-
- #  nagios_host { "localhost":
- #   		ensure			=>	present,
- #   		address 		=>	$ipaddress,
- #   		use 			=>	"generic-host-active",
- #   		alias			=>	$hostname,
- #   		target			=>	"${nagios::params::rootdir}/servers/host-nagioserver.cfg",
- #   		notify			=>	Exec["nagios-reload"],
-	# }
-
-	# nagios_hostextinfo { "localhost":
-	# 	ensure		=>	present,
-	# 	icon_image_alt	=>	$operatingsystem,
-	# 	icon_image 		=>	"base/$operatingsystem.png",
-	# 	statusmap_image	=>	"base/$operatingsystem.gd2",
-	# 	target			=>	"${nagios::params::rootdir}/servers/host-nagioserver.cfg",
-	# }
-
-	# nagios_service { "localhost":
-	# 	use  					=> "generic-service-active",
-	# 	service_description		=> 'ssh',
-	# 	check_command			=> 'check_ssh',
-	# 	target					=> "${nagios::params::rootdir}/servers/host-nagioserver.cfg",
-	# }
-
   #COLLECT RESOURCES AND POPULATE RESPECTIVE FILES
   #File <<| tag == 'nagios-host-file' |>>
   Nagios_command <<||>> {
@@ -309,22 +281,5 @@ class nagios::server inherits nagios {
     notify  => Exec['nagios-fixperms'],
     require => File['conf-nagios-hosts', 'conf-nagios-servers'],
   }
-
-  # @@nagios_servicegroup { 'nagios':
-  #   # alias  => 'nagios',
-  #   target => "${nagios::targets}/servicegroup/nagios.cfg",
-  # }
-  # @@nagios_command { 'check_http_name_auth':
-  #   command_line => '/usr/lib/nagios/plugins/check_http -H $ARG1$ -I $HOSTADDRESS$ -e \'HTTP/1.1 401\'',
-  #   target       => "${nagios::targets}/command/check_http_name_auth.cfg",
-  # }
-  # @@nagios_service { 'check_nagios3_${::fqdn}':
-  #   service_description => 'Nagios3 Web',
-  #   check_command       => "check_http_name_auth!${::fqdn}",
-  #   host_name           => $::fqdn,
-  #   use                 => 'generic-service',
-  #   servicegroups       => 'nagios',
-  #   target              => "${nagios::targets}/host/${::fqdn}.cfg",
-  # }
 
 } #end of file
