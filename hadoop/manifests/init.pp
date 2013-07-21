@@ -311,15 +311,20 @@ class hadoop {
         require => Package["hadoop"],
     }
 
-    package { "hadoop":
-      ensure => latest,
-      require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "hadoop":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "hadoop":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
-
-    # FIX THIS: package { "hadoop-native":
-    #  ensure => latest,
-    #  require => [Package["hadoop"]],
-    # }
   }
 
   class common-yarn inherits common {
@@ -459,16 +464,6 @@ class hadoop {
          spnego => true,
       }
       Package["hadoop-hdfs"] -> Kerberos::Host_keytab<| title == "hdfs" |>
-    }
-
-    #Impala related
-    if ($impala == "enabled") {
-      yumrepo { "impala-repo":
-        descr => "Impala Beta Repository",
-        mirrorlist => 'http://beta.cloudera.com/impala/redhat/6/x86_64/impala/0.5/mirrors',
-        enabled => 1,
-        gpgcheck => 0,
-      }
     }
   }
 

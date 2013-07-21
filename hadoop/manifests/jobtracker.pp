@@ -5,8 +5,6 @@ class hadoop::jobtracker (
   $impala = hiera('impala', 'disabled'),
 	) inherits hadoop::common-mapreduce {
 
-
-
   	package { "hadoop-0.20-mapreduce-jobtracker":
   		ensure => installed,
   		require => Package["hadoop-0.20-mapreduce"],
