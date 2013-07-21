@@ -10,7 +10,14 @@ class logstash::kibana {
   $elasticsearch_timeout = '500'
   $kibana_port = '5601'
   $kibana_address = 'locahost'
-  $dep_packages = ['ruby', 'ruby-devel', 'rubygems', 'git', 'make', 'gcc-c++']
+  case $::operatingsystem {
+    'RedHat', 'CentOS': {
+      $dep_packages = ['ruby', 'ruby-devel', 'rubygems', 'git', 'make', 'gcc-c++']
+    }
+    'Debian', 'Ubuntu': {
+      $dep_packages = ['ruby', 'ruby1.8-dev', 'rubygems', 'git', 'make', 'gcc', 'g++']
+    }
+  }
 
   package { $dep_packages:
     ensure => installed,

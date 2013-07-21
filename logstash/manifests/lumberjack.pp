@@ -38,7 +38,7 @@ class logstash::lumberjack {
     }
     'Debian', 'Ubuntu': {
       $pkg_provider = 'dpkg'
-      $package_name = 'lumberjack_0.0.30_amd64.deb'
+      $package = 'lumberjack_0.0.30_amd64.deb'
       $package_name = inline_template("<%= @package[0..-5] %>")
       $tmpsource = "/tmp/${package}"
     }

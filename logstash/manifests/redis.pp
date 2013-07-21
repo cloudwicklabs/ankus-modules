@@ -4,11 +4,13 @@ class logstash::redis {
     'RedHat', 'CentOS': {
       $redis_package = [ 'redis' ]
       $redis_conf = '/etc/redis.conf'
+      $redis_conf_source = 'redis.conf.RedHat.erb'
       $redis_service = 'redis'
     }
     'Debian', 'Ubuntu': {
       $redis_package = [ 'redis-server' ]
       $redis_conf = '/etc/redis/redis.conf'
+      $redis_conf_source = 'redis.conf.Debian.erb'
       $redis_service = 'redis-server'
     }
     default: {
@@ -22,7 +24,7 @@ class logstash::redis {
 
   file { $redis_conf:
     ensure   => file,
-    content  => template("${module_name}/etc/redis/redis.conf.erb"),
+    content  => template("${module_name}/etc/redis/${redis_conf_source}"),
     owner    => 'root',
     group    => 'root',
     mode     => '0444',
