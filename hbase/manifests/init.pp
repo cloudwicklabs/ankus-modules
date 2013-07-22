@@ -88,9 +88,19 @@ class hbase {
   }
 
   class client-package  {
-    package { "hbase":
-      ensure => latest,
-      require => [ File["java-app-dir"], Yumrepo['cloudera-repo'] ]
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "hbase":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "hbase":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
   }
 
