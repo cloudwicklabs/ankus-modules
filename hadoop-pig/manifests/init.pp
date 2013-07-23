@@ -41,7 +41,7 @@ class hadoop-pig {
       }
     }
     'CentOS': {
-      package { "pig-udf":
+      package { "pig-udf-datafu":
         ensure => installed,
       }
     }
