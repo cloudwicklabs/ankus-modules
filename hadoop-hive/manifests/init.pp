@@ -54,8 +54,19 @@ class hadoop-hive {
 	}
   $hive_packages = [ "hive", "hive-metastore" ]
 
-  package { $hive_packages:
-    ensure => latest,
+  case $operatingsystem {
+    'Ubuntu': {
+      package { "$hive_packages":
+        ensure => latest,
+        require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+      }
+    }
+    'CentOS': {
+      package { "$hive_packages":
+        ensure => latest,
+        require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+      }
+    }
   }
 
   file { "/usr/lib/hive/lib/postgresql-8.4-703.jdbc3.jar":
