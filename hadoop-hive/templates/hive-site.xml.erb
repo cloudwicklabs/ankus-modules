@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-<!-- File Managed by puppet -->
+<!-- File Managed by puppet, Any changes will be overwritten on next puppet run -->
 <configuration>
-
 <!-- Hive Execution Parameters -->
-
 <% if hbase_install == "enabled" %>
 <property>
   <name>hbase.master</name>
@@ -45,10 +43,16 @@
   <value>true</value>
 </property>
 
-<property>
+<!-- <property>
   <name>hive.hwi.war.file</name>
   <value>/usr/lib/hive/lib/hive-hwi-0.7.0-cdh3u1-SNAPSHOT.war</value>
   <description>This is the WAR file with the jsp content for Hive Web Interface</description>
 </property>
+ -->
 
+ <property>
+    <name>hive.metastore.uris</name>
+    <value>thrift://<%= @ipaddress %>:9083</value>
+    <description>IP address (or fully-qualified domain name) and port of the metastore host</description>
+  </property>
 </configuration>
