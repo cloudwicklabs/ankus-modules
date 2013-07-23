@@ -34,15 +34,24 @@
 #
 
 class hadoop-sqoop {
-  require utilities
-
   # Class: hadoop-sqoop::server
   #
   #
   class server inherits hadoop-sqoop {
-
-    package { "sqoop2-server":
-      ensure => installed,
+    require utilities
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "sqoop2-server":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "sqoop2-server":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
 
     file { "/etc/default/sqoop2-server":
@@ -68,8 +77,21 @@ class hadoop-sqoop {
   #
   #
   class client inherits hadoop-sqoop {
-    package { "sqoop2-client":
-      ensure => installed,
+    require utilities
+
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "sqoop2-client":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "sqoop2-client":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
   }
 
