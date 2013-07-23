@@ -27,8 +27,24 @@
 
 class hadoop-pig {
   require utilities
+
   package { "pig":
     ensure => latest,
+  }
+
+  # Installs Pig's UDFs(User defined functions) developed by linkedin, to use these udf's register the jar
+  # REGISTER /usr/lib/pig/datafu-0.0.4-cdh4.3.0.jar
+  case $operatingsystem {
+    'Ubuntu': {
+      package { "pig-udf-datafu":
+        ensure => installed,
+      }
+    }
+    'CentOS': {
+      package { "pig-udf":
+        ensure => installed,
+      }
+    }
   }
 
   file { "/etc/pig/conf/pig.properties":
