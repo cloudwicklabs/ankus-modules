@@ -47,7 +47,7 @@ class hadoop-sqoop {
 
     file { "/etc/default/sqoop2-server":
       alias   => 'sqoop-server-defaults',
-      source  => "puppet:///modules/hadoop-sqoop/sqoop2-server",
+      content => template('hadoop-sqoop/sqoop2-server.erb'),
       require => Package['sqoop2-server'],
       notify  => Service['sqoop2-server']
     }
