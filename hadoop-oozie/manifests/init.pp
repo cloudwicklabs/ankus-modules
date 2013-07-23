@@ -40,8 +40,19 @@ class hadoop-oozie {
     $kerberos_realm = hiera('hadoop_kerberos_realm', '')
     ) {
     require utilities
-    package { "oozie-client":
-      ensure => latest,
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "oozie-client":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "oozie-client":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
   }
 
@@ -59,8 +70,19 @@ class hadoop-oozie {
       Kerberos::Host_keytab <| title == "oozie" |> -> Service["oozie"]
     }
 
-    package { "oozie":
-      ensure => latest,
+    case $operatingsystem {
+      'Ubuntu': {
+        package { "oozie":
+          ensure => latest,
+          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
+        }
+      }
+      'CentOS': {
+        package { "oozie":
+          ensure => latest,
+          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+        }
+      }
     }
 
     file { "/etc/oozie/conf/oozie-site.xml":
