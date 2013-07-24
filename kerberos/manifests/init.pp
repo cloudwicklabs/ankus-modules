@@ -28,7 +28,7 @@
 #
 # [*keytab_export_dir*]
 #   path to the dir where keytab files are stored, defalut value is
-#   /var/lib/cw_keytabs
+#   /var/lib/ankus_keytabs
 #
 # === Variables
 #
@@ -60,8 +60,7 @@ class kerberos {
     $kdc_server = hiera('controller')
     $kdc_port   = hiera('kerberos_kdc_port', '88')
     $admin_port = 749 #BUG: linux daemon packaging doesn't let us tweak this
-
-    $keytab_export_dir = "/var/lib/cw_keytabs"
+    $keytab_export_dir = "/var/lib/ankus_keytabs"
 
     case $operatingsystem {
       'Ubuntu': {
@@ -152,7 +151,7 @@ class kerberos {
 
     service { $service_name_kdc:
       ensure => running,
-      require => [Package["$package_name_kdc"], File["${kdc_etc_path}/kdc.conf"], Exec["kdb5_util"]],
+      require => [Package["$package_name_kdc"], File["${kdc_etc_path}/kdc.conf"], File["${kdc_etc_path}/kadm5.acl"], Exec["kdb5_util"]],
       subscribe => File["${kdc_etc_path}/kdc.conf"],
       hasrestart => true,
     }
