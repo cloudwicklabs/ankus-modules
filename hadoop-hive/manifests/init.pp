@@ -56,15 +56,23 @@ class hadoop-hive {
 
   case $operatingsystem {
     'Ubuntu': {
-      package { "$hive_packages":
+      package { "hive":
         ensure => latest,
         require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ],
       }
+      package { "hive-metastore":
+        ensure => installed,
+        require => Package['hive']
+      }
     }
     'CentOS': {
-      package { "$hive_packages":
+      package { "hive":
         ensure => latest,
         require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ],
+      }
+      package { "hive-metastore":
+        ensure => installed,
+        require => Package['hive']
       }
     }
   }
@@ -74,12 +82,12 @@ class hadoop-hive {
     group => "root",
     source => "puppet:///modules/hadoop-hive/postgresql-8.4-703.jdbc3.jar",
     alias => "postgres-jdbc-jar",
-    require => Package["$hive_packages"],
+    require => Package["hive"],
   }
 
   file { "/etc/hive/conf/hive-site.xml":
     content => template('hadoop-hive/hive-site.xml.erb'),
-    require => Package["$hive_packages"],
+    require => Package["hive"],
     alias   => 'hive-conf',
     notify  => Service['hive-metastore'],
   }
