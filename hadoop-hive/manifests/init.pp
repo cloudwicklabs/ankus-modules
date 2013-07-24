@@ -74,12 +74,12 @@ class hadoop-hive {
     group => "root",
     source => "puppet:///modules/hadoop-hive/postgresql-8.4-703.jdbc3.jar",
     alias => "postgres-jdbc-jar",
-    require => Package["hive"],
+    require => Package["$hive_packages"],
   }
 
   file { "/etc/hive/conf/hive-site.xml":
     content => template('hadoop-hive/hive-site.xml.erb'),
-    require => Package["hive"],
+    require => Package["$hive_packages"],
     alias   => 'hive-conf',
     notify  => Service['hive-metastore'],
   }
