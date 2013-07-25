@@ -93,7 +93,7 @@
 <% end -%>
   <property>
     <name>mapred.child.java.opts</name>
-    <value><%= hadoop_config_mapred_child_java_opts %></value>
+    <value>-Xmx<%= hadoop_config_mapred_child_java_opts %>m</value>
   </property>
   <property>
     <name>mapreduce.task.io.sort.mb</name>
