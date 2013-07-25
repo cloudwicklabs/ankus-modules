@@ -5,7 +5,6 @@
 <configuration>
 <% if ha != "disabled" -%>
   <!-- HA Configuration -->
-<% if ha == "auto" -%>
   <property>
     <name>dfs.ha.automatic-failover.enabled</name>
     <value>true</value>
@@ -14,7 +13,6 @@
     <name>ha.zookeeper.quorum</name>
     <value><%= zk %></value>
   </property>
-<%   end -%>
   <property>
     <name>dfs.nameservices</name>
     <value><%= hadoop_ha_nameservice_id %></value>
@@ -32,12 +30,6 @@
     <name>dfs.namenode.http-address.<%= hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
     <value><%= host %>:50070</value>
   </property>
-  <% if hadoop_security_authentication == "kerberos" -%>
-  <property>
-    <name>dfs.namenode.https-address.<%= hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
-    <value><%= host %>:50475</value>
-  </property>
-  <% end -%>
 <%   end -%>
   <!--Journal nodes configuration -->
   <property>
@@ -62,6 +54,7 @@
   </property>
 <% end -%>
 <% if hadoop_security_authentication == "kerberos" -%>
+  <!--Security configuraiton-->
   <property>
     <name>dfs.block.access.token.enable</name>
     <value>true</value>
@@ -92,6 +85,20 @@
     <name>dfs.secondary.namenode.kerberos.internal.spnego.principal</name>
     <value>HTTP/_HOST@<%= kerberos_realm %></value>
   </property>
+  <% else -%>
+ <!--Quoram based storage security config -->
+  <property>
+    <name>dfs.journalnode.keytab.file</name>
+    <value>/etc/hdfs.keytab</value>
+  </property>
+  <property>
+    <name>dfs.journalnode.kerberos.principal</name>
+    <value>hdfs/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
+    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+  </property>
   <%   end -%>
   <!-- DataNode security config -->
   <property>
@@ -114,21 +121,6 @@
     <name>dfs.datanode.kerberos.principal</name>
     <value>hdfs/_HOST@<%= kerberos_realm %></value>
   </property>
-<% if ha == "auto" -%>
- <!--Quoram based storage security -->
-  <property>
-    <name>dfs.journalnode.keytab.file</name>
-    <value>/etc/hdfs.keytab</value>
-  </property>
-  <property>
-    <name>dfs.journalnode.kerberos.principal</name>
-    <value>hdfs/_HOST@<%= kerberos_realm %></value>
-  </property>
-  <property>
-    <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@<%= kerberos_realm %></value>
-  </property>
-<% end -%>
 <% end -%>
   <!-- General -->
   <property>
@@ -234,6 +226,7 @@
   <% end -%>
   <% end -%>
   <% if impala == "enabled" -%>
+  <!-- Impala Config -->
   <property>
     <name>dfs.datanode.data.dir.perm</name>
     <value>750</value>

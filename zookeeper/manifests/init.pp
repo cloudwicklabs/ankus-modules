@@ -124,6 +124,8 @@ class zookeeper {
         notify => Service["zookeeper-server"],
       }
 
+      Package["zookeeper-server"] -> Kerberos::Host_keytab<| title == "zookeeper" |>
+
       file { "/etc/zookeeper/conf/java.env":
         source  => "puppet:///modules/zookeeper/java.env",
         require => Package["zookeeper-server"],
