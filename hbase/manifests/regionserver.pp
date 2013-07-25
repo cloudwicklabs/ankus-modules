@@ -73,18 +73,18 @@ class hbase::regionserver(
     }
 
     if($auth == "Kerberos") {
+      require kerberos::client
 
-    require kerberos::client
-    kerberos::host_keytab { "hbase":
-        spnego => true,
-    }
+      kerberos::host_keytab { "hbase":
+          spnego => true,
+      }
 
-    file { "/etc/hbase/conf/jaas.conf":
-      content => template("hbase/jaas.conf.erb"),
-      require => Package["hbase"],
-    }
+      file { "/etc/hbase/conf/jaas.conf":
+        content => template("hbase/jaas.conf.erb"),
+        require => Package["hbase"],
+      }
 
-    Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-regionserver"]
+      Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-regionserver"]
     }
 
   #log_stash

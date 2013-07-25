@@ -150,17 +150,40 @@
     <name>hfile.block.cache.size</name>
     <value><%= hbase_regionserver_block_cache_size %></value>
   </property>
-  <%- if hbase_regionserver_required_codecs.to_s != "" %>
+  <%- if hbase_regionserver_required_codecs.to_s != "" -%>
   <property>
     <name>hbase.regionserver.codecs</name>
     <value><%= hbase_regionserver_required_codecs %></value>
   </property>
-  <% end %>
+  <% end -%>
   <property>
     <name>hbase.hash.type</name>
     <value><%= hbase_regionserver_hash_type %></value>
   </property>
-<% if auth == "kerberos" %>
+<% if auth == "kerberos" -%>
+  <!-- Security Configuration -->
+  <property>
+    <name>hbase.security.authentication</name>
+    <value>kerberos</value>
+  </property>
+  <property>
+    <name>hbase.rpc.engine</name>
+    <value>org.apache.hadoop.hbase.ipc.SecureRpcEngine</value>
+  </property>
+  <!-- Security Authorization Using HBASE CoProcessors Framework -->
+  <property>
+    <name>hbase.security.authorization</name>
+    <value>true</value>
+  </property>
+  <property>
+     <name>hbase.coprocessor.master.classes</name>
+     <value>org.apache.hadoop.hbase.security.access.AccessController</value>
+  </property>
+  <property>
+     <name>hbase.coprocessor.region.classes</name>
+     <value>org.apache.hadoop.hbase.security.token.TokenProvider,org.apache.hadoop.hbase.security.access.AccessController</value>
+  </property>
+  <!-- RegionServer Security Configuration -->
   <property>
     <name>hbase.regionserver.kerberos.principal</name>
     <value>hbase/_HOST@<%= kerberos_realm %></value>
@@ -169,6 +192,7 @@
     <name>hbase.regionserver.keytab.file</name>
     <value>/etc/hbase.keytab</value>
   </property>
+  <!-- HMaster Security Configuration -->
   <property>
     <name>hbase.master.kerberos.principal</name>
     <value>hbase/_HOST@<%= kerberos_realm %></value>
@@ -177,5 +201,5 @@
     <name>hbase.master.keytab.file</name>
     <value>/etc/hbase.keytab</value>
   </property>
-<% end %>
+<% end -%>
 </configuration>

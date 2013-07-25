@@ -2,7 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--File Managed by puppet -->
 <configuration>
-<% if hadoop_mapreduce_framework == "mr1" %>
+<% if hadoop_mapreduce_framework == "mr1" -%>
   <property>
     <name>mapred.job.tracker</name>
     <value><%= hadoop_jobtracker_host %>:<%= hadoop_jobtracker_rpc_port %></value>
@@ -25,20 +25,16 @@
     <name>mapred.map.output.compression.codec</name>
     <value>org.apache.hadoop.io.compress.SnappyCodec</value>
   </property>
-  <% end %>
-<% if hadoop_security_authentication == "kerberos" %>
+  <% end -%>
+<% if hadoop_security_authentication == "kerberos" -%>
   <!-- JobTracker security configs -->
   <property>
     <name>mapreduce.jobtracker.kerberos.principal</name>
     <value>mapred/_HOST@<%= kerberos_realm %></value>
   </property>
   <property>
-    <name>mapreduce.jobtracker.kerberos.https.principal</name>
-    <value>host/_HOST@<%= kerberos_realm %></value>
-  </property>
-  <property>
     <name>mapreduce.jobtracker.keytab.file</name>
-    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+    <value>/etc/mapred.keytab</value>
   </property>
   <!-- TaskTracker security configs -->
   <property>
@@ -46,12 +42,8 @@
     <value>mapred/_HOST@<%= kerberos_realm %></value>
   </property>
   <property>
-    <name>mapreduce.tasktracker.kerberos.https.principal</name>
-    <value>host/_HOST@<%= kerberos_realm %></value>
-  </property>
-  <property>
     <name>mapreduce.tasktracker.keytab.file</name>
-    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+    <value>/etc/mapred.keytab</value>
   </property>
   <!-- TaskController settings -->
   <property>
@@ -62,9 +54,9 @@
     <name>mapreduce.tasktracker.group</name>
     <value>mapred</value>
   </property>
-<% end %>
-<% end %>
-<% if hadoop_mapreduce_framework == "mr2" %>
+<% end -%>
+<% end -%>
+<% if hadoop_mapreduce_framework == "mr2" -%>
   <property>
     <name>mapreduce.framework.name</name>
     <value>yarn</value>
@@ -86,8 +78,8 @@
     <name>mapred.map.output.compress.codec</name>
     <value>org.apache.hadoop.io.compress.SnappyCodec</value>
   </property>
-  <% end %>
-<% if hadoop_security_authentication == "kerberos" %>
+  <% end -%>
+<% if hadoop_security_authentication == "kerberos" -%>
   <!-- HistoryServer security configs -->
   <property>
     <name>mapreduce.jobhistory.principal</name>
@@ -97,8 +89,8 @@
     <name>mapreduce.jobhistory.keytab</name>
     <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
   </property>
-<% end %>
-<% end %>
+<% end -%>
+<% end -%>
   <property>
     <name>mapred.child.java.opts</name>
     <value><%= hadoop_config_mapred_child_java_opts %></value>
@@ -164,5 +156,5 @@
     <value>org.apache.hadoop.thriftfs.ThriftJobTrackerPlugin</value>
     <description>Comma-separated list of jobtracker plug-ins to be activated.</description>
   </property>
-  <% end %>
+  <% end -%>
 </configuration>

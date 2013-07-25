@@ -64,9 +64,11 @@ class hadoop-oozie {
     require utilities
     if($hadoop_security_authentication == "kerberos") {
       require kerberos::client
+
       kerberos::host_keytab { "oozie":
         spnego => true,
       }
+
       Kerberos::Host_keytab <| title == "oozie" |> -> Service["oozie"]
     }
 

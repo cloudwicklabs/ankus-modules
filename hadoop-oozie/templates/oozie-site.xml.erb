@@ -178,7 +178,7 @@
 
     <property>
         <name>oozie.service.HadoopAccessorService.kerberos.principal</name>
-        <value>${user.name}/<%= fqdn %>@${local.realm}</value>
+        <value>oozie/<%= fqdn %>@<%= kerberos_realm %></value>
         <description>
             Kerberos principal for Oozie service.
         </description>
@@ -284,7 +284,7 @@
 
     <property>
         <name>oozie.authentication.kerberos.principal</name>
-        <value>HTTP/<%= fqdn %>@${local.realm}</value>
+        <value>HTTP/<%= fqdn %>@<%= kerberos_realm %></value>
         <description>
             Indicates the Kerberos principal to be used for HTTP endpoint.
             The principal MUST start with 'HTTP/' as per Kerberos HTTP SPNEGO specification.

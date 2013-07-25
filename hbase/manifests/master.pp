@@ -73,19 +73,19 @@ class hbase::master(
     }
 
     if($auth == "Kerberos") {
+      require kerberos::client
 
-    require kerberos::client
-    kerberos::host_keytab { "hbase":
-        spnego => true,
+      kerberos::host_keytab { "hbase":
+          spnego => true,
+      }
+
+      file { "/etc/hbase/conf/jaas.conf":
+        content => template("hbase/jaas.conf.erb"),
+        require => Package["hbase"],
+      }
+
+      Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-master"]
     }
-
-    file { "/etc/hbase/conf/jaas.conf":
-      content => template("hbase/jaas.conf.erb"),
-      require => Package["hbase"],
-    }
-
-    Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-master"]
-  }
 
   #log_stash
   if ($log_aggregation == 'enabled') {

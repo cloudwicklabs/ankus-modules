@@ -66,22 +66,6 @@
     <name>dfs.block.access.token.enable</name>
     <value>true</value>
   </property>
-  <!--BUG: namenode is not starting if enabled -->
-  <!--property>
-    <name>dfs.https.enable</name>
-    <value>true</value>
-  </property-->
-  <!-- NameNode security config -->
-  <% if ha == "disabled" -%>
-  <property>
-    <name>dfs.namenode.https-address</name>
-    <value><%= namenode_hosts[0] %>:50475</value>
-  </property>
-  <% end -%>
-  <property>
-    <name>dfs.https.port</name>
-    <value>50475</value>
-  </property>
   <property>
     <name>dfs.namenode.keytab.file</name>
     <value>/etc/hdfs.keytab</value>
@@ -91,31 +75,11 @@
     <value>hdfs/_HOST@<%= kerberos_realm %></value>
   </property>
   <property>
-    <name>dfs.namenode.kerberos.https.principal</name>
-    <value>host/_HOST@<%= kerberos_realm %></value>
-  </property>
-  <property>
-    <name>dfs.web.authentication.kerberos.keytab</name>
-    <value>/etc/hdfs.keytab</value>
-  </property>
-  <property>
-    <name>dfs.web.authentication.kerberos.principal</name>
+    <name>dfs.namenode.kerberos.internal.spnego.principal</name>
     <value>HTTP/_HOST@<%= kerberos_realm %></value>
   </property>
   <% if ha == "disabled" -%>
   <!-- Secondary NameNode security config -->
-  <property>
-    <name>dfs.secondary.namenode.http-address</name>
-    <value><%= hadoop_secondarynamenode_host %>:0</value>
-  </property>
-  <property>
-    <name>dfs.secondary.https.address</name>
-    <value><%= hadoop_secondarynamenode_host %>:50495</value>
-  </property>
-  <property>
-    <name>dfs.secondary.namenode.https-port</name>
-    <value>50495</value>
-  </property>
   <property>
     <name>dfs.secondary.namenode.keytab.file</name>
     <value>/etc/hdfs.keytab</value> <!-- path to the HDFS keytab -->
@@ -125,8 +89,8 @@
     <value>hdfs/_HOST@<%= kerberos_realm %></value>
   </property>
   <property>
-    <name>dfs.secondary.namenode.kerberos.https.principal</name>
-    <value>host/_HOST@<%= kerberos_realm %></value>
+    <name>dfs.secondary.namenode.kerberos.internal.spnego.principal</name>
+    <value>HTTP/_HOST@<%= kerberos_realm %></value>
   </property>
   <%   end -%>
   <!-- DataNode security config -->
@@ -149,10 +113,6 @@
   <property>
     <name>dfs.datanode.kerberos.principal</name>
     <value>hdfs/_HOST@<%= kerberos_realm %></value>
-  </property>
-  <property>
-    <name>dfs.datanode.kerberos.https.principal</name>
-    <value>host/_HOST@<%= kerberos_realm %></value>
   </property>
 <% if ha == "auto" -%>
  <!--Quoram based storage security -->
@@ -179,24 +139,22 @@
     <name>dfs.datanode.data.dir</name>
     <value><%= hdfs_data_dirs.join(",") %></value>
   </property>
-<% if hdfs_support_append == "true" %>
+<% if hdfs_support_append == "true" -%>
   <property>
     <name>dfs.support.append</name>
     <value><%= hdfs_support_append %></value>
   </property>
-<% end %>
-<% if ha == "disabled" %>
+<% end -%>
+<% if ha == "disabled" -%>
   <property>
      <name>dfs.namenode.checkpoint.dir</name>
      <value><%= checkpoint_data_dirs.join(",") %></value>
   </property>
-  <% if hadoop_security_authentication == "simple" %>
   <property>
-     <name>dfs.secondary.namenode.http-address</name>
+     <name>dfs.secondary.http.address</name>
      <value><%= hadoop_secondarynamenode_host -%>:50090</value>
   </property>
-  <% end %>
-<% end %>
+<% end -%>
   <property>
     <name>dfs.permissions.superusergroup</name>
     <value><%= hadoop_config_dfs_permissions_supergroup -%></value>
@@ -209,7 +167,7 @@
     <name>dfs.blocksize</name>
     <value><%= hadoop_config_dfs_block_size %></value>
   </property>
-  <% if num_of_nodes > 1 %>
+  <% if num_of_nodes > 1 -%>
   <property>
     <name>dfs.namenode.handler.count</name>
     <value><%= [Math.log(num_of_nodes) * 20].max.round %></value>
@@ -219,7 +177,7 @@
     <name>dfs.namenode.handler.count</name>
     <value>10</value>
   </property>
-  <% end %>
+  <% end -%>
   <property>
     <name>dfs.datanode.du.reserved</name>
     <value><%= hadoop_config_dfs_datanode_du_reserved -%></value>
@@ -263,7 +221,18 @@
     <value>true</value>
     <description>enables webhdfs in namenode and datanodes</description>
   </property>
-  <% end %>
+  <% if hadoop_security_authentication == "kerberos" -%>
+  <!-- WebHDFS Security settings -->
+  <property>
+    <name>dfs.web.authentication.kerberos.principal</name>
+    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+  </property>
+  <property>
+    <name>dfs.web.authentication.kerberos.keytab</name>
+    <value>/etc/hdfs.keytab</value>
+  </property>
+  <% end -%>
+  <% end -%>
   <% if impala == "enabled" -%>
   <property>
     <name>dfs.datanode.data.dir.perm</name>
@@ -277,5 +246,5 @@
     <name>dfs.datanode.hdfs-blocks-metadata.enabled</name>
     <value>true</value>
   </property>
-  <% end %>
+  <% end -%>
 </configuration>
