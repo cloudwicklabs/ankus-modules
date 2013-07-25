@@ -57,6 +57,7 @@ class nagios::server inherits nagios {
       $apacheservice = "apache2"
       $apachepackage = "apache2"
       $packages =  ['nagios3', 'apache2', 'nagios-nrpe-plugin', 'postfix']
+      $nagios_service_pattern = "ps aux | grep nagios3 | grep -qv grep"
     }
     /RedHat|CentOS|Fedora/: {
       $nagiosservice = "nagios"
@@ -65,6 +66,7 @@ class nagios::server inherits nagios {
       $apacheservice = "httpd"
       $apachepackage = "httpd"
       $packages =  ['nagios', 'nagios-devel', 'nagios-plugins-all', 'nagios-plugins-nrpe', 'php', 'net-snmp', 'net-snmp-utils', 'postfix', 'httpd' ]
+      $nagios_service_pattern = "ps aux | grep nagios | grep -qv grep"
     }
 
     default: {err ("operatingsystem $operatingsystem not yet implemented !")}
@@ -102,7 +104,7 @@ class nagios::server inherits nagios {
     exec { "nagios-start":
       command     => "${nagios::params::basename} -v ${nagios::params::conffile} && /etc/init.d/${nagios::params::basename} start",
       path        => [ "/bin/", "/sbin/" , "/usr/bin/", "/usr/sbin/" ],
-      unless      => "ps aux | grep nagios3 | grep -qv grep",
+      unless      => $nagios_service_pattern,
       require     => [ Package[$nagiospackage],
                           File["${nagios::params::rootdir}/nagios.cfg",
                                "${nagios::params::rootdir}/commands/generic-commands.cfg",
