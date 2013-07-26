@@ -84,7 +84,7 @@ class hbase::regionserver(
         require => Package["hbase"],
       }
 
-      Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-regionserver"]
+      Package["hbase-regionserver"] -> Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-regionserver"]
     }
 
   #log_stash

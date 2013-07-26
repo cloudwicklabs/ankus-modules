@@ -84,7 +84,7 @@ class hbase::master(
         require => Package["hbase"],
       }
 
-      Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-master"]
+      Package['hbase-master'] -> Kerberos::Host_keytab <| title == "hbase" |> -> Service["hbase-master"]
     }
 
   #log_stash
