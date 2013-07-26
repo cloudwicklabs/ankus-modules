@@ -86,6 +86,7 @@ class hbase {
   if ($monitoring == 'enabled') {
     $ganglia_server = hiera("ganglia_server")
   }
+  $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>'))
 
   class client-package  {
     case $operatingsystem {
