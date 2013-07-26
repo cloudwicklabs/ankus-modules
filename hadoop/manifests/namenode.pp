@@ -86,7 +86,7 @@ class hadoop::namenode (
       }
     }
 
-    if ($ha == "auto") {
+    if ($ha != "disabled") {
       package { "hadoop-hdfs-zkfc":
         ensure => latest,
         require => Package["hadoop-hdfs"],
@@ -121,44 +121,35 @@ class hadoop::namenode (
       }
       #automatic ha failover
       if ($ha != "disabled") {
-        if ($ha == "auto") {
-          exec { "namenode zk format":
-            user => "hdfs",
-            command => "/bin/bash -c 'yes N | hdfs zkfc -formatZK >> /var/lib/hadoop-hdfs/zk.format.log 2>&1 || :'",
-            require => [ Package["hadoop-hdfs-zkfc"], File["/etc/hadoop/conf/hdfs-site.xml"] ],
-            tag     => "namenode-format",
+        exec { "namenode zk format":
+          user => "hdfs",
+          command => "/bin/bash -c 'yes N | hdfs zkfc -formatZK >> /var/lib/hadoop-hdfs/zk.format.log 2>&1 || :'",
+          require => [ Package["hadoop-hdfs-zkfc"], File["/etc/hadoop/conf/hdfs-site.xml"] ],
+          tag     => "namenode-format",
+        }
+        #Refactor: this is req when upgrading a cluster from non-ha to ha
+        if ($::fqdn == $first_namenode and $upgradetoha == "true") {
+          exec { "stop namenode":
+            user => root,
+            command => "/sbin/service hadoop-hdfs-namenode stop",
+            tag => "stop-namenode",
           }
-          #Refactor: this is req when upgrading a cluster from non-ha to ha
-          if ($::fqdn == $first_namenode and $upgradetoha == "true") {
-            exec { "stop namenode":
-              user => root,
-              command => "/sbin/service hadoop-hdfs-namenode stop",
-              tag => "stop-namenode",
-            }
-            exec { "upgrade to ha":
-              user => "root",
-              command => "/bin/bash -c 'yes Y | hdfs namenode -initializeSharedEdits >> /var/lib/hadoop-hdfs/nn.upgradetoha.log 2>&1'",
-              logoutput => true,
-              # require => Exec["stop namenode"],
-              tag => "upgrade-to-ha",
-            }
+          exec { "upgrade to ha":
+            user => "root",
+            command => "/bin/bash -c 'yes Y | hdfs namenode -initializeSharedEdits >> /var/lib/hadoop-hdfs/nn.upgradetoha.log 2>&1'",
+            logoutput => true,
+            # require => Exec["stop namenode"],
+            tag => "upgrade-to-ha",
           }
-          Service <| title == "zookeeper-server" |> -> Exec <| title == "namenode zk format" |>
-          Exec <| title == "namenode zk format" |>  -> Service <| title == "hadoop-hdfs-zkfc" |>
-          if ( $::fqdn == $first_namenode and $upgradetoha == "true" ) {
-            Exec <| title == "stop-namenode" |> -> Exec <| title == "upgrade-to-ha" |> -> Service <| title == "hadoop-hdfs-zkfc" |>
-          }
-        } else {
-          exec { "activate nn1":
-            command => "/usr/bin/hdfs haadmin -transitionToActive nn1",
-            user    => "hdfs",
-            unless  => "/usr/bin/test $(/usr/bin/hdfs haadmin -getServiceState nn1) = active",
-            require => Service["hadoop-hdfs-namenode"],
-          }
+        }
+        Service <| title == "zookeeper-server" |> -> Exec <| title == "namenode zk format" |>
+        Exec <| title == "namenode zk format" |>  -> Service <| title == "hadoop-hdfs-zkfc" |>
+        if ( $::fqdn == $first_namenode and $upgradetoha == "true" ) {
+          Exec <| title == "stop-namenode" |> -> Exec <| title == "upgrade-to-ha" |> -> Service <| title == "hadoop-hdfs-zkfc" |>
         }
       }
     }
-    #manual ha failover
+    #for standby namenode copy active namenode metadata
     elsif ($::fqdn != $first_namenode) {
       hadoop::namedir_copy { $namenode_data_dirs:
         source       => $first_namenode,
