@@ -44,6 +44,7 @@
 #
 
 class hadoop-hive {
+  include java
   require utilities
   $hbase_install = hiera('hbase_install')
   $hadoop_controller = hiera('controller')
@@ -92,10 +93,17 @@ class hadoop-hive {
     notify  => Service['hive-metastore'],
   }
 
+  file { "/etc/hive/conf/hive-env.sh":
+    content => template('hadoop-hive/hive-env.sh.erb'),
+    require => Package['hive'],
+    alias   => 'hive-env',
+    notify  => Service['hive-metastore'],
+  }
+
   service { "hive-metastore":
     enable => true,
     ensure => running,
-    require => File['hive-conf'],
+    require => [ File['hive-conf'], File['hive-env'] ]
   }
 
   # if( $impala == "enabled" ) {
