@@ -20,6 +20,10 @@ optparse = OptionParser.new do |opts|
     options[:critical] = c
     options[:critical_float] = c.to_i/100.0
   end
+  options[:security] = false
+  opts.on('-s', '--security', 'Flag to specify if security is enabled')
+    options[:security] = true
+  end
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
     puts "Usage Ex: Throw warning if 20% of servers go down and thorw critical if 40% of servers go down"
@@ -45,6 +49,11 @@ end
 
 parsed_results = {}
 begin
+  if options[:security]
+    # generate kerberos ticket
+    hostname = `hostname -fqdn`
+    `sudo -u hbase /usr/bin/kinit -kt /etc/hdfs.keytab hdfs/#{hostname}`
+  end
   result = `sudo -u hbase hbase hbck`
 rescue Errno::ENOENT
   puts 'hbase command not found, is it in your path?'

@@ -80,6 +80,7 @@ class nagios::nrpe(
   $hadoop_mapreduce_framework = $mapreduce['type']
   $namenode_hosts = hiera('hadoop_namenode')
   $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
+  $security = hiera('security', 'simple')
   $slaves = hiera('slave_nodes')
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
