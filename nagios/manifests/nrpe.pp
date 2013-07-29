@@ -74,28 +74,29 @@ class nagios::nrpe(
   #parametes required for monitoring hadoop daemons
   $warning_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.75].max.round %>")
   $critical_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.50].max.round %>")
-  $ha = hiera('hadoop_ha')
-  $mapreduce = hiera('mapreduce')
-  $hbase = hiera('hbase_install')
+  $hadoop_deploy = hiera('hadoop_deploy')
+  $hbase_deploy = hiera('hbase_deploy')
+  $ha = $hadoop_deploy['hadoop_ha']
+  $mapreduce = $hadoop_deploy['mapreduce']
   $hadoop_mapreduce_framework = $mapreduce['type']
-  $namenode_hosts = hiera('hadoop_namenode')
+  $namenode_hosts = $hadoop_deploy['hadoop_namenode']
   $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
   $security = hiera('security', 'simple')
   $slaves = hiera('slave_nodes')
   if ($ha == "disabled") {
-    $secondarynamenode_host = hiera('hadoop_secondarynamenode')
+    $secondarynamenode_host = $hadoop_deploy['hadoop_secondarynamenode']
   }
   if ($mapreduce['type'] == "mr1") {
     $jobtracker_host = $mapreduce['master']
   }
-  if ($hbase == 'enabled') {
-    $hbase_master = hiera('hbase_master')
+  if ($hbase_deploy != 'disabled') {
+    $hbase_master = $hbase_deploy['hbase_master']
   }
-  if ($ha == "enabled") or ($hbase == "enabled") {
+  if ($ha == "enabled") or ($hbase_deploy != "disabled") {
     $zookeepers = hiera('zookeeper_quorum')
   }
   if ($ha == "enabled") {
-    $journalnodes = hiera('journal_quorum')
+    $journalnodes = $hadoop_deploy['journal_quorum']
   }
 	case $operatingsystem {
 		/RedHat|CentOS|Fedora/: {
@@ -414,7 +415,7 @@ class nagios::nrpe(
 
     # Plugins related to hbase
 
-    if ($hbase == 'enabled') {
+    if ($hbase_deploy != 'disabled') {
       if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
         @@nagios_service{ "check_hbase_${::fqdn}":
           check_command => 'check_nrpe!check_hbase_status',
@@ -436,7 +437,7 @@ class nagios::nrpe(
     }
 
     # Zookeepers Daemons count
-    if ($hbase == "enabled") {
+    if ($hbase_deploy != "disabled") {
       #monitor zks port from hbasemaster
       if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
         @@nagios_service{ "check_zks_status_${::fqdn}":
@@ -458,7 +459,7 @@ class nagios::nrpe(
     }
 
     #Zookeepers daemons
-    if ($ha == "enabled") or ($hbase == "enabled") {
+    if ($ha == "enabled") or ($hbase_deploy != "disabled") {
       if $::fqdn in $zookeepers {
         # check zookeeper process
         @@nagios_service{ "check_zks_daemon_${::fqdn}":

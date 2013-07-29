@@ -1,17 +1,4 @@
-#Sample Usage:
-# if all values are specified in hiera
-#   include hadoop::namenode
-
-class hadoop::namenode (
-  $hadoop_namenode_host = hiera('hadoop_namenode', "$fqdn"),
-  $hadoop_namenode_port = hiera('hadoop_namenode_port', 8020),
-  $hadoop_security_authentication = hiera('security', 'simple'),
-  $data_dirs = hiera('hadoop_data_dirs', ['/tmp/data']),
-  $ha = hiera('hadoop_ha','disabled'),
-  $zk = hiera('zookeeper_ensemble',''),
-  $jn = hiera('journal_quorum', ''),
-  ) inherits hadoop::common-hdfs{
-
+class hadoop::namenode inherits hadoop::common-hdfs{
     $first_namenode = inline_template("<%= hadoop_namenode_host.to_a[0] %>")
 
     if ($ha != 'disabled')

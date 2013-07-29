@@ -33,12 +33,15 @@ class hadoop-hue (
   )
   {
     require utilities
-    $ha = hiera('ha')
+    $hadoop_deploy = hiera('hadoop_deploy')
+    $mapreduce = $hadoop_deploy['mapreduce']
+    $ha = $hadoop_deploy['hadoop_ha']
     $impala = hiera('impala', 'disabled')
-    $hadoop_namenode_host = hiera('hadoop_namenode')
+    $hadoop_namenode_host = $hadoop_deploy[hadoop_namenode]
     $hadoop_controller_host = hiera('controller')
-    $jobtracker = hiera('mapreduce')
-    $hadoop_jobtracker_host = $jobtracker['master_node']
+    if ($mapreduce != 'disabled') {
+      $hadoop_jobtracker_host = $mapreduce['master']
+    }
     $first_namenode = inline_template("<%= hadoop_namenode_host.to_a[0] %>")
     $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
     if ($ha != "disabled") {
