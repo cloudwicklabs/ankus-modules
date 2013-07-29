@@ -77,7 +77,6 @@ class nagios::nrpe(
   $ha = hiera('hadoop_ha')
   $mapreduce = hiera('mapreduce')
   $hbase = hiera('hbase_install')
-  $hadoop_mapreduce_framework = $mapreduce['type']
   $namenode_hosts = hiera('hadoop_namenode')
   $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
   $security = hiera('security', 'simple')
@@ -85,8 +84,11 @@ class nagios::nrpe(
   if ($ha == "disabled") {
     $secondarynamenode_host = hiera('hadoop_secondarynamenode')
   }
-  if ($mapreduce['type'] == "mr1") {
-    $jobtracker_host = $mapreduce['master']
+  if ($mapreduce != 'disabled') {
+    $hadoop_mapreduce_framework = $mapreduce['type']
+    if ($mapreduce['type'] == "mr1") {
+      $jobtracker_host = $mapreduce['master']
+    }
   }
   if ($hbase == 'enabled') {
     $hbase_master = hiera('hbase_master')
@@ -349,9 +351,11 @@ class nagios::nrpe(
         check_command => 'check_nrpe!check_dn_status',
         service_description =>  'HDFS Datanode Status',
       }
-      @@nagios_service{ "check_tasktracker_${::fqdn}":
-        check_command => 'check_nrpe!check_tt_status',
-        service_description =>  'MapReduce TaskTracker Status',
+      if ($mapreduce != 'disabled') {
+        @@nagios_service{ "check_tasktracker_${::fqdn}":
+          check_command => 'check_nrpe!check_tt_status',
+          service_description =>  'MapReduce TaskTracker Status',
+        }
       }
     }
 
@@ -401,14 +405,16 @@ class nagios::nrpe(
         ensure => absent,
       }
     }
-    if ($::fqdn == $jobtracker_host) {
-      @@nagios_service{ "check_jt_status_${::fqdn}":
-        check_command       =>  'check_nrpe!check_jt_status',
-        service_description =>  'Hadoop Jobtracker Status',
-      }
-      @@nagios_service{ "check_mr_tts_${::fqdn}":
-        check_command       =>  'check_nrpe!check_mr_tts',
-        service_description =>  'MapReduce TaskTrackers Status',
+    if ($mapreduce != 'disabled') {
+      if ($::fqdn == $jobtracker_host) {
+        @@nagios_service{ "check_jt_status_${::fqdn}":
+          check_command       =>  'check_nrpe!check_jt_status',
+          service_description =>  'Hadoop Jobtracker Status',
+        }
+        @@nagios_service{ "check_mr_tts_${::fqdn}":
+          check_command       =>  'check_nrpe!check_mr_tts',
+          service_description =>  'MapReduce TaskTrackers Status',
+        }
       }
     }
 
