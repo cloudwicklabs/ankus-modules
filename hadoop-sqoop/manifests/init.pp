@@ -38,6 +38,7 @@ class hadoop-sqoop {
   #
   #
   class server inherits hadoop-sqoop {
+    include java
     require utilities
     case $operatingsystem {
       'Ubuntu': {
@@ -77,6 +78,7 @@ class hadoop-sqoop {
   #
   #
   class client inherits hadoop-sqoop {
+    include java
     require utilities
 
     case $operatingsystem {
