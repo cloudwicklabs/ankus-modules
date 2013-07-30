@@ -34,6 +34,7 @@
 #
 
 class hadoop-sqoop {
+  include java
   # Class: hadoop-sqoop::server
   #
   #
