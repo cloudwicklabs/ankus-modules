@@ -21,7 +21,7 @@ optparse = OptionParser.new do |opts|
     options[:critical_float] = c.to_i/100.0
   end
   options[:security] = false
-  opts.on('-s', '--security', 'Flag to specify if security is enabled')
+  opts.on('-s', '--security', 'Flag to specify if security is enabled') do
     options[:security] = true
   end
   opts.on('-h', '--help', 'Display this screen') do
