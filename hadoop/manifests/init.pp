@@ -268,7 +268,9 @@ class hadoop {
 
     #map-reduce
     $hadoop_mapreduce = $hadoop_deploy['mapreduce']
-    $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
+    if ($hadoop_mapreduce != 'disabled') {
+      $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
+    }
 
     file {
       "/etc/hadoop/conf/createdir.sh":
