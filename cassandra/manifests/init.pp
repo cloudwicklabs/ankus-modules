@@ -1,6 +1,6 @@
 # == Class: cassandra
 #
-# installs and manages apache cassandra
+# installs and manages datastax cassandra
 #
 # === Parameters
 #
@@ -30,48 +30,52 @@
 
 class cassandra {
 
+  include java
   require cassandra::params
 
-  group { "cassandra":
-		ensure => present,
-		gid => "900",
-	}
+  case $operatingsystem {
+    'Ubuntu': {
+      include apt
+      apt::source { "datastax-repo":
+        #deb http://debian.datastax.com/community stable main
+        location        => "http://debian.datastax.com/community",
+        release         => "stable",
+        repos           => "main",
+        include_src     => true
+      }
+    }
+    'CentOS': {
+      yumrepo { "datastax-repo":
+        descr => "DataStax Repo for Cassandra",
+        baseurl => 'http://rpm.datastax.com/community',
+        enabled => 1,
+        gpgcheck => 0,
+        notify => Exec["refresh-yum"],
+      }
+      exec { "refresh-yum":
+        command => "/usr/bin/yum clean all",
+        require => Yumrepo['datastax-repo']
+        refreshonly => true
+      }
+    }
+    default:  {fail('Supported OS are CentOS, Ubuntu')}
+  }
 
-	user { "cassandra":
-		ensure => present,
-		comment => "Cassandra",
-		password => "!!",
-		uid => "900",
-		gid => "900",
-		shell => "/bin/bash",
-		home => "/home/cassandra",
-		require => Group["cassandra"],
-	}
+  case $operatingsystem {
+    'Ubuntu': {
+      package { "dsc12":
+        ensure => latest,
+        require => [ File["java-app-dir"], Apt::Source['datastax-repo'] ],
+      }
+    }
+    'CentOS': {
+      package { "dsc12":
+        ensure => latest,
+        require => [ File["java-app-dir"], Yumrepo["datastax-repo"] ],
+      }
+    }
+  }
 
-	file {"/home/cassandra":
-     ensure  => directory,
-     owner   => "root",
-     group   => "cassandra",
-     alias   => "cassandra-dir",
-     require => User["cassandra"],
-   }
-
-	file { "/home/cassandra/.bash_profile":
-		ensure => present,
-		owner => "cassandra",
-		group => "cassandra",
-		alias => "cassandra-bash_profile",
-		content => template("cassandra/home/bash_profile.erb"),
-		require => File["cassandra-dir"],
-	}
-
-	file { "/cassandra":
-		ensure => "directory",
-		owner => "cassandra",
-		group => "cassandra",
-		alias => "cassandra-home",
-		require => [ User["cassandra"], Group["cassandra"] ],
-	}
 
   file {"$cassandra::params::cassandra_base":
 		ensure => "directory",
