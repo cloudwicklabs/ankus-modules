@@ -1,3 +1,7 @@
+#
+# File Managed by Puppet, Any modifications will be overwritten on next run
+#
+
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -23,18 +27,20 @@ calculate_heap_sizes()
         Linux)
             system_memory_in_mb=`free -m | awk '/Mem:/ {print $2}'`
             system_cpu_cores=`egrep -c 'processor([[:space:]]+):.*' /proc/cpuinfo`
-            break
         ;;
         FreeBSD)
             system_memory_in_bytes=`sysctl hw.physmem | awk '{print $2}'`
             system_memory_in_mb=`expr $system_memory_in_bytes / 1024 / 1024`
             system_cpu_cores=`sysctl hw.ncpu | awk '{print $2}'`
-            break
         ;;
         SunOS)
             system_memory_in_mb=`prtconf | awk '/Memory size:/ {print $3}'`
             system_cpu_cores=`psrinfo | wc -l`
-            break
+        ;;
+        Darwin)
+            system_memory_in_bytes=`sysctl hw.memsize | awk '{print $2}'`
+            system_memory_in_mb=`expr $system_memory_in_bytes / 1024 / 1024`
+            system_cpu_cores=`sysctl hw.ncpu | awk '{print $2}'`
         ;;
         *)
             # assume reasonable defaults for e.g. a modern desktop or
@@ -43,6 +49,12 @@ calculate_heap_sizes()
             system_cpu_cores="2"
         ;;
     esac
+
+    # some systems like the raspberry pi don't report cores, use at least 1
+    if [ "$system_cpu_cores" -lt "1" ]
+    then
+        system_cpu_cores="1"
+    fi
 
     # set max heap size based on the following
     # max(min(1/2 ram, 1024MB), min(1/4 ram, 8GB))
@@ -80,6 +92,33 @@ calculate_heap_sizes()
         HEAP_NEWSIZE="${desired_yg_in_mb}M"
     fi
 }
+
+# Determine the sort of JVM we'll be running on.
+
+java_ver_output=`"${JAVA:-java}" -version 2>&1`
+
+jvmver=`echo "$java_ver_output" | awk -F'"' 'NR==1 {print $2}'`
+JVM_VERSION=${jvmver%_*}
+JVM_PATCH_VERSION=${jvmver#*_}
+
+jvm=`echo "$java_ver_output" | awk 'NR==2 {print $1}'`
+case "$jvm" in
+    OpenJDK)
+        JVM_VENDOR=OpenJDK
+        # this will be "64-Bit" or "32-Bit"
+        JVM_ARCH=`echo "$java_ver_output" | awk 'NR==3 {print $2}'`
+        ;;
+    "Java(TM)")
+        JVM_VENDOR=Oracle
+        # this will be "64-Bit" or "32-Bit"
+        JVM_ARCH=`echo "$java_ver_output" | awk 'NR==3 {print $3}'`
+        ;;
+    *)
+        # Help fill in other JVM values
+        JVM_VENDOR=other
+        JVM_ARCH=unknown
+        ;;
+esac
 
 # Override these to set the amount of memory to allocate to the JVM at
 # start-up. For production use you almost certainly want to adjust
@@ -148,22 +187,32 @@ if [ "x$CASSANDRA_HEAPDUMP_DIR" != "x" ]; then
     JVM_OPTS="$JVM_OPTS -XX:HeapDumpPath=$CASSANDRA_HEAPDUMP_DIR/cassandra-`date +%s`-pid$$.hprof"
 fi
 
+
+startswith() { [ "${1#$2}" != "$1" ]; }
+
 if [ "`uname`" = "Linux" ] ; then
     # reduce the per-thread stack size to minimize the impact of Thrift
     # thread-per-client.  (Best practice is for client connections to
     # be pooled anyway.) Only do so on Linux where it is known to be
     # supported.
-    JVM_OPTS="$JVM_OPTS -Xss128k"
+    # u34 and greater need 180k
+    JVM_OPTS="$JVM_OPTS -Xss180k"
 fi
+echo "xss = $JVM_OPTS"
 
 # GC tuning options
-JVM_OPTS="$JVM_OPTS -XX:+UseParNewGC" 
-JVM_OPTS="$JVM_OPTS -XX:+UseConcMarkSweepGC" 
-JVM_OPTS="$JVM_OPTS -XX:+CMSParallelRemarkEnabled" 
-JVM_OPTS="$JVM_OPTS -XX:SurvivorRatio=8" 
+JVM_OPTS="$JVM_OPTS -XX:+UseParNewGC"
+JVM_OPTS="$JVM_OPTS -XX:+UseConcMarkSweepGC"
+JVM_OPTS="$JVM_OPTS -XX:+CMSParallelRemarkEnabled"
+JVM_OPTS="$JVM_OPTS -XX:SurvivorRatio=8"
 JVM_OPTS="$JVM_OPTS -XX:MaxTenuringThreshold=1"
 JVM_OPTS="$JVM_OPTS -XX:CMSInitiatingOccupancyFraction=75"
 JVM_OPTS="$JVM_OPTS -XX:+UseCMSInitiatingOccupancyOnly"
+JVM_OPTS="$JVM_OPTS -XX:+UseTLAB"
+# note: bash evals '1.7.x' as > '1.7' so this is really a >= 1.7 jvm check
+if [ "$JVM_VERSION" \> "1.7" ] ; then
+    JVM_OPTS="$JVM_OPTS -XX:+UseCondCardMark"
+fi
 
 # GC logging options -- uncomment to enable
 # JVM_OPTS="$JVM_OPTS -XX:+PrintGCDetails"
@@ -174,24 +223,31 @@ JVM_OPTS="$JVM_OPTS -XX:+UseCMSInitiatingOccupancyOnly"
 # JVM_OPTS="$JVM_OPTS -XX:+PrintPromotionFailure"
 # JVM_OPTS="$JVM_OPTS -XX:PrintFLSStatistics=1"
 # JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc-`date +%s`.log"
+# If you are using JDK 6u34 7u2 or later you can enable GC log rotation
+# don't stick the date in the log name if rotation is on.
+# JVM_OPTS="$JVM_OPTS -Xloggc:/var/log/cassandra/gc.log"
+# JVM_OPTS="$JVM_OPTS -XX:+UseGCLogFileRotation"
+# JVM_OPTS="$JVM_OPTS -XX:NumberOfGCLogFiles=10"
+# JVM_OPTS="$JVM_OPTS -XX:GCLogFileSize=10M"
 
 # uncomment to have Cassandra JVM listen for remote debuggers/profilers on port 1414
 # JVM_OPTS="$JVM_OPTS -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1414"
 
-# Prefer binding to IPv4 network intefaces (when net.ipv6.bindv6only=1). See 
+# Prefer binding to IPv4 network intefaces (when net.ipv6.bindv6only=1). See
 # http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342561 (short version:
 # comment out this entry to enable IPv6 support).
 JVM_OPTS="$JVM_OPTS -Djava.net.preferIPv4Stack=true"
 
 # jmx: metrics and administration interface
-# 
+#
 # add this if you're having trouble connecting:
 # JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=<public name>"
-# 
-# see 
-# http://blogs.sun.com/jmxetc/entry/troubleshooting_connection_problems_in_jconsole
+#
+# see
+# https://blogs.oracle.com/jmxetc/entry/troubleshooting_connection_problems_in_jconsole
 # for more on configuring JMX through firewalls, etc. (Short version:
 # get it working with no firewall first.)
-JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=$JMX_PORT" 
-JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false" 
-JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false" 
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=$JMX_PORT"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+JVM_OPTS="$JVM_OPTS $JVM_EXTRA_OPTS"
