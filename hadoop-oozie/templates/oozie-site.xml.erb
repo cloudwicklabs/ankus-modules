@@ -83,12 +83,12 @@
     </property>
 
     <property>
-		<name>oozie.service.coord.normal.default.timeout
-		</name>
-		<value>120</value>
-		<description>Default timeout for a coordinator action input check (in minutes) for normal job.
+        <name>oozie.service.coord.normal.default.timeout
+        </name>
+        <value>120</value>
+        <description>Default timeout for a coordinator action input check (in minutes) for normal job.
             -1 means infinite timeout</description>
-	</property>
+    </property>
 
     <property>
         <name>oozie.db.schema.name</name>
@@ -161,6 +161,17 @@
     </property>
 
     <property>
+        <name>oozie.authentication.type</name>
+        <value><%= if (hadoop_security_authentication == "kerberos") ; "kerberos" else "simple" end %></value>
+        <description>
+            Defines authentication used for Oozie HTTP endpoint.
+            Supported values are: simple | kerberos | #AUTHENTICATION_HANDLER_CLASSNAME#
+        </description>
+    </property>
+
+    <!-- Security settings -->
+    <% if hadoop_security_authentication == 'kerberos' -%>
+    <property>
         <name>local.realm</name>
         <value><%= kerberos_realm %></value>
         <description>
@@ -183,6 +194,26 @@
             Kerberos principal for Oozie service.
         </description>
     </property>
+
+    <property>
+        <name>oozie.authentication.kerberos.principal</name>
+        <value>HTTP/<%= fqdn %>@<%= kerberos_realm %></value>
+        <description>
+            Indicates the Kerberos principal to be used for HTTP endpoint.
+            The principal MUST start with 'HTTP/' as per Kerberos HTTP SPNEGO specification.
+        </description>
+    </property>
+
+    <property>
+        <name>oozie.authentication.kerberos.keytab</name>
+        <value>${oozie.service.HadoopAccessorService.keytab.file}</value>
+        <description>
+            Location of the keytab file with the credentials for the principal.
+            Referring to the same keytab file Oozie uses for its Kerberos credentials for Hadoop.
+        </description>
+    </property>
+    <!-- END Security settings -->
+    <% end -%>
 
     <property>
         <name>oozie.service.HadoopAccessorService.jobTracker.whitelist</name>
@@ -235,15 +266,6 @@
     </property>
 
     <property>
-        <name>oozie.authentication.type</name>
-        <value><%= kerberos_realm.empty? ? "simple" : "kerberos" %></value>
-        <description>
-            Defines authentication used for Oozie HTTP endpoint.
-            Supported values are: simple | kerberos | #AUTHENTICATION_HANDLER_CLASSNAME#
-        </description>
-    </property>
-
-    <property>
         <name>oozie.authentication.token.validity</name>
         <value>36000</value>
         <description>
@@ -279,24 +301,6 @@
         <description>
             Indicates if anonymous requests are allowed.
             This setting is meaningful only when using 'simple' authentication.
-        </description>
-    </property>
-
-    <property>
-        <name>oozie.authentication.kerberos.principal</name>
-        <value>HTTP/<%= fqdn %>@<%= kerberos_realm %></value>
-        <description>
-            Indicates the Kerberos principal to be used for HTTP endpoint.
-            The principal MUST start with 'HTTP/' as per Kerberos HTTP SPNEGO specification.
-        </description>
-    </property>
-
-    <property>
-        <name>oozie.authentication.kerberos.keytab</name>
-        <value>${oozie.service.HadoopAccessorService.keytab.file}</value>
-        <description>
-            Location of the keytab file with the credentials for the principal.
-            Referring to the same keytab file Oozie uses for its Kerberos credentials for Hadoop.
         </description>
     </property>
 
