@@ -1,5 +1,6 @@
 class cassandra::params {
     include java::params
+    include utilities
 
     $java_home = $::hostname ? {
         default	=> "${java::params::java_base}/jdk${java::params::java_version}",
@@ -9,39 +10,16 @@ class cassandra::params {
     	default	=> "/etc/cassandra",
     }
 
-    $data_path = $::hostname ? {
-    	default	=> "/cassandra/data",
-    }
-
-    $commitlog_directory = $::hostname ? {
-        default => "/cassandra/commitlog",
-    }
-
-    $saved_caches = $::hostname ? {
-        default => "/cassandra/saved_caches",
-    }
-
-    $cluser_name = $::hostname ? {
-        default => "Cassandra Cluster",
-    }
-
     $seeds = $::hostname ? {
         default => "cassandra-01, cassandra-02, cassandra-03, cassandra-04",
     }
 
-    $cassandra_log_path = $::hostname ? {
-        default => "/var/log/cassandra",
-    }
-
-    $jmx_port = $::hostname ? {
-        default => "7199",
-    }
-
-    $max_heap = $::hostname ? {
-        default => "4G",
-    }
-
-    $heap_newsize = $::hostname ? {
-        default => "800M"
-    }
+    $data_dirs = hiera('storage_dirs', "/cassandra")
+    $data_path = append_each("/data", $data_dirs)
+    $commitlog_directory = append_each("/commitlog", $data_dirs)
+    $saved_caches = append_each("/saved_caches", $data_dirs)å
+    $cluster_name = hiera(cassandra_cluster_name, "Ankus Cassandra Cluster")
+    $jmx_port = hiera(cassandra_jmx_port, '7199')
+    $max_heap = hiera(cassandra_max_heap, '4G')
+    $heap_newsize = hiera(cassandra_heap_newsize, '800M')
 }

@@ -75,6 +75,34 @@ class cassandra {
     }
   }
 
+  mkdir_p { $data_dirs:
+    ensure => present,
+  }
+
+  file { $data_path:
+    ensure => directory,
+    owner => cassandra,
+    group => cassandra,
+    mode => 700,
+    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+  }
+
+  file { $commitlog_directory:
+    ensure => directory,
+    owner => cassandra,
+    group => cassandra,
+    mode => 700,
+    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+  }
+
+  file { $saved_caches:
+    ensure => directory,
+    owner => cassandra,
+    group => cassandra,
+    mode => 700,
+    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+  }
+
   file { "${cassandra::params::cassandra_base}/conf/cassandra.yaml":
     ensure  => present,
     alias   => 'conf',
@@ -96,6 +124,6 @@ class cassandra {
     ensure => running,
     hasrestart => true,
     hasstatus => true,
-    require => [Package['dsc12'], File['conf', 'conf-env']],
+    require => [Package['dsc12'], File['conf', 'conf-env', $data_path, $commitlog_directory, $saved_caches]],
   }
 }

@@ -1,8 +1,8 @@
 # == Class: hadoop-flume
 #
-# This module installs and manages Flume, which is a distributed, reliable, and 
-# available service for efficiently collecting, aggregating, and moving large 
-# amounts of log data. 
+# This module installs and manages Flume, which is a distributed, reliable, and
+# available service for efficiently collecting, aggregating, and moving large
+# amounts of log data.
 #
 # === Parameters
 #
@@ -34,18 +34,18 @@
 
 
 class hadoop-flume {
-  require utilities
+  require utilities::repo
   class client {
     package { "flume":
       ensure => latest,
-    } 
+    }
   }
 
   #flume node
   class agent {
     package { "flume-node":
       ensure => latest,
-    } 
+    }
 
     service { "flume-node":
       ensure => running,
@@ -59,7 +59,7 @@ class hadoop-flume {
   class master {
     package { "flume-master":
       ensure => latest,
-    } 
+    }
 
     service { "flume-master":
       ensure => running,

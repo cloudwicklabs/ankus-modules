@@ -198,7 +198,7 @@ class hadoop {
 
   class common {
     include java
-    require utilities #contains repositories
+    require utilities::repo #contains repositories
     #common variables
     #hadoop-env.sh
     $hadoop_java_home = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
@@ -236,7 +236,7 @@ class hadoop {
     $hadoop_config_io_bytes_per_checksum = hiera('hadoop_config_io_bytes_per_checksum', '512')
     $hadoop_config_fs_trash_interval = hiera('hadoop_config_fs_trash_interval', 0)
     #dirs
-    $data_dirs = hiera('hadoop_data_dirs', ['/tmp/data'])
+    $data_dirs = hiera('storage_dirs', ['/tmp/data'])
     $data_dir1 = inline_template("<%= data_dirs.to_a[0] %>")
     $yarn_data_dirs = append_each("/yarn",$data_dirs)
     $namenode_data_dirs = append_each("/name",$data_dirs)

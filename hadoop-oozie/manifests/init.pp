@@ -39,7 +39,7 @@ class hadoop-oozie {
   class client(
     $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>'))
     ) {
-    require utilities
+    require utilities::repo
     case $operatingsystem {
       'Ubuntu': {
         package { "oozie-client":

@@ -45,7 +45,7 @@
 
 class hadoop-hive {
   include java
-  require utilities
+  require utilities::repo
   $hbase_deploy = hiera('hbase_deploy')
   $hadoop_controller = hiera('controller')
   $impala = hiera('impala', 'disabled')

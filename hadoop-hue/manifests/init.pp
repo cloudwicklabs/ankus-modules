@@ -32,7 +32,7 @@ class hadoop-hue (
   $hadoop_security_authentication = hiera('hadoop_security_authentication', 'simple'),
   )
   {
-    require utilities
+    require utilities::repo
     $hadoop_deploy = hiera('hadoop_deploy')
     $mapreduce = $hadoop_deploy['mapreduce']
     $ha = $hadoop_deploy['hadoop_ha']

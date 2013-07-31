@@ -26,7 +26,7 @@
 #
 
 class hadoop-pig {
-  require utilities
+  require utilities::repo
 
   # Installs Pig's UDFs(User defined functions) developed by linkedin, to use these udf's register the jar
   # REGISTER /usr/lib/pig/datafu-0.0.4-cdh4.3.0.jar

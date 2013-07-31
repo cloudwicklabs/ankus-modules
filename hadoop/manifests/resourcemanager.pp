@@ -4,7 +4,7 @@ class hadoop::resourcemanager (
   $hadoop_resourcetracker_port = hiera('hadoop_resourcetracker_port', 8031),
   $hadoop_resourcescheduler_port = hiera('hadoop_resourcescheduler_port', 8030),
   $hadoop_security_authentication = hiera('hadoop_security_authentication', 'simple'),
-  $data_dirs = hiera('hadoop_data_dirs', ['/tmp/data']),	
+  $data_dirs = hiera('storage_dirs', ['/tmp/data']),
 	) inherits hadoop::common-yarn {
 
 
@@ -12,11 +12,11 @@ class hadoop::resourcemanager (
       ensure => latest,
       require => File["java-app-dir"],
     }
-    
+
     service { "hadoop-yarn-resourcemanager":
       ensure => running,
       hasstatus => true,
-      subscribe => [Package["hadoop-yarn-resourcemanager"], File["/etc/hadoop/conf/hadoop-env.sh"], 
+      subscribe => [Package["hadoop-yarn-resourcemanager"], File["/etc/hadoop/conf/hadoop-env.sh"],
                     File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"],
                     File["/etc/hadoop/conf/mapred-site.xml"]],
       require => [ Package["hadoop-yarn-resourcemanager"], File[$yarn_data_dirs] ],
@@ -27,7 +27,7 @@ class hadoop::resourcemanager (
       owner => yarn,
       group => yarn,
       mode => 755,
-      require => [ Package["hadoop-yarn-resourcemanager"], Exec["create-root-dir"]],  
+      require => [ Package["hadoop-yarn-resourcemanager"], Exec["create-root-dir"]],
     }
 
   	cron { "orphanjobsfiles":
@@ -35,8 +35,8 @@ class hadoop::resourcemanager (
       user    => "root",
       hour    => "3",
       minute  => "0",
-  	}    
-    
+  	}
+
     if ($hadoop_security_authentication == "kerberos") {
     	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-yarn-resourcemanager"]
 	}
