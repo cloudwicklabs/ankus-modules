@@ -1,9 +1,4 @@
-class hadoop::secondarynamenode (
-	$hadoop_secondarynamenode_host = hiera('hadoop_secondarynamenode_host', "$fqdn"),
-	$hadoop_secondarynamenode_port = hiera('hadoop_secondarynamenode_port', 50090),
-	$hadoop_security_authentication = hiera('security', 'simple'),
-	$data_dirs = hiera('hadoop_data_dirs', ['/tmp/data']),
-	) inherits hadoop::common-hdfs {
+class hadoop::secondarynamenode inherits hadoop::common-hdfs {
 
     file { $checkpoint_data_dirs:
         ensure => directory,

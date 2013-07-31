@@ -1,7 +1,6 @@
 class hadoop::journalnode(
 	$hadoop_journalnode_host = hiera('hadoop_journalnode_host', "$fqdn"),
 	$hadoop_journalnode_port = hiera('hadoop_journalnode_port', 8485),
-	$data_dirs = hiera('hadoop_data_dirs', ['/tmp/data']),
 	) inherits hadoop::common-hdfs {
 
   package { "hadoop-hdfs-journalnode":

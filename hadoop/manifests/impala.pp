@@ -1,25 +1,19 @@
-class hadoop::impala(
-  $hadoop_security_authentication = hiera('security', 'simple'),
-  )
- inherits hadoop::common-hdfs {
+class hadoop::impala inherits hadoop::common-hdfs {
   #variables to build hive-site.xml
-  $hbase_install = hiera('hbase_install')
+  $hbase_deploy = hiera('hbase_deploy')
+  $hbase_install = $hbase_deploy['hbase_install']
   $hadoop_controller = hiera('controller')
   $impala = hiera('impala', 'disabled')
-  $hadoop_mapreduce = hiera('mapreduce')
-  $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
   $jobtracker = $hadoop_mapreduce['master_node']
 
-  if ($hbase_install == "enabled"){
-    $hbase_master = hiera('hbase_master')
+  if ($hbase_deploy != "disabled"){
+    $hbase_master = $hbase_deploy['hbase_master']
     $hbase_zookeeper_quorum = hiera('zookeeper_quorum')
   }
 
   #impala specific variable
-  $ha = hiera('hadoop_ha')
-  $namenode = hiera('hadoop_namenode')
+  $namenode = $hadoop_deploy['hadoop_namenode']
   $first_namenode = $namenode[0]
-  $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
   if ($ha != "disabled") {
     $hadoop_ha_nameservice_id = hiera('hadoop_ha_nameservice_id', 'ha-nn-uri')
     $default_fs = "hdfs://$hadoop_ha_nameservice_id"

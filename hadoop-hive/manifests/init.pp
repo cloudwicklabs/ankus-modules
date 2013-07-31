@@ -46,11 +46,11 @@
 class hadoop-hive {
   include java
   require utilities
-  $hbase_install = hiera('hbase_install')
+  $hbase_deploy = hiera('hbase_deploy')
   $hadoop_controller = hiera('controller')
   $impala = hiera('impala', 'disabled')
-	if ($hbase_install == "enabled"){
-		$hbase_master = hiera('hbase_master')
+	if ($hbase_deploy != "disabled"){
+		$hbase_master = $hbase_deploy['hbase_master']
 		$hbase_zookeeper_quorum = hiera('zookeeper_quorum')
 	}
   $hive_packages = [ "hive", "hive-metastore" ]

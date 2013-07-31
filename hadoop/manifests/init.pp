@@ -210,7 +210,8 @@ class hadoop {
     $hadoop_jobtracker_opts = hiera('hadoop_jobtracker_opts', '-Xmx1000m')
     $hadoop_tasktracker_opts = hiera('hadoop_tasktracker_opts', '-Xmx1000m')
     #core-site.xml
-    $ha = hiera('hadoop_ha')
+    $hadoop_deploy = hiera('hadoop_deploy')
+    $ha = $hadoop_deploy['hadoop_ha']
     #HUE BEGIN
     $hue = hiera('hue', 'disabled') #flag to setup hue or not (enabled/disabled)
     $impala = hiera('impala', 'disabled')
@@ -219,7 +220,7 @@ class hadoop {
       $hadoop_ha_nameservice_id = hiera('hadoop_ha_nameservice_id', 'ha-nn-uri')
       $upgradetoha = hiera('upgradetoha', 'false')
     }
-    $hadoop_namenode_host = hiera('hadoop_namenode')
+    $hadoop_namenode_host = $hadoop_deploy['hadoop_namenode']
     $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
     if ($ha == "enabled") {
       $hadoop_namenode_uri = "hdfs://${hadoop_ha_nameservice_id}"
@@ -266,7 +267,7 @@ class hadoop {
     }
 
     #map-reduce
-    $hadoop_mapreduce = hiera('mapreduce')
+    $hadoop_mapreduce = $hadoop_deploy['mapreduce']
     if ($hadoop_mapreduce != 'disabled') {
       $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
     }
@@ -333,9 +334,9 @@ class hadoop {
 
     #variables specific to mr2
     #yarn-site.xml
-    $hadoop_mapreduce = hiera('mapreduce')
+    $hadoop_mapreduce = $hadoop_deploy['mapreduce']
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
-    $hadoop_mapreduce_master = $hadoop_mapreduce['master_node']
+    $hadoop_mapreduce_master = $hadoop_mapreduce['master']
     $hadoop_resourcemanager_host = $hadoop_mapreduce_master
     $hadoop_resourcemanager_port = hiera('hadoop_resourcemanager_port', 8032)
     $hadoop_resourcetracker_port = hiera('hadoop_resourcetracker_port', 8031)
@@ -442,6 +443,7 @@ class hadoop {
     $num_of_nodes = hiera('number_of_nodes')
     if ($ha == "disabled") {
       $hadoop_secondarynamenode_host = hiera('hadoop_secondarynamenode')
+      $hadoop_secondarynamenode_port = hiera('hadoop_secondarynamenode_port', 50090),
     }
     #for security
     # if ($auth == "kerberos" and $ha != "disabled") {
@@ -473,7 +475,7 @@ class hadoop {
 
     #varibles specific to mapreduce
     #mapred-site.xml
-    $hadoop_mapreduce = hiera('mapreduce')
+    $hadoop_mapreduce = $hadoop_deploy['mapreduce']
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
     $hadoop_mapreduce_master = $hadoop_mapreduce['master']
     $hadoop_jobtracker_host = $hadoop_mapreduce_master
