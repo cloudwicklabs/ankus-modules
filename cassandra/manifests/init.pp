@@ -33,6 +33,9 @@ class cassandra {
   require cassandra::params
   require utilities::repos
 
+  $cassandra_deploy = hiera('cassandra_deploy')
+  $seeds = $cassandra_deploy['cassandra_seeds']
+
   case $operatingsystem {
     'Ubuntu': {
       package { "dsc12":

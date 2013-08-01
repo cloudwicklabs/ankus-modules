@@ -10,9 +10,6 @@ class cassandra::params {
     	default	=> "/etc/cassandra",
     }
 
-    $seeds = $::hostname ? {
-        default => "cassandra-01, cassandra-02, cassandra-03, cassandra-04",
-    }
     $num_tokens = hiera('cassandra_num_tokens', '256')
     $data_dirs = hiera('storage_dirs', "/cassandra")
     $data_path = append_each("/data", $data_dirs)

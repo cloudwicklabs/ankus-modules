@@ -28,7 +28,7 @@ commitlog_sync_period_in_ms: 10000
 seed_provider:
     - class_name: org.apache.cassandra.locator.SimpleSeedProvider
       parameters:
-          - seeds: "<%= scope.lookupvar('cassandra::params::seeds') %>"
+          - seeds: "<%= @seeds.join(',') %>"
 flush_largest_memtables_at: 0.75
 reduce_cache_sizes_at: 0.85
 reduce_cache_capacity_to: 0.6
