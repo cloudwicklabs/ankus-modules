@@ -39,7 +39,7 @@ class hadoop-sqoop {
   #
   #
   class server inherits hadoop-sqoop {
-    require utilities::repo
+    require utilities::repos
     case $operatingsystem {
       'Ubuntu': {
         package { "sqoop2-server":
@@ -78,7 +78,7 @@ class hadoop-sqoop {
   #
   #
   class client inherits hadoop-sqoop {
-    require utilities::repo
+    require utilities::repos
 
     case $operatingsystem {
       'Ubuntu': {

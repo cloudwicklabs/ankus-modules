@@ -20,6 +20,13 @@ class utilities::repos {
         include_src     => true,
         #require         => Apt::Source['cloudera_precise'] # this causes a dependency cycle
       }
+      apt::source { "datastax-repo":
+        #deb http://debian.datastax.com/community stable main
+        location        => "http://debian.datastax.com/community",
+        release         => "stable",
+        repos           => "main",
+        include_src     => true
+      }
     }
     'CentOS': {
       yumrepo { "cloudera-repo":
@@ -32,6 +39,13 @@ class utilities::repos {
       yumrepo { "impala-repo":
         descr => "Impala Repository",
         baseurl => "http://archive.cloudera.com/impala/redhat/6/x86_64/impala/1/",
+        enabled => 1,
+        gpgcheck => 0,
+        notify => Exec["refresh-yum"],
+      }
+      yumrepo { "datastax-repo":
+        descr => "DataStax Repo for Cassandra",
+        baseurl => 'http://rpm.datastax.com/community',
         enabled => 1,
         gpgcheck => 0,
         notify => Exec["refresh-yum"],

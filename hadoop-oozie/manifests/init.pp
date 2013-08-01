@@ -39,7 +39,7 @@ class hadoop-oozie {
   class client(
     $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>'))
     ) {
-    require utilities::repo
+    require utilities::repos
     case $operatingsystem {
       'Ubuntu': {
         package { "oozie-client":
@@ -61,7 +61,7 @@ class hadoop-oozie {
     $hadoop_controller = hiera('controller'),
     $hadoop_security_authentication = hiera('security')
     ) {
-    require utilities
+    require utilities::repos
     if($hadoop_security_authentication == "kerberos") {
       require kerberos::client
 

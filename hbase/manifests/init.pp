@@ -27,7 +27,7 @@ class hbase {
 
   include java
 
-  require utilities::repo
+  require utilities::repos
 
   #Variables
   $hbase_master_java_heap_size_max =        hiera(hbase_master_java_heap_size_max)

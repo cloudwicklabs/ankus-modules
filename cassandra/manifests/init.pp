@@ -31,34 +31,7 @@ class cassandra {
 
   include java
   require cassandra::params
-
-  case $operatingsystem {
-    'Ubuntu': {
-      include apt
-      apt::source { "datastax-repo":
-        #deb http://debian.datastax.com/community stable main
-        location        => "http://debian.datastax.com/community",
-        release         => "stable",
-        repos           => "main",
-        include_src     => true
-      }
-    }
-    'CentOS': {
-      yumrepo { "datastax-repo":
-        descr => "DataStax Repo for Cassandra",
-        baseurl => 'http://rpm.datastax.com/community',
-        enabled => 1,
-        gpgcheck => 0,
-        notify => Exec["refresh-yum"],
-      }
-      exec { "refresh-yum":
-        command => "/usr/bin/yum clean all",
-        require => Yumrepo['datastax-repo']
-        refreshonly => true
-      }
-    }
-    default:  {fail('Supported OS are CentOS, Ubuntu')}
-  }
+  require utilities::repos
 
   case $operatingsystem {
     'Ubuntu': {
@@ -75,32 +48,32 @@ class cassandra {
     }
   }
 
-  mkdir_p { $data_dirs:
+  mkdir_p { "${cassandra::params::data_dirs}":
     ensure => present,
   }
 
-  file { $data_path:
+  file { "${cassandra::params::data_path}":
     ensure => directory,
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
-  file { $commitlog_directory:
+  file { "${cassandra::params::commitlog_directory}":
     ensure => directory,
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
-  file { $saved_caches:
+  file { "${cassandra::params::saved_caches}":
     ensure => directory,
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dcs12"], Mkdir_p[$data_dirs]],
+    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
   file { "${cassandra::params::cassandra_base}/conf/cassandra.yaml":
@@ -111,7 +84,7 @@ class cassandra {
     notify  => Service['cassandra'];
   }
 
-  file {'${cassandra::params::cassandra_base}/conf/cassandra-env.sh':
+  file { "${cassandra::params::cassandra_base}/conf/cassandra-env.sh":
     ensure  => present,
     alias   => 'conf-env',
     require => Package['dsc12'],
@@ -124,6 +97,11 @@ class cassandra {
     ensure => running,
     hasrestart => true,
     hasstatus => true,
-    require => [Package['dsc12'], File['conf', 'conf-env', $data_path, $commitlog_directory, $saved_caches]],
+    require => [Package['dsc12'],
+                File['conf',
+                      'conf-env',
+                      "${cassandra::params::data_path}",
+                      "${cassandra::params::commitlog_directory}",
+                      "${cassandra::params::saved_caches}"]],
   }
 }

@@ -198,7 +198,7 @@ class hadoop {
 
   class common {
     include java
-    require utilities::repo #contains repositories
+    require utilities::repos #contains repositories
     #common variables
     #hadoop-env.sh
     $hadoop_java_home = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
