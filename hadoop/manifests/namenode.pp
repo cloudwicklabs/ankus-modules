@@ -199,9 +199,9 @@ class hadoop::namenode inherits hadoop::common-hdfs{
                             "/user/hive"                        => { perm => "777", user => "hive"   },
                             "/user/oozie"                       => { perm => "777", user => "oozie"  },
                             "/user/hue"                         => { perm => "777", user => "hue"    },
-                            "/tmp/hadoop-mapred"                => { perm => "777", user => "hdfs"   },
-                            "/tmp/hadoop-mapred/mapred"         => { perm => "777", user => "hdfs"   },
-                            "/tmp/hadoop-mapred/mapred/staging" => { perm => "777", user => "hdfs"   },
+                            # "/tmp/hadoop-mapred"                => { perm => "777", user => "hdfs"   },
+                            # "/tmp/hadoop-mapred/mapred"         => { perm => "777", user => "hdfs"   },
+                            # "/tmp/hadoop-mapred/mapred/staging" => { perm => "777", user => "hdfs"   },
                           },
         }
     }
