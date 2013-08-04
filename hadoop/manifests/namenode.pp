@@ -184,7 +184,7 @@ class hadoop::namenode inherits hadoop::common-hdfs{
 
     #creating hdfs directories required for all services
     if ($::fqdn == $first_namenode) {
-      hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/tmp/hadoop-mapred", "/tmp/hadoop-mapred/mapred", "/tmp/hadoop-mapred/mapred/staging" ]:
+      hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie" ]:
         auth           => hiera('security'),
         hdfs_dirs_meta => { "/tmp"                              => { perm => "777", user => "hdfs"   },
                             "/mapred"                           => { perm => "755", user => "mapred" },
@@ -199,9 +199,6 @@ class hadoop::namenode inherits hadoop::common-hdfs{
                             "/user/hive"                        => { perm => "777", user => "hive"   },
                             "/user/oozie"                       => { perm => "777", user => "oozie"  },
                             "/user/hue"                         => { perm => "777", user => "hue"    },
-                            # "/tmp/hadoop-mapred"                => { perm => "777", user => "hdfs"   },
-                            # "/tmp/hadoop-mapred/mapred"         => { perm => "777", user => "hdfs"   },
-                            # "/tmp/hadoop-mapred/mapred/staging" => { perm => "777", user => "hdfs"   },
                           },
         }
     }
