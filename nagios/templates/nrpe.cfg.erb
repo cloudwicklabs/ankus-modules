@@ -202,6 +202,7 @@ command[check_swap]=<%= scope.lookupvar('nagios::params::user1') %>/check_swap -
 <% if @hadoop_deploy != 'disabled' -%>
 #HADOOP PLUGINS
 command[check_nn_health]=<%= scope.lookupvar('nagios::params::user1') %>/check_nn_health
+command[check_nn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_nn_status
 command[check_snn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_snn_status
 command[check_jt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jt_status
 command[check_hadoop_dfs]=<%= scope.lookupvar('nagios::params::user1') %>/check_hadoop_dfs -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>

@@ -395,6 +395,10 @@ class nagios::nrpe(
             check_command       =>  'check_nrpe!check_nn_health',
             service_description =>  'HDFS NameNode Health Status',
           }
+          @@nagios_service{ "check_nn_status_${::fqdn}":
+            check_command       =>  'check_nrpe!check_nn_status',
+            service_description =>  'HDFS NameNode Daemon Status',
+          }
         }
         if $::fqdn in $journalnodes {
           @@nagios_service{ "check_jn_status_${::fqdn}":
