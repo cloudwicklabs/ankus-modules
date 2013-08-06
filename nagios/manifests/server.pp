@@ -111,7 +111,9 @@ class nagios::server inherits nagios {
                                "${nagios::params::rootdir}/contacts/generic-contact.cfg",
                                "${nagios::params::rootdir}/hosts/generic-host.cfg",
                                "${nagios::params::rootdir}/services/generic-service.cfg",
-                               "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
+                               "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"],
+                          Exec["nagios-fixperms"],
+                      ];
     }
 
     exec { "nagios-restart":
