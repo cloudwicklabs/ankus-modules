@@ -215,11 +215,11 @@ command[check_hbase_status]=<%= scope.lookupvar('nagios::params::user1') %>/chec
 <% end -%>
 command[check_tt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_tt_status
 command[check_mr_tts]=<%= scope.lookupvar('nagios::params::user1') %>/check_mr_tts -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
-<% if @ha == "enabled" or @hbase == "enabled" -%>
+<% if @ha == "enabled" or @hbase != "disabled" -%>
 command[check_zk_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_status -z <%= @zookeepers.join(',') %> -w 20 -c 40
 command[check_zk_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_daemon
 <% end -%>
-<% if @hbase == "enabled" -%>
+<% if @hbase != "disabled" -%>
 #HBASE PLUGINS
 command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_hmaster_daemon
 command[check_regionserver_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rs_status
