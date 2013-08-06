@@ -26,8 +26,8 @@ define contact{
   host_notifications_enabled                1
   service_notifications_enabled             1
 	email                                     <%= @adminemail %>
-	host_notification_period                  workinghours
-	service_notification_period        		    workinghours
+	host_notification_period                  24x7
+	service_notification_period        		    24x7
 	host_notification_options                 d,u,r
 	service_notification_options              w,u,c,r
 	host_notification_commands                notify-host-by-email
