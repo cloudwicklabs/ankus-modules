@@ -66,39 +66,41 @@
 class nagios::nrpe(
   $nagiosserver = hiera('nagios_server'),
   $nsostype = hiera('nagios_server_ostype'),
-  $num_of_nodes = hiera('number_of_nodes'),
 	) inherits nagios {
 	#parameter1: nagiosserver -> nagios server ipaddress (req)
 	#parameter2: nsostype -> nagios server os type (req) -> Ex: Centos|RedHat|Ubuntu
 	include nagios::params
   #parametes required for monitoring hadoop daemons
-  $warning_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.75].max.round %>")
-  $critical_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.50].max.round %>")
   $hadoop_deploy = hiera('hadoop_deploy')
-  $hbase_deploy = hiera('hbase_deploy')
-  $ha = $hadoop_deploy['hadoop_ha']
-  $mapreduce = $hadoop_deploy['mapreduce']
-  if ($mapreduce != 'disabled') {
-    if ($mapreduce['type'] == "mr1") {
-      $jobtracker_host = $mapreduce['master']
+  if ($hadoop_deploy != 'disabled') {
+    $num_of_nodes = hiera('number_of_nodes')
+    $warning_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.75].max.round %>")
+    $critical_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.50].max.round %>")
+    $hbase_deploy = hiera('hbase_deploy')
+    $ha = $hadoop_deploy['hadoop_ha']
+    $mapreduce = $hadoop_deploy['mapreduce']
+    if ($mapreduce != 'disabled') {
+      if ($mapreduce['type'] == "mr1") {
+        $jobtracker_host = $mapreduce['master']
+      }
+      $hadoop_mapreduce_framework = $mapreduce['type']
     }
-    $hadoop_mapreduce_framework = $mapreduce['type']
-  }
-  $namenode_hosts = $hadoop_deploy['hadoop_namenode']
-  $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
-  $security = hiera('security', 'simple')
-  $slaves = hiera('slave_nodes')
-  if ($ha == "disabled") {
-    $secondarynamenode_host = $hadoop_deploy['hadoop_secondarynamenode']
-  }
-  if ($hbase_deploy != 'disabled') {
-    $hbase_master = $hbase_deploy['hbase_master']
-  }
-  if ($ha == "enabled") or ($hbase_deploy != "disabled") {
-    $zookeepers = hiera('zookeeper_quorum')
-  }
-  if ($ha == "enabled") {
-    $journalnodes = $hadoop_deploy['journal_quorum']
+    $namenode_hosts = $hadoop_deploy['hadoop_namenode']
+    $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
+    $security = hiera('security', 'simple')
+    $slaves = hiera('slave_nodes')
+    if ($ha == "disabled") {
+      $secondarynamenode_host = $hadoop_deploy['hadoop_secondarynamenode']
+    }
+    if ($hbase_deploy != 'disabled') {
+      $hbase_master = $hbase_deploy['hbase_master']
+    }
+    if ($ha == "enabled") or ($hbase_deploy != "disabled") {
+      $zookeepers = hiera('zookeeper_quorum')
+    }
+    if ($ha == "enabled") {
+      $journalnodes = $hadoop_deploy['journal_quorum']
+    }
   }
 	case $operatingsystem {
 		/RedHat|CentOS|Fedora/: {
@@ -345,134 +347,136 @@ class nagios::nrpe(
     	service_description	=>	'Zombie Processes',
     }
 
-    # Plugins related to hadoop
+    # HADOOP PLUGINS
 
-    if $::fqdn in $slaves {
-      @@nagios_service{ "check_datanode_${::fqdn}":
-        check_command => 'check_nrpe!check_dn_status',
-        service_description =>  'HDFS Datanode Status',
-      }
-      if ($mapreduce != 'disabled') {
-        @@nagios_service{ "check_tasktracker_${::fqdn}":
-          check_command => 'check_nrpe!check_tt_status',
-          service_description =>  'MapReduce TaskTracker Status',
+    if ($hadoop_deploy != 'disabled') {
+
+      if $::fqdn in $slaves {
+        @@nagios_service{ "check_datanode_${::fqdn}":
+          check_command => 'check_nrpe!check_dn_status',
+          service_description =>  'HDFS Datanode Status',
+        }
+        if ($mapreduce != 'disabled') {
+          @@nagios_service{ "check_tasktracker_${::fqdn}":
+            check_command => 'check_nrpe!check_tt_status',
+            service_description =>  'MapReduce TaskTracker Status',
+          }
         }
       }
-    }
 
-    if ($ha == "disabled") {
-      if ($::fqdn == $secondarynamenode_host) {
+      if ($ha == "disabled") {
+        if ($::fqdn == $secondarynamenode_host) {
+          @@nagios_service{ "check_snn_health_${::fqdn}":
+            check_command       =>  'check_nrpe!check_snn_status',
+            service_description =>  'HDFS SecondaryNameNode Status',
+          }
+        }
+        if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
+          @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
+            check_command       =>  'check_nrpe!check_hadoop_dfs',
+            service_description =>  'HDFS Datanodes Status',
+          }
+          @@nagios_service{ "check_nn_health_${::fqdn}":
+            check_command       =>  'check_nrpe!check_nn_health',
+            service_description =>  'HDFS NameNode Health Status',
+          }
+        }
+      }
+      else {
+        # check hadoop_hdfs status from first namenode only
+        if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
+          @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
+            check_command       =>  'check_nrpe!check_hadoop_dfs',
+            service_description =>  'HDFS Datanodes Status',
+          }
+        }
+        if $::fqdn in $namenode_hosts {
+          @@nagios_service{ "check_nn_health_${::fqdn}":
+            check_command       =>  'check_nrpe!check_nn_health',
+            service_description =>  'HDFS NameNode Health Status',
+          }
+        }
+        if $::fqdn in $journalnodes {
+          @@nagios_service{ "check_jn_status_${::fqdn}":
+            check_command       =>  'check_nrpe!check_jn_status',
+            service_description =>  'HDFS JournalNode Status',
+          }
+        }
+        #ha does not require snn
+        #make sure to purge snn service if exists
         @@nagios_service{ "check_snn_health_${::fqdn}":
           check_command       =>  'check_nrpe!check_snn_status',
           service_description =>  'HDFS SecondaryNameNode Status',
+          ensure => absent,
         }
       }
-      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
-        @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
-          check_command       =>  'check_nrpe!check_hadoop_dfs',
-          service_description =>  'HDFS Datanodes Status',
-        }
-        @@nagios_service{ "check_nn_health_${::fqdn}":
-          check_command       =>  'check_nrpe!check_nn_health',
-          service_description =>  'HDFS NameNode Health Status',
-        }
-      }
-    }
-    else {
-      # check hadoop_hdfs status from first namenode only
-      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
-        @@nagios_service{ "check_hadoop_dfs_${::fqdn}":
-          check_command       =>  'check_nrpe!check_hadoop_dfs',
-          service_description =>  'HDFS Datanodes Status',
+      if ($mapreduce != 'disabled') {
+        if ($::fqdn == $jobtracker_host) {
+          @@nagios_service{ "check_jt_status_${::fqdn}":
+            check_command       =>  'check_nrpe!check_jt_status',
+            service_description =>  'Hadoop Jobtracker Status',
+          }
+          @@nagios_service{ "check_mr_tts_${::fqdn}":
+            check_command       =>  'check_nrpe!check_mr_tts',
+            service_description =>  'MapReduce TaskTrackers Status',
+          }
         }
       }
-      if $::fqdn in $namenode_hosts {
-        @@nagios_service{ "check_nn_health_${::fqdn}":
-          check_command       =>  'check_nrpe!check_nn_health',
-          service_description =>  'HDFS NameNode Health Status',
-        }
-      }
-      if $::fqdn in $journalnodes {
-        @@nagios_service{ "check_jn_status_${::fqdn}":
-          check_command       =>  'check_nrpe!check_jn_status',
-          service_description =>  'HDFS JournalNode Status',
-        }
-      }
-      #ha does not require snn
-      #make sure to purge snn service if exists
-      @@nagios_service{ "check_snn_health_${::fqdn}":
-        check_command       =>  'check_nrpe!check_snn_status',
-        service_description =>  'HDFS SecondaryNameNode Status',
-        ensure => absent,
-      }
-    }
-    if ($mapreduce != 'disabled') {
-      if ($::fqdn == $jobtracker_host) {
-        @@nagios_service{ "check_jt_status_${::fqdn}":
-          check_command       =>  'check_nrpe!check_jt_status',
-          service_description =>  'Hadoop Jobtracker Status',
-        }
-        @@nagios_service{ "check_mr_tts_${::fqdn}":
-          check_command       =>  'check_nrpe!check_mr_tts',
-          service_description =>  'MapReduce TaskTrackers Status',
-        }
-      }
-    }
 
-    # Plugins related to hbase
+      # Plugins related to hbase
 
-    if ($hbase_deploy != 'disabled') {
-      if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
-        @@nagios_service{ "check_hbase_${::fqdn}":
-          check_command => 'check_nrpe!check_hbase_status',
-          service_description =>  'HBase RegionServers Status',
+      if ($hbase_deploy != 'disabled') {
+        if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
+          @@nagios_service{ "check_hbase_${::fqdn}":
+            check_command => 'check_nrpe!check_hbase_status',
+            service_description =>  'HBase RegionServers Status',
+          }
+        }
+        if $::fqdn in $hbase_master {
+          @@nagios_service{ "check_hmaster_daemon_${::fqdn}":
+            check_command => 'check_nrpe!check_hmaster_daemon',
+            service_description =>  'HBase Master Status',
+          }
+        }
+        if $::fqdn in $slaves {
+          @@nagios_service{ "check_regionserver_${::fqdn}":
+            check_command => 'check_nrpe!check_regionserver_status',
+            service_description =>  'HBase RegionServer Status',
+          }
         }
       }
-      if $::fqdn in $hbase_master {
-        @@nagios_service{ "check_hmaster_daemon_${::fqdn}":
-          check_command => 'check_nrpe!check_hmaster_daemon',
-          service_description =>  'HBase Master Status',
+
+      # Zookeepers Daemons count
+      if ($hbase_deploy != "disabled") {
+        #monitor zks port from hbasemaster
+        if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
+          @@nagios_service{ "check_zks_status_${::fqdn}":
+            check_command       =>  'check_nrpe!check_zk_status',
+            service_description =>  'Zookeepers Status',
+          }
+          @@nagios_service{ "check_hbase_onlineregions_${::fqdn}":
+            check_command       =>  'check_nrpe60!check_hbase_onlineregions',
+            service_description =>  'HBase Online Regions per RS',
+          }
+        }
+      } elsif ($ha == "enabled") {
+        if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
+          @@nagios_service{ "check_zks_status_${::fqdn}":
+            check_command       =>  'check_nrpe!check_zk_status',
+            service_description =>  'Zookeepers Status',
+          }
         }
       }
-      if $::fqdn in $slaves {
-        @@nagios_service{ "check_regionserver_${::fqdn}":
-          check_command => 'check_nrpe!check_regionserver_status',
-          service_description =>  'HBase RegionServer Status',
+
+      #Zookeepers daemons
+      if ($ha == "enabled") or ($hbase_deploy != "disabled") {
+        if $::fqdn in $zookeepers {
+          # check zookeeper process
+          @@nagios_service{ "check_zks_daemon_${::fqdn}":
+            check_command       =>  'check_nrpe!check_zk_daemon',
+            service_description =>  'Zookeepers Daemon Status',
+          }
         }
       }
     }
-
-    # Zookeepers Daemons count
-    if ($hbase_deploy != "disabled") {
-      #monitor zks port from hbasemaster
-      if($::fqdn == inline_template("<%= hbase_master.to_a[0] %>")) {
-        @@nagios_service{ "check_zks_status_${::fqdn}":
-          check_command       =>  'check_nrpe!check_zk_status',
-          service_description =>  'Zookeepers Status',
-        }
-        @@nagios_service{ "check_hbase_onlineregions_${::fqdn}":
-          check_command       =>  'check_nrpe60!check_hbase_onlineregions',
-          service_description =>  'HBase Online Regions per RS',
-        }
-      }
-    } elsif ($ha == "enabled") {
-      if ($::fqdn == inline_template("<%= namenode_hosts.to_a[0] %>")) {
-        @@nagios_service{ "check_zks_status_${::fqdn}":
-          check_command       =>  'check_nrpe!check_zk_status',
-          service_description =>  'Zookeepers Status',
-        }
-      }
-    }
-
-    #Zookeepers daemons
-    if ($ha == "enabled") or ($hbase_deploy != "disabled") {
-      if $::fqdn in $zookeepers {
-        # check zookeeper process
-        @@nagios_service{ "check_zks_daemon_${::fqdn}":
-          check_command       =>  'check_nrpe!check_zk_daemon',
-          service_description =>  'Zookeepers Daemon Status',
-        }
-      }
-    }
-
 } #end of file

@@ -199,6 +199,8 @@ command[check_total_procs]=<%= scope.lookupvar('nagios::params::user1') %>/check
 command[check_rootpart]=<%= scope.lookupvar('nagios::params::user1') %>/check_disk -w 20% -c 10% -x /
 command[check_ssh]=<%= scope.lookupvar('nagios::params::user1') %>/check_ssh <%= @ipaddress %>
 command[check_swap]=<%= scope.lookupvar('nagios::params::user1') %>/check_swap -w 20% -c 10%
+<% if @hadoop_deploy != 'disabled' -%>
+#HADOOP PLUGINS
 command[check_nn_health]=<%= scope.lookupvar('nagios::params::user1') %>/check_nn_health
 command[check_snn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_snn_status
 command[check_jt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jt_status
@@ -217,12 +219,14 @@ command[check_zk_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_z
 command[check_zk_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_daemon
 <% end -%>
 <% if @hbase == "enabled" -%>
+#HBASE PLUGINS
 command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_hmaster_daemon
 command[check_regionserver_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rs_status
 command[check_hbase_onlineregions]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase_onlineregions
 <% end -%>
 <% if @ha == "enabled" -%>
 command[check_jn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jn_status
+<% end -%>
 <% end -%>
 # The following examples allow user-supplied arguments and can
 # only be used if the NRPE daemon was compiled with support for
