@@ -193,12 +193,12 @@ class hadoop::namenode inherits hadoop::common-hdfs{
                             "/user"                             => { perm => "755", user => "hdfs"   },
                             "/hbase"                            => { perm => "755", user => "hbase"  },
                             "/benchmarks"                       => { perm => "777", user => "hdfs"   },
-                            "/user/jenkins"                     => { perm => "777", user => "jenkins"},
-                            "/user/history"                     => { perm => "777", user => "mapred" },
-                            "/user/root"                        => { perm => "777", user => "root"   },
-                            "/user/hive"                        => { perm => "777", user => "hive"   },
-                            "/user/oozie"                       => { perm => "777", user => "oozie"  },
-                            "/user/hue"                         => { perm => "777", user => "hue"    },
+                            "/user/jenkins"                     => { perm => "755", user => "jenkins"},
+                            "/user/history"                     => { perm => "755", user => "mapred" },
+                            "/user/root"                        => { perm => "755", user => "root"   },
+                            "/user/hive"                        => { perm => "755", user => "hive"   },
+                            "/user/oozie"                       => { perm => "755", user => "oozie"  },
+                            "/user/hue"                         => { perm => "755", user => "hue"    },
                           },
         }
     }
