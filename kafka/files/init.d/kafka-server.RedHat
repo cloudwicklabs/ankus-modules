@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# /etc/init.d/kafka-server
+#
+# Startup script for kafka-server
+#
+# chkconfig: 2345 20 80
+# description: Starts and stops kafka-server
+. /etc/init.d/functions
+
+desc="Kafka distributed messaging system"
+
+if [ -f /etc/sysconfig/kafka ]; then
+  . /etc/sysconfig/kafka
+fi
+
+start() {
+  echo "Starting $desc (kafka-server): "
+
+  if [ -z "$KAFKA_JAVA_OPTS" ]; then
+    JAVA_OPTS="-Xmx512M -server  -Dlog4j.configuration=file:$KAFKA_CONF/log4j.properties"
+  fi
+
+  if [ -z "$JAVA_HOME" ]; then
+    echo "Cannot find JAVA_HOME"
+    exit 2
+  else
+    JAVA="$JAVA_HOME/bin/java"
+  fi
+  /sbin/runuser $KAFKA_USER -c "nohup $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_CONF/server.properties > ${KAFKA_LOG_DIR}/server.out 2> ${KAFKA_LOG_DIR}/server.err &"
+  RETVAL=$?
+  return $RETVAL
+}
+
+stop() {
+  echo -n "Stopping Kafka: "
+  /sbin/runuser  $KAFKA_USER  -c "ps -ef | grep kafka.Kafka | grep -v grep | awk '{print \$2}' | xargs kill"
+  echo " done."
+  exit 0
+}
+
+hardstop() {
+  echo -n "Stopping (hard) Kafka: "
+  /sbin/runuser  $KAFKA_USER  -c "ps -ef | grep kafka.Kafka | grep -v grep | awk '{print \$2}' | xargs kill -9"
+  echo " done."
+  exit 0
+}
+
+restart() {
+  stop
+  start
+}
+
+status() {
+  c_pid=`ps -ef | grep kafka.Kafka | grep -v grep | awk '{print $2}'`
+  if [ "$c_pid" = "" ] ; then
+    echo "Stopped"
+    exit 3
+  else
+    echo "Running $c_pid"
+    exit 0
+  fi
+}
+
+case "$1" in
+  start)    start;;
+  stop)     stop;;
+  hardstop) hardstop;;
+  restart)  restart;;
+  status)   status;;
+  *)        echo "Usage: $0 {start|stop|restart|hardstop|status}"
+            RETVAL=2;;
+esac
+exit $RETVAL

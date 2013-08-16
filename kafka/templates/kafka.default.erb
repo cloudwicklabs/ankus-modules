@@ -1,0 +1,27 @@
+# This file is managed by Puppet.
+
+export KAFKA_HOME=/opt/kafka
+
+export KAFKA_CONF=/etc/kafka/config
+
+export KAFKA_LOG_DIR=/var/log/kafka
+
+# whether to allow init.d script to start a kafka broker ("yes", "no")
+KAFKA_START=<%= @enabled ? 'yes' : 'no' %>
+
+# JAVA PATH
+export JAVA_HOME=<%= @java_home %>
+
+# The default JMX_PORT for Kafka Brokers is 9999.
+# Set JMX_PORT to something else to override this.
+export KAFKA_JMX_PORT=<%= @jmx_port %>
+
+# JMX options
+export KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=$KAFKA_JMX_PORT "
+
+# Memory sizes, and logging configuration
+export KAFKA_JAVA_OPTS="-Xmx512M -server -Dlog4j.configuration=file:$KAFKA_CONF/log4j.properties $KAFKA_JMX_OPTS"
+
+# User and group to run as
+export KAFKA_USER=kafka
+export KAFKA_GROUP=kafka
