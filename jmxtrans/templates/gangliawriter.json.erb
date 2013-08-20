@@ -1,0 +1,59 @@
+<%
+(jmx_host, jmx_port) = @jmx.split(':')
+valid_ganglia_settings = ['slope', 'units', 'tmax', 'dmax', 'sendMetadata']
+-%>
+
+{ "servers":
+  [ { "host": "<%= jmx_host %>"
+    , "port": <%= jmx_port %>
+<% if @jmx_alias != '' -%>
+    , "alias": "<%= @jmx_alias %>"
+<% end -%>
+<% if @jmx_username != '' -%>
+    , "username": "<%= @jmx_username %>"
+<% end -%>
+<% if @jmx_password != '' -%>
+    , "password": "<%= @jmx_password %>"
+<% end -%>
+    , "queries":
+      [
+<% # each attr gets it own obj chunk because it could have a different slope and unit. -%>
+<% @objects.each_with_index do |object, obj_index| -%>
+<%   object['attributes'].keys.sort.each_with_index do |attr_name, attr_index| -%>
+      <% if obj_index == 0 && attr_index == 0 -%>  <% else -%>, <% end -%>{ "obj": "<%= object["name"] %>"
+        , "attr": [ "<%= attr_name %>" ]
+<%     if object.has_key? "resultAlias" -%>
+        , "resultAlias": "<%= object["resultAlias"] %>"
+<%     end -%>
+        , "outputWriters":
+          [
+<%     if @outfile -%>
+            { "@class": "com.googlecode.jmxtrans.model.output.KeyOutWriter"
+            , "settings":
+              { "outputFile": "<%= @outfile %>" }
+            }
+<%     end -%>
+<%          (ganglia_host, ganglia_port) = @ganglia.split(':') -%>
+          <% if @outfile -%>, <% else -%>  <% end -%>{ "@class" : "com.googlecode.jmxtrans.model.output.GangliaWriter"
+            , "settings":
+              { "host": "<%= ganglia_host %>"
+              , "port": <%= ganglia_port %>
+<%       object['attributes'][attr_name].keys.select { |key| valid_ganglia_settings.include? key }.sort.each do |key| -%>
+<%         value = object['attributes'][attr_name][key] -%>
+<%         value.upcase! if key == 'slope'         -%>
+           <% # render each key: value pair.  If value is an integer, then render it without enclosing quotes. -%>
+              , "<%= key %>": <%= (value.to_i.to_s == value) ? value : "\"#{value}\"" %>
+<%       end # each key -%>
+<%       if @ganglia_group_name != '' -%>
+              , "groupName": "<%= @ganglia_group_name %>"
+<%       end -%>
+              }
+            }
+          ]
+        }
+<%   end # object['attributes'].keys.sort.each_with_index -%>
+<% end # @objects.each_with_index -%>
+      ]
+    }
+  ]
+}
