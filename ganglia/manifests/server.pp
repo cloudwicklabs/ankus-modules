@@ -25,7 +25,6 @@ class ganglia::server (
     enable  => true,
     status => 'ps aux | grep gmetad | grep -qv grep',
     require => Package[$ganglia_server_pkg],
-    notify  => Exec['refresh-apache']
   }
 
   file {'/etc/ganglia/gmetad.conf':

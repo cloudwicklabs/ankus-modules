@@ -47,6 +47,9 @@ class nagios::server inherits nagios {
   include nagios::params
   include nagios::target
 
+  include utilities::php
+  include utilities::httpd
+
   $adminemail = hiera('admin_email')
 
   case $operatingsystem {
@@ -54,51 +57,42 @@ class nagios::server inherits nagios {
       $nagiosservice = "nagios3"
       $nagiospackage = "nagios3"
       $nagiospattern = "nagios3"
-      $apacheservice = "apache2"
-      $apachepackage = "apache2"
-      $packages =  ['nagios3', 'apache2', 'nagios-nrpe-plugin', 'postfix']
+      $packages =  ['nagios3', 'nagios-nrpe-plugin', 'postfix']
       $nagios_service_pattern = "ps aux | grep nagios3 | grep -qv grep"
     }
     /RedHat|CentOS|Fedora/: {
       $nagiosservice = "nagios"
       $nagiospackage = "nagios"
       $nagiospattern = "nagios"
-      $apacheservice = "httpd"
-      $apachepackage = "httpd"
-      $packages =  ['nagios', 'nagios-devel', 'nagios-plugins-all', 'nagios-plugins-nrpe', 'php', 'net-snmp', 'net-snmp-utils', 'postfix', 'httpd' ]
+      $packages =  ['nagios', 'nagios-devel', 'nagios-plugins-all', 'nagios-plugins-nrpe', 'net-snmp', 'net-snmp-utils', 'postfix' ]
       $nagios_service_pattern = "ps aux | grep nagios | grep -qv grep"
     }
-
     default: {err ("operatingsystem $operatingsystem not yet implemented !")}
   }
+  $apachepackage = 'httpd' #from utilities::httpd
 
   package { $packages:
     ensure  =>  installed,
   }
 
   service {
-        # $nagiosservice:         #BUG: Fix me! Initial start of nagios failing, even with configurations in place?
-        #  ensure      => running,
-        #  alias       => 'nagios',
-        #  hasstatus   => true,
-        #  hasrestart  => true,
-        #  require     => [ Package[$nagiospackage],
-        #                   File["${nagios::params::rootdir}/nagios.cfg",
-        #                        "${nagios::params::rootdir}/commands/generic-commands.cfg",
-        #                        "${nagios::params::rootdir}/contacts/generic-contact.cfg",
-        #                        "${nagios::params::rootdir}/hosts/generic-host.cfg",
-        #                        "${nagios::params::rootdir}/services/generic-service.cfg",
-        #                        "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
-       'postfix':
-       	 ensure		   =>	running,
-       	 enable		   =>	true,
-       	 hasrestart	 =>	true,
-       	 require	   =>	Package["postfix"];
-       $apacheservice:
-       	 ensure		   =>	running,
-       	 enable		   =>	true,
-       	 hasrestart	 =>	true,
-       	 require	   =>	Package[$apachepackage];
+      # $nagiosservice:         #BUG: Fix me! Initial start of nagios failing, even with configurations in place?
+      #  ensure      => running,
+      #  alias       => 'nagios',
+      #  hasstatus   => true,
+      #  hasrestart  => true,
+      #  require     => [ Package[$nagiospackage],
+      #                   File["${nagios::params::rootdir}/nagios.cfg",
+      #                        "${nagios::params::rootdir}/commands/generic-commands.cfg",
+      #                        "${nagios::params::rootdir}/contacts/generic-contact.cfg",
+      #                        "${nagios::params::rootdir}/hosts/generic-host.cfg",
+      #                        "${nagios::params::rootdir}/services/generic-service.cfg",
+      #                        "${nagios::params::rootdir}/timeperiods/generic-timeperiod.cfg"] ];
+     'postfix':
+     	 ensure		   =>	running,
+     	 enable		   =>	true,
+     	 hasrestart	 =>	true,
+     	 require	   =>	Package["postfix"];
     }
 
     exec { "nagios-start":
