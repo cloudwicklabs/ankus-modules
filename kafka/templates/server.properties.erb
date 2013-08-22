@@ -88,7 +88,7 @@ log.segment.bytes=<%= @log_segment_bytes %>
 # to the retention policies
 log.cleanup.interval.mins=<%= @log_cleanup_interval_mins %>
 
-log.cleanup.policy=<%= @log_cleanup_policy %>
+# log.cleanup.policy=<%= @log_cleanup_policy %>
 
 
 ############################# Zookeeper #############################
@@ -103,7 +103,7 @@ zookeeper.connect=<%= @zookeeper_hosts.sort.join(',') %><%= @zookeeper_chroot if
 # Timeout in ms for connecting to zookeeper
 zookeeper.connection.timeout.ms=<%= @zookeeper_connection_timeout_ms %>
 
-<% if @metrics_dir -%>
+<% if @metrics_dir != '' -%>
 ############################# Kafka Metrics Reporter ############################
 
 kafka.csv.metrics.reporter.enabled=true

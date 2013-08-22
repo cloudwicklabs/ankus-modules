@@ -1,7 +1,10 @@
 class kafka::params {
   include java::params
-  $kafka_base = $::hostname ? {
+  $kafka_pkgs_base = $::hostname ? {
     default => "/opt"
+  }
+  $kafka_pkgs_home = $::hostname ? {
+    default => "${kafka_pkgs_base}/packages"
   }
   $kafka_version = $::hostname ? {
     default => '0.8.0'
@@ -36,6 +39,6 @@ class kafka::params {
   $log_segment_bytes               = 536870912
   $log_cleanup_policy              = 'delete'
   $log_cleanup_interval_mins       = 1
-  $metrics_dir                     = hiera(kafka_metrics_dir, undef)
+  $metrics_dir                     = hiera(kafka_metrics_dir, '')
   $java_home                       = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
 }

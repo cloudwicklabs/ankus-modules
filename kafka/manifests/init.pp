@@ -22,6 +22,9 @@
 # If data is available from hiera
 # include kafka
 #
+# To install kafka server service
+# include kafka::server
+#
 class kafka inherits kafka::params {
 
   #Params for populating ERb
@@ -48,37 +51,35 @@ class kafka inherits kafka::params {
     require => Group["kafka"]
   }
 
-  file { "${kafka::params::kafka_base}":
+  file { ["${kafka::params::kafka_pkgs_base}", "${kafka::params::kafka_pkgs_home}"]:
     ensure  => "directory",
     owner   => "root",
     group   => "root",
-    alias   => "kafka-base",
-    require => User["kafka"]
   }
 
-  file { "/tmp/kafka-${kafka::params::kafka_version}.tgz":
+  file { "${kafka::params::kafka_pkgs_home}/kafka-${kafka::params::kafka_version}.tgz":
     mode    => 0644,
     owner   => kafka,
     group   => kafka,
     source  => "puppet:///modules/${module_name}/kafka-${kafka::params::kafka_version}.tgz",
     alias   => "kafka-source-tgz",
     before  => Exec["untar-kafka"],
-    require => File["kafka-base"]
+    require => File["${kafka::params::kafka_pkgs_home}"]
   }
 
   exec { "untar kafka-${kafka::params::kafka_version}.tgz":
-    command     => "/bin/tar -xzf /tmp/kafka-${kafka::params::kafka_version}.tgz -C ${kafka::params::kafka_base} && chown -R kafka:kafka kafka-${kafka::params::kafka_version}",
-    cwd         => "${kafka::params::kafka_base}",
-    creates     => "${kafka::params::kafka_base}/kafka-${kafka::params::kafka_version}",
+    command     => "/bin/tar -xzf ${kafka::params::kafka_pkgs_home}/kafka-${kafka::params::kafka_version}.tgz -C ${kafka::params::kafka_pkgs_base} && chown -R kafka:kafka kafka-${kafka::params::kafka_version}",
+    cwd         => "${kafka::params::kafka_pkgs_base}",
+    creates     => "${kafka::params::kafka_pkgs_base}/kafka-${kafka::params::kafka_version}",
     alias       => "untar-kafka",
     refreshonly => true,
     subscribe   => File["kafka-source-tgz"],
     before      => File["kafka-app-dir"]
   }
 
-  file { "${kafka::params::kafka_base}/kafka":
+  file { "${kafka::params::kafka_pkgs_base}/kafka":
     ensure  => "link",
-    target  => "${kafka::params::kafka_base}/kafka-${kafka::params::kafka_version}",
+    target  => "${kafka::params::kafka_pkgs_base}/kafka-${kafka::params::kafka_version}",
     mode    => 0644,
     owner   => "kafka",
     group   => "kafka",
@@ -94,7 +95,7 @@ class kafka inherits kafka::params {
 
   file { "/etc/kafka/config":
     ensure  => link,
-    target  => "${kafka::params::kafka_base}/kafka-${kafka::params::kafka_version}/config",
+    target  => "${kafka::params::kafka_pkgs_base}/kafka-${kafka::params::kafka_version}/config",
     owner   => "kafka",
     group   => "kafka",
     alias   => "kafka-conf-dir",
