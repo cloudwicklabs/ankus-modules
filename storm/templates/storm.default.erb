@@ -1,0 +1,36 @@
+# File managed by Puppet
+
+if ! env | grep -q ^JAVA_HOME=; then
+  export JAVA_HOME="<%= @java_home %>"
+  export PATH=$PATH:$JAVA_HOME/bin
+fi
+STORM_USER="storm"
+
+JVM_TYPE="server"
+JAVA_LIBRARY_PATH="/usr/local/lib:/opt/local/lib:/usr/lib64:/usr/lib:/usr/local/lib64"
+STORM_OPTIONS=""
+
+STORM_HOME="/opt/storm"
+STORM_LIB="$STORM_HOME/lib"
+STORM_JAR="$STORM_HOME/storm-*.jar"
+STORM_CONF="/etc/storm/conf"
+
+STORM_CLASSPATH="$(echo $STORM_LIB/*.jar | tr ' ' ':'):$(echo $STORM_JAR | tr ' ' ':'):$(echo $STORM_CONF | tr ' ' ':'):${STORM_HOME}"
+
+# Nimbus configuration options
+NIMBUS_JVM_MEMORY="768m"
+# Additional nimbus JVM options
+NIMBUS_JVM_OPTS="-Dlog4j.configuration=storm.log.properties -Dlogfile.name=nimbus.log"
+STORM_NIMBUS_PID="/var/run/storm-nimbus.pid"
+
+# Worker configuration options
+SUPERVISOR_JVM_MEMORY="1024m"
+# Additional nimbus JVM options
+SUPERVISOR_JVM_OPTS="-Dlog4j.configuration=storm.log.properties -Dlogfile.name=supervisor.log"
+STORM_SUPERVISOR_PID="/var/run/storm-supervisor.pid"
+
+# UI configuration options
+UI_JVM_MEMORY="768m"
+# Additional nimbus JVM options
+UI_JVM_OPTS="-Dlog4j.configuration=storm.log.properties -Dlogfile.name=ui.log"
+STORM_UI_PID="/var/run/storm-ui.pid"

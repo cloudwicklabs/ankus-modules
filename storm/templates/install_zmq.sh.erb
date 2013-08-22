@@ -1,0 +1,30 @@
+#!/bin/bash
+export JAVA_HOME="<%= @java_home %>"
+
+if [ ! -d "$JAVA_HOME/include" ]; then
+  echo "Cannot find JAVA_HOME"
+  exit -1;
+fi
+
+BASE_DIR=<%= @base_dir %>
+
+cd $BASE_DIR
+
+#install zeromq
+wget http://download.zeromq.org/zeromq-2.1.7.tar.gz
+tar -xzf zeromq-2.1.7.tar.gz
+cd zeromq-2.1.7
+./configure
+make
+sudo make install
+rm -rf ${BASE_DIR}/zeromq-2.1.7.tar.gz
+
+cd $BASE_DIR
+
+#install jzmq (both native and into local maven cache)
+git clone https://github.com/nathanmarz/jzmq.git
+cd jzmq
+./autogen.sh
+./configure
+make
+sudo make install
