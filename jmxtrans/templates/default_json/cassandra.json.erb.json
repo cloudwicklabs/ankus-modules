@@ -1,0 +1,509 @@
+{
+    "servers": [
+        {
+            "port": 7199,
+            "host": "ip-10-197-21-149.us-west-1.compute.internal",
+            "queries": [
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.db:type=Commitlog",
+                    "resultAlias": "Commitlog",
+                    "attr": [
+                        "CompletedTasks",
+                        "PendingTasks",
+                        "TotalCommitlogSize"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.db:type=CompactionManager",
+                    "resultAlias": "CompactionManager",
+                    "attr": [
+                        "PendingTasks",
+                        "CompletedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.db:type=StorageProxy",
+                    "resultAlias": "StorageProxy",
+                    "attr": [
+                        "HintsInProgress",
+                        "RangeOperations",
+                        "ReadOperations",
+                        "WriteOperations",
+                        "RecentRangeLatencyMicros",
+                        "RecentWriteLatencyMicros",
+                        "RecentReadLatencyMicros",
+                        "TotalHints",
+                        "TotalRangeLatencyMicros",
+                        "TotalWriteLatencyMicros",
+                        "TotalReadLatencyMicros"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.db:type=StorageService",
+                    "resultAlias": "StorageService",
+                    "attr": [
+                        "ExceptionCount",
+                        "Load"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.net:type=MessagingService",
+                    "resultAlias": "MessagingService",
+                    "attr": [
+                        "RecentTotalTimouts",
+                        "TotalTimeouts"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.request:type=MutationStage",
+                    "resultAlias": "Stage_MutationStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.request:type=ReadRepairStage",
+                    "resultAlias": "Stage_ReadRepairStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.request:type=ReadStage",
+                    "resultAlias": "Stage_ReadStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.request:type=ReplicateOnWriteStage",
+                    "resultAlias": "Stage_ReplicateOnWriteStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.request:type=RequestResponseStage",
+                    "resultAlias": "Stage_RequestResponseStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=AntiEntropySessions",
+                    "resultAlias": "Internal_AntiEntropySessions",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=AntiEntropyStage",
+                    "resultAlias": "Internal_AntiEntropyStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=FlushWriter",
+                    "resultAlias": "Internal_FlushWriter",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=GossipStage",
+                    "resultAlias": "Internal_GossipStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=HintedHandoff",
+                    "resultAlias": "Internal_HintedHandoff",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=InternalResponseStage",
+                    "resultAlias": "Internal_InternalResponseStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=MemtablePostFlusher",
+                    "resultAlias": "Internal_MemtablePostFlusher",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=MigrationStage",
+                    "resultAlias": "Internal_MigrationStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=MiscStage",
+                    "resultAlias": "Internal_MiscStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "org.apache.cassandra.internal:type=StreamStage",
+                    "resultAlias": "Internal_StreamStage",
+                    "attr": [
+                        "ActiveCount",
+                        "CompletedTasks",
+                        "CurrentlyBlockedTasks",
+                        "PendingTasks",
+                        "TotalBlockedTasks"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal"
+                            }
+                        }
+                    ],
+                    "obj": "java.lang:type=Memory",
+                    "resultAlias": "heap",
+                    "attr": [
+                        "HeapMemoryUsage",
+                        "NonHeapMemoryUsage"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal",
+                                "typeNames": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    ],
+                    "obj": "java.lang:type=GarbageCollector,name=*",
+                    "resultAlias": "gc",
+                    "attr": [
+                        "CollectionCount",
+                        "CollectionTime"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal",
+                                "typeNames": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    ],
+                    "obj": "java.lang:type=OperatingSystem",
+                    "attr": [
+                        "SystemLoadAverage",
+                        "FreePhysicalMemorySize",
+                        "TotalPhysicalMemorySize"
+                    ]
+                },
+                {
+                    "outputWriters": [
+                        {
+                            "@class": "com.googlecode.jmxtrans.model.output.GangliaWriter",
+                            "settings": {
+                                "groupName" : "cassandra",
+                                "port": 8649,
+                                "host": "ip-10-196-74-143.us-west-1.compute.internal",
+                                "typeNames": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    ],
+                    "obj": "java.lang:type=Threading",
+                    "resultAlias": "Threading",
+                    "attr": [
+                        "DaemonThreadCount",
+                        "PeakThreadCount",
+                        "ThreadCount",
+                        "TotalStartedThreadCount"
+                    ]
+                }
+            ],
+            "numQueryThreads": 16
+        }
+    ]
+}
