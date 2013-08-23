@@ -4,8 +4,10 @@ class storm::ui inherits storm {
 
   service { 'storm-ui':
     ensure  => running,
-    hasstatus => true,
+    enable    => true,
+    hasstatus => false,
+    status    => "ps aux | grep java | grep ui | grep -qv grep",
     hasrestart => true,
-    require => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
+    subscribe => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
   }
 }

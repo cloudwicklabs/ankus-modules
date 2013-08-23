@@ -4,9 +4,10 @@ class storm::nimbus inherits storm {
 
   service { 'storm-nimbus':
     ensure  => running,
-    hasstatus => true,
+    hasstatus => false,
+    status    => "ps aux | grep java | grep nimbus | grep -qv grep",
     hasrestart => true,
-    require => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
+    subscribe => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
   }
 
   file { "/usr/local/bin/storm":

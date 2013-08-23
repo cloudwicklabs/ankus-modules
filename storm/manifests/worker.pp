@@ -6,8 +6,9 @@ class storm::worker inherits storm {
 
   service { 'storm-supervisor':
     ensure  => running,
-    hasstatus => true,
+    hasstatus => false,
+    status    => "ps aux | grep java | grep supervisor | grep -qv grep",
     hasrestart => true,
-    require => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
+    subscribe => [Package['storm'], File["/opt/storm/conf/storm.yaml", "/etc/sysconfig/storm"]],
   }
 }
