@@ -26,6 +26,11 @@ class storm::install inherits storm::params {
     require => File["${storm::params::packages_home}"]
   }
 
+  package { $storm::params::zmq_deps_pkgs:
+    ensure => installed,
+    before => Package["libzmq1"]
+  }
+
   package { "libzmq1":
     ensure    => installed,
     source    => "${storm::params::packages_home}/${storm::params::zmq_package}",

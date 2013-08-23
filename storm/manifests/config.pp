@@ -22,7 +22,7 @@ class storm::config (
   file { "/opt/storm/conf/storm.yaml":
     ensure  => present,
     owner => "storm",
-    group => "strom",
+    group => "storm",
     content => template('storm/storm.yml.erb') ,
     require => [Package['storm'], File['/var/cache/storm']],
   }
