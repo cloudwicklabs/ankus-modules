@@ -39,6 +39,6 @@ class kafka::params {
   $log_segment_bytes               = 536870912
   $log_cleanup_policy              = 'delete'
   $log_cleanup_interval_mins       = 1
-  $metrics_dir                     = hiera(kafka_metrics_dir, '')
+  $metrics_dir                     = hiera(kafka_metrics_dir, 'disabled')
   $java_home                       = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
 }

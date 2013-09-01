@@ -37,7 +37,7 @@
 
 class zookeeper {
 
-  require utilities
+  require utilities::repos
 
   class client inherits zookeeper {
     include java
