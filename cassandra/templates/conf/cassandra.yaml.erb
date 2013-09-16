@@ -42,7 +42,7 @@ ssl_storage_port: 7001
 listen_address: <%= scope.lookupvar('::ipaddress') %>
 start_native_transport: true
 start_rpc: true
-rpc_address: <%= scope.lookupvar('::ipaddress') %>
+rpc_address: 0.0.0.0
 rpc_port: 9160
 rpc_keepalive: true
 rpc_server_type: sync
