@@ -19,4 +19,8 @@ class cassandra::params {
     $jmx_port = hiera(cassandra_jmx_port, '7199')
     $max_heap = hiera(cassandra_max_heap, '4G')
     $heap_newsize = hiera(cassandra_heap_newsize, '800M')
+    $authenticator = hiera(cassandra_authenticator, 'AllowAllAuthenticator')
+    $authorizer = hiera(cassandra_authorizer, 'AllowAllAuthorizer')
+    $partitioner = hiera(cassandra_partitioner, 'org.apache.cassandra.dht.Murmur3Partitioner')
+    $disk_failure_policy = hiera(cassandra_disk_failure_policy, 'stop')
 }

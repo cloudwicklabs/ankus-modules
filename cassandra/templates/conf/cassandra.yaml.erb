@@ -8,15 +8,15 @@ hinted_handoff_enabled: true
 max_hint_window_in_ms: 10800000 # 3 hours
 hinted_handoff_throttle_in_kb: 1024
 max_hints_delivery_threads: 2
-authenticator: AllowAllAuthenticator
-authorizer: AllowAllAuthorizer
+authenticator: <%= scope.lookupvar('cassandra::params::authenticator') %>
+authorizer: <%= scope.lookupvar('cassandra::params::authorizer') %>
 permissions_validity_in_ms: 2000
-partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+partitioner: <%= scope.lookupvar('cassandra::params::partitioner') %>
 data_file_directories:
     - <%= scope.lookupvar('cassandra::params::data_path') %>
 commitlog_directory: <%= scope.lookupvar('cassandra::params::commitlog_directory') %>
 saved_caches_directory: <%= scope.lookupvar('cassandra::params::saved_caches') %>
-disk_failure_policy: stop
+disk_failure_policy: <%= scope.lookupvar('cassandra::params::disk_failure_policy') %>
 key_cache_size_in_mb:
 key_cache_save_period: 14400
 row_cache_size_in_mb: 0
