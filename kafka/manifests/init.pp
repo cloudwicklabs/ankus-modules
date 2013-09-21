@@ -27,6 +27,8 @@
 #
 class kafka inherits kafka::params {
 
+  require utilities::packages
+
   #Params for populating ERb
   $hosts          = $kafka::params::hosts
   $kafka_log_file = $kafka::params::kafka_log_file
@@ -49,12 +51,6 @@ class kafka inherits kafka::params {
     system  => true,
     gid     => "kafka",
     require => Group["kafka"]
-  }
-
-  file { ["${kafka::params::kafka_pkgs_base}", "${kafka::params::kafka_pkgs_home}"]:
-    ensure  => "directory",
-    owner   => "root",
-    group   => "root",
   }
 
   file { "${kafka::params::kafka_pkgs_home}/kafka-${kafka::params::kafka_version}.tgz":

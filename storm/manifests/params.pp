@@ -3,9 +3,10 @@
 #
 class storm::params {
   include java::params
+  include utilities::params
   $java_home = inline_template("<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>")
-  $packages_base = "/opt"
-  $packages_home = "/opt/packages"
+  $packages_base = $utilities::params::packages_base
+  $packages_home = $utilities::params::packages_home
   $storm_version = "0.8.2-1"
   $zmq_version = "2.1.7"
   $jzmq_version = "2.1.7"

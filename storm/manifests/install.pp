@@ -3,9 +3,7 @@
 #
 class storm::install inherits storm::params {
 
-  file { ["${storm::params::packages_base}", "${storm::params::packages_home}"]:
-    ensure => directory,
-  }
+  require utilities::packages
 
   file { "${storm::params::packages_home}/${storm::params::storm_package}":
     ensure  => present,

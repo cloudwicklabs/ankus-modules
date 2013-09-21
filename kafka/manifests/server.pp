@@ -73,14 +73,14 @@ class kafka::server inherits kafka::params {
 
   # If we are using Kafka Metrics Reporter, ensure
   # that the $metrics_dir exists.
-  if ($metrics_dir and !defined(File[$metrics_dir])) {
-    file { $metrics_dir:
-      ensure  => 'directory',
-      owner   => 'kafka',
-      group   => 'kafka',
-      mode    => '0755',
-    }
-  }
+  # if ($metrics_dir and !defined(File[$metrics_dir])) {
+  #   file { $metrics_dir:
+  #     ensure  => 'directory',
+  #     owner   => 'kafka',
+  #     group   => 'kafka',
+  #     mode    => '0755',
+  #   }
+  # }
 
   file { "$kafka_log_dir":
     ensure => directory,
