@@ -48,34 +48,42 @@
     <value><%= hadoop_jobhistory_host %>:<%= hadoop_proxyserver_port %></value>
   </property>
   <property>
-    <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcetracker_port %></value>
-  </property>
-  <property>
+    <description>address of the applications manager interface in the ResouceManager</description>
     <name>yarn.resourcemanager.address</name>
     <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcemanager_port %></value>
   </property>
   <property>
+    <description>address of the scheduler interface</description>
     <name>yarn.resourcemanager.scheduler.address</name>
     <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcescheduler_port %></value>
   </property>
   <property>
+    <description>address of the resouce tracker interface</description>
+    <name>yarn.resourcemanager.resource-tracker.address</name>
+    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcetracker_port %></value>
+  </property>  
+  <property>
+    <description>address of the ResourceManager admin interface</description>
     <name>yarn.resourcemanager.admin.address</name>
     <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourceadmin_port %></value>
   </property>
   <property>
+    <description>address of the ResourceManager web application</description>
     <name>yarn.resourcemanager.webapp.address</name>
     <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcewebapp_port %></value>
   </property>
   <property>
+    <description>staging directory for temp files created during running jobs</description>
     <name>yarn.app.mapreduce.am.staging-dir</name>
     <value>/user</value>
   </property>
   <property>
+    <description>Shuffle service that needs to be set for MapReduce apps</description>
     <name>yarn.nodemanager.aux-services</name>
     <value>mapreduce.shuffle</value>
   </property>
   <property>
+    <description>exact name of the class for shuffle service</description>
     <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
     <value>org.apache.hadoop.mapred.ShuffleHandler</value>
   </property>
@@ -84,6 +92,11 @@
     <value>true</value>
   </property>
   <property>
+    <description>
+      specifies the directories where the NodeManager stores its localized files,
+      all of the files required for running a particular YARN application will be
+      put here for the duration of application run.
+    </description>
     <name>yarn.nodemanager.local-dirs</name>
     <value><%= yarn_data_dirs.join(",") %></value>
     <final>true</final>
@@ -91,7 +104,7 @@
   <property>
     <description>Where to store container logs.</description>
     <name>yarn.nodemanager.log-dirs</name>
-    <value>/var/log/hadoop-yarn/containers</value>
+    <value><%= yarn_container_log_dirs.join(",") %></value>
   </property>
   <property>
     <description>Where to aggregate logs to.</description>

@@ -239,6 +239,7 @@ class hadoop {
     $data_dirs = hiera('storage_dirs', ['/tmp/data'])
     $data_dir1 = inline_template("<%= data_dirs.to_a[0] %>")
     $yarn_data_dirs = append_each("/yarn",$data_dirs)
+    $yarn_container_log_dirs = append_each("/yarn-local",$data_dirs)
     $namenode_data_dirs = append_each("/name",$data_dirs)
     $hdfs_data_dirs = append_each("/hdfs",$data_dirs)
     #right now, journal node can only write to 1 dir
