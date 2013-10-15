@@ -18,23 +18,38 @@ export HADOOP_YARN_USER=${HADOOP_YARN_USER:-yarn}
 # resolve links - $0 may be a softlink
 export YARN_CONF_DIR="${YARN_CONF_DIR:-$YARN_HOME/conf}"
 
+# mapred home
+<%= shell_config("HADOOP_MAPRED_HOME") %>
+
+# some Java parameters
+<%= shell_config("JAVA_HOME", "hadoop_java_home") %>
+if [ "$JAVA_HOME" != "" ]; then
+  #echo "run java in $JAVA_HOME"
+  JAVA_HOME=$JAVA_HOME
+fi
+
+if [ "$JAVA_HOME" = "" ]; then
+  echo "Error: JAVA_HOME is not set."
+  exit 1
+fi
+
 JAVA=$JAVA_HOME/bin/java
-#JAVA_HEAP_MAX=-Xmx1000m
+<%= shell_config("YARN_HEAPSIZE") %>
+JAVA_HEAP_MAX=-Xmx1000m
 
 # check envvars which might override default args
-#if [ "$YARN_HEAPSIZE" != "" ]; then
+if [ "$YARN_HEAPSIZE" != "" ]; then
   #echo "run with heapsize $YARN_HEAPSIZE"
-#  JAVA_HEAP_MAX="-Xmx""$YARN_HEAPSIZE""m"
+  JAVA_HEAP_MAX="-Xmx""$YARN_HEAPSIZE""m"
   #echo $JAVA_HEAP_MAX
-#fi
+fi
 
 # CLASSPATH initially contains $YARN_CONF_DIR
-CLASSPATH="${YARN_CONF_DIR}"
-CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
+# CLASSPATH="${YARN_CONF_DIR}"
+# CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=
-
 
 # default log directory & file
 if [ "$YARN_LOG_DIR" = "" ]; then

@@ -1,12 +1,4 @@
-class hadoop::nodemanager (
-	$hadoop_resourcemanager_host = hiera('hadoop_resourcemanager_host'),
-	$hadoop_resourcemanager_port = hiera('hadoop_resourcemanager_port', 8032),
-	$hadoop_nodemanager_port = hiera('hadoop_nodemanager_port', '8041'),
-	$hadoop_resourcetracker_port = hiera('hadoop_resourcetracker_port', 8031),
-	$hadoop_resourcescheduler_port = hiera('hadoop_resourcescheduler_port', 8030),
-  $hadoop_security_authentication = hiera('hadoop_security_authentication', 'simple'),
-  $data_dirs = hiera('storage_dirs', ['/tmp/data']),
-	) inherits hadoop::common-yarn {
+class hadoop::nodemanager inherits hadoop::common-yarn {
 
     package { "hadoop-yarn-nodemanager":
       ensure => latest,
@@ -27,6 +19,14 @@ class hadoop::nodemanager (
       group => yarn,
       mode => 755,
     	require => [ Package["hadoop-yarn-nodemanager"], Exec["create-root-dir"]],
+    }
+
+    file { $yarn_container_log_dirs:
+      ensure => directory,
+      owner => yarn,
+      group => yarn,
+      mode => 755,
+      require => [ Package["hadoop-yarn-nodemanager"], Exec["create-root-dir"]],
     }
 
     if ($hadoop_security_authentication == "kerberos") {

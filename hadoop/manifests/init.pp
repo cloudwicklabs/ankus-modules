@@ -271,6 +271,9 @@ class hadoop {
     $hadoop_mapreduce = $hadoop_deploy['mapreduce']
     if ($hadoop_mapreduce != 'disabled') {
       $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
+      if ($hadoop_mapreduce_framework == 'mr2') {
+        $hadoop_mapred_home = '/usr/lib/hadoop-mapreduce'
+      }
     }
 
     file {
@@ -334,6 +337,15 @@ class hadoop {
   class common-yarn inherits common {
 
     #variables specific to mr2
+    #yarn-env.sh
+    $yarn_heap_size = hiera('yarn_heapsize', '1000')
+    $yarn_resourcemanager_opts = hiera('yarn_resourcemanager_opts', '-Xmx1000m')
+    $yarn_nodemanager_opts = hiera('yarn_nodemanager_opts', '-Xmx1000m')
+    $yarn_proxyserver_opts = hiera('yarn_proxyserver_opts', '-Xmx1000m')
+    $hadoop_job_historyserver_opts = hiera('hadoop_job_historyserver_opts', '-Xmx1000m')
+    $hadoop_mapred_home = '/usr/lib/hadoop-mapreduce'
+    $hadoop_yarn_home = '/usr/lib/hadoop-yarn'
+    $hadoop_hdfs_home = '/usr/lib/hadoop-hdfs'
     #yarn-site.xml
     $hadoop_mapreduce = $hadoop_deploy['mapreduce']
     $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
@@ -379,9 +391,20 @@ class hadoop {
       require => [File["java-app-dir"], Package["hadoop"]],
     }
 
+    # required to run MR jobs
+    package { "hadoop-mapreduce":
+      ensure => latest,
+      require => [File["java-app-dir"], Package["hadoop"]], 
+    }
+
+    file { "/etc/hadoop/conf/yarn-env.sh":
+      content => template('hadoop/yarn-env.sh.erb'),
+      require => [Package["hadoop-yarn"]],
+    }
+
     file { "/etc/hadoop/conf/yarn-site.xml":
-        content => template('hadoop/yarn-site.xml.erb'),
-        require => [Package["hadoop"]],
+      content => template('hadoop/yarn-site.xml.erb'),
+      require => [Package["hadoop-yarn"]],
     }
 
     file { "/etc/hadoop/conf/container-executor.cfg":
@@ -389,12 +412,12 @@ class hadoop {
       owner => root,
       group => yarn,
       mode => 400,
-      require => [Package["hadoop"]],
+      require => [Package["hadoop-yarn"]],
     }
 
     file { "/etc/hadoop/conf/mapred-site.xml":
-        content => template('hadoop/mapred-site.xml.erb'),
-        require => Package['hadoop'],
+      content => template('hadoop/mapred-site.xml.erb'),
+      require => Package['hadoop-yarn'],
     }
 
     if ($hadoop_security_authentication == "kerberos") {

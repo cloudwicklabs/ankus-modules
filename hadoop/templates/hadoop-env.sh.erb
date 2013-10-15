@@ -15,11 +15,14 @@
 # Extra Java CLASSPATH elements.  Optional.
 <%= shell_config("HADOOP_CLASSPATH") %>
 
-# The maximum amount of heap to use, in MB. Default is 1000.
+# The maximum amount of heap to use, in MB.
 <%= shell_config("HADOOP_HEAPSIZE", "hadoop_heap_size") %>
 
 # Extra Java runtime options.  Empty by default.
 <%= shell_config("HADOOP_OPTS") %>
+
+# hadoop mapred home
+<%= shell_config("HADOOP_MAPRED_HOME") %>
 
 # Command specific options appended to HADOOP_OPTS when specified
 <%= shell_config("HADOOP_NAMENODE_OPTS") %>
@@ -58,7 +61,6 @@
 # The scheduling priority for daemon processes.  See 'man nice'.
 <%= shell_config("HADOOP_NICENESS") %>
 
-#TODO:: Enable JMX for OpenTSDB by specifying a variable and checking it here
 export HADOOP_NAMENODE_OPTS="-Dcom.sun.management.jmxremote $HADOOP_NAMENODE_OPTS"
 export HADOOP_SECONDARYNAMENODE_OPTS="-Dcom.sun.management.jmxremote $HADOOP_SECONDARYNAMENODE_OPTS"
 export HADOOP_DATANODE_OPTS="-Dcom.sun.management.jmxremote $HADOOP_DATANODE_OPTS"
