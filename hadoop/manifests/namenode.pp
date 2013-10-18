@@ -185,7 +185,7 @@ class hadoop::namenode inherits hadoop::common-hdfs {
     if ($hadoop_mapreduce != 'disabled') {
       $hadoop_mapreduce_framework = $hadoop_mapreduce['type']
       if ($hadoop_mapreduce_framework == 'mr1') {
-        hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie" ]:
+        hadoop::create_hdfs_dirs { [ "/mapred", "/tmp", "/system", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/solr" ]:
           auth           => hiera('security'),
           hdfs_dirs_meta => { "/tmp"             => { perm => "777", user => "hdfs"   },
                               "/mapred"          => { perm => "755", user => "mapred" },
@@ -199,11 +199,12 @@ class hadoop::namenode inherits hadoop::common-hdfs {
                               "/user/hive"       => { perm => "755", user => "hive"   },
                               "/user/oozie"      => { perm => "755", user => "oozie"  },
                               "/user/hue"        => { perm => "755", user => "hue"    },
+                              "/solr"            => { perm => "755", user => "solr"   },
                             },
         }
       }
       elsif ($hadoop_mapreduce_framework == 'mr2') {
-        hadoop::create_hdfs_dirs { [ "/tmp", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/var", "/var/log", "/var/log/hadoop-yarn" ]:
+        hadoop::create_hdfs_dirs { [ "/tmp", "/user", "/hbase", "/benchmarks", "/user/hive", "/user/root", "/user/history", "/user/hue", "/user/oozie", "/var", "/var/log", "/var/log/hadoop-yarn", "/solr" ]:
           auth           => hiera('security'),
           hdfs_dirs_meta => { "/tmp"                  => { perm => "1777", user => "hdfs" },
                               "/user"                 => { perm => "755", user => "hdfs"  },
@@ -217,12 +218,13 @@ class hadoop::namenode inherits hadoop::common-hdfs {
                               "/var"                  => { perm => "755", user => "yarn"  },
                               "/var/log"              => { perm => "755", user => "yarn"  },
                               "/var/log/hadoop-yarn"  => { perm => "755", user => "yarn"  },
+                              "/solr"                 => { perm => "755", user => "solr"  },
                             },
         }
       }          
     }
   }
-
+  
   #log_stash
   if ($log_aggregation == 'enabled') {
     #require logstash::lumberjack_def

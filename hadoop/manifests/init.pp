@@ -212,10 +212,10 @@ class hadoop {
     #core-site.xml
     $hadoop_deploy = hiera('hadoop_deploy')
     $ha = $hadoop_deploy['hadoop_ha']
-    #HUE BEGIN
+    #Components
     $hue = hiera('hue', 'disabled') #flag to setup hue or not (enabled/disabled)
     $impala = hiera('impala', 'disabled')
-    #HUE END
+    $search = hiera('search', 'disabled')
     if ($ha != "disabled") {
       $hadoop_ha_nameservice_id = hiera('hadoop_ha_nameservice_id', 'ha-nn-uri')
       $upgradetoha = hiera('upgradetoha', 'false')

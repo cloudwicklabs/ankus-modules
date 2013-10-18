@@ -1,0 +1,22 @@
+# File Managed by Puppet, Any changes will be overwritten on the next puppet run.
+SOLR_ZK_ENSEMBLE=<%= @zookeeper_ensemble %>/solr
+SOLR_HDFS_HOME=<%= @hadoop_namenode_uri %>/solr
+SOLR_HDFS_CONFIG=/etc/hadoop/conf
+SOLR_PORT=8983
+SOLR_ADMIN_PORT=8984
+SOLR_LOG=/var/log/solr
+<% if hadoop_security_authentication == "kerberos" -%>
+SOLR_KERBEROS_ENABLED=true
+SOLR_KERBEROS_KEYTAB=/etc/solr/conf/solr.keytab
+SOLR_KERBEROS_PRINCIPAL=solr/<%= @kerberos_domain %>@<%= @kerberos_realm %>
+<% else -%>
+SOLR_AUTHENTICATION_TYPE=simple
+SOLR_AUTHENTICATION_SIMPLE_ALLOW_ANON=true
+<% end -%>
+# SOLR_AUTHENTICATION_KERBEROS_KEYTAB=/etc/solr/conf/solr.keytab
+# SOLR_AUTHENTICATION_KERBEROS_PRINCIPAL=HTTP/localhost@LOCALHOST
+# SOLR_AUTHENTICATION_KERBEROS_NAME_RULES=DEFAULT
+# SOLR_AUTHENTICATION_JAAS_CONF=/etc/solr/conf/jaas.conf
+# SOLR_SECURITY_ALLOWED_PROXYUSERS=hue
+# SOLR_SECURITY_PROXYUSER_hue_HOSTS=*
+# SOLR_SECURITY_PROXYUSER_hue_GROUPS=*
