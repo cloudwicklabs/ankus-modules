@@ -14,7 +14,7 @@ class hadoop-search {
       }
     }
     'CentOS': {
-      package { "hadoop":
+      package { "solr":
         ensure => latest,
         require => [ File["java-app-dir"], Yumrepo["cloudera-search"] ],
       }

@@ -1,0 +1,7 @@
+Client {
+  com.sun.security.auth.module.Krb5LoginModule required
+  useKeyTab=true
+  useTicketCache=false
+  keyTab="/etc/solr.keytab"
+  principal="solr/<%= @kerberos_domain %>@<%= @kerberos_realm %>";
+};

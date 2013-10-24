@@ -9,6 +9,7 @@ class hadoop-search::server(
   $hadoop_security_authentication = hiera('security')
   ) inherits hadoop-search {
 
+  # hdfs config
   $hadoop_deploy = hiera('hadoop_deploy')
   $ha = $hadoop_deploy['hadoop_ha']  
   $hadoop_namenode_host = $hadoop_deploy['hadoop_namenode']
@@ -19,12 +20,31 @@ class hadoop-search::server(
   } else {
     $hadoop_namenode_uri = "hdfs://${hadoop_namenode_host}:${hadoop_namenode_port}"
   }
+  # mapreduce
+  $hadoop_mapreduce = $hadoop_deploy['mapreduce']
+  # hbase
+  $hbase_deploy = hiera('hbase_deploy')
+  # solr nodes
   $hadoop_search_nodes = hiera('slave_nodes')
   $first_solr_instance = inline_template("<%= hadoop_search_nodes.to_a[0] %>")
 
   package { "solr-server":
     ensure => latest,
     require => Package["solr"],
+  }
+
+  if ($hadoop_mapreduce != 'disabled') {
+    package { "solr-mapreduce":
+      ensure => latest,
+      require => Package["solr"],
+    }
+  }
+
+  if ($hbase_deploy != 'disabled') {
+    package { ["hbase-solr-indexer", "hbase-solr-doc"]:
+      ensure => latest,
+      require => Package["solr"],
+    }
   }
 
   file { "/etc/default/solr":
@@ -44,7 +64,9 @@ class hadoop-search::server(
       command => "/bin/bash -c 'solrctl init >> /var/lib/solr/zk.namespace.log 2>&1'",
       creates => "/var/lib/solr/zk.namespace.log",
       logoutput => true,
-      tag => "zk-namespace"
+      tag => "zk-namespace",
+      require => Package["solr-server"],
+      before => Service["solr-server"],
     }
   }
 
@@ -53,6 +75,11 @@ class hadoop-search::server(
 
     kerberos::host_keytab { "solr":
       spnego => true,
+    }
+
+    file { "/etc/solr/conf/jaas.conf":
+      content => template("hadoop-search/jaas.conf.erb"),
+      require => Package["solr-server"],
     }
 
     Kerberos::Host_keytab <| title == "solr" |> -> Service["solr-server"]
