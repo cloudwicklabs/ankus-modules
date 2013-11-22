@@ -135,8 +135,12 @@ esac
 # times. If in doubt, and if you do not particularly want to tweak, go with
 # 100 MB per physical CPU core.
 
-MAX_HEAP_SIZE="<%= scope.lookupvar('cassandra::params::max_heap') %>"
-HEAP_NEWSIZE="<%= scope.lookupvar('cassandra::params::heap_newsize') %>"
+<% if max_heap != "0" -%>
+MAX_HEAP_SIZE="<%= max_heap %>"
+<% end -%>
+<% if heap_newsize != "0" -%>
+HEAP_NEWSIZE="<%= heap_newsize %>"
+<% end -%>
 
 if [ "x$MAX_HEAP_SIZE" = "x" ] && [ "x$HEAP_NEWSIZE" = "x" ]; then
     calculate_heap_sizes
@@ -149,7 +153,7 @@ fi
 
 # Specifies the default port over which Cassandra will be available for
 # JMX connections.
-JMX_PORT="<%= scope.lookupvar('cassandra::params::jmx_port') %>"
+JMX_PORT="<%= jmx_port %>"
 
 
 # Here we create the arguments that will get passed to the jvm when

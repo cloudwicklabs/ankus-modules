@@ -1,0 +1,8 @@
+#!/bin/bash
+
+<% data_dirs.each do |dir| -%>
+if [ ! -d <%= dir %> ]
+then
+mkdir -p <%= dir %>
+fi
+<% end -%>
