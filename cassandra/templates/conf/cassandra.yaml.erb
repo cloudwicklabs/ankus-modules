@@ -3,7 +3,7 @@
 #
 cluster_name: '<%= scope.lookupvar('cassandra::params::cluster_name') %>'
 num_tokens: '<%= scope.lookupvar('cassandra::params::num_tokens') %>'
-initial_token:
+# initial_token:
 hinted_handoff_enabled: true
 max_hint_window_in_ms: 10800000 # 3 hours
 hinted_handoff_throttle_in_kb: 1024

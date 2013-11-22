@@ -1,6 +1,6 @@
 # == Class: cassandra
 #
-# installs and manages datastax cassandra
+# installs and manages datastax cassandra dsc 2.0
 #
 # === Parameters
 #
@@ -38,13 +38,13 @@ class cassandra {
 
   case $operatingsystem {
     'Ubuntu': {
-      package { "dsc12":
+      package { "dsc20":
         ensure => latest,
         require => [ File["java-app-dir"], Apt::Source['datastax-repo'] ],
       }
     }
     'CentOS': {
-      package { "dsc12":
+      package { "dsc20":
         ensure => latest,
         require => [ File["java-app-dir"], Yumrepo["datastax-repo"] ],
       }
@@ -60,7 +60,7 @@ class cassandra {
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
+    require => [Package["dsc20"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
   file { "${cassandra::params::commitlog_directory}":
@@ -68,7 +68,7 @@ class cassandra {
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
+    require => [Package["dsc20"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
   file { "${cassandra::params::saved_caches}":
@@ -76,13 +76,13 @@ class cassandra {
     owner => cassandra,
     group => cassandra,
     mode => 700,
-    require => [Package["dsc12"], Mkdir_p["${cassandra::params::data_dirs}"]],
+    require => [Package["dsc20"], Mkdir_p["${cassandra::params::data_dirs}"]],
   }
 
   file { "${cassandra::params::cassandra_base}/conf/cassandra.yaml":
     ensure  => present,
     alias   => 'conf',
-    require => Package['dsc12'],
+    require => Package['dsc20'],
     content => template("cassandra/conf/cassandra.yaml.erb"),
     notify  => Service['cassandra'];
   }
@@ -90,7 +90,7 @@ class cassandra {
   file { "${cassandra::params::cassandra_base}/conf/cassandra-env.sh":
     ensure  => present,
     alias   => 'conf-env',
-    require => Package['dsc12'],
+    require => Package['dsc20'],
     content => template("cassandra/conf/cassandra-env.sh.erb"),
     notify  => Service['cassandra'];
   }
@@ -100,7 +100,7 @@ class cassandra {
     ensure => running,
     hasrestart => true,
     hasstatus => true,
-    require => [Package['dsc12'],
+    require => [Package['dsc20'],
                 File['conf',
                       'conf-env',
                       "${cassandra::params::data_path}",
