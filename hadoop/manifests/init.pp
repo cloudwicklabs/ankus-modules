@@ -357,6 +357,17 @@ class hadoop {
     $hadoop_resourceadmin_port = hiera('hadoop_resourceadmin_port', 8033)
     $hadoop_resourcewebapp_port = hiera('hadoop_resourcewebapp_port', 8088)
     $hadoop_proxyserver_port = hiera('hadoop_proxyserver_port', 8089)
+    $hadoop_config_yarn_nodemanager_resource_memory_mb = hiera('hadoop_config_yarn_nodemanager_resource_memory_mb', 8048)
+    $hadoop_config_yarn_scheduler_minimum_allocation_mb = hiera('hadoop_config_yarn_scheduler_minimum_allocation_mb', 1024)
+    $hadoop_config_yarn_scheduler_maximum_allocation_mb = hiera('hadoop_config_yarn_scheduler_maximum_allocation_mb', 10240)
+    $hadoop_config_mapreduce_map_memory_mb = hiera('hadoop_config_mapreduce_map_memory_mb', 2048)
+    $hadoop_config_mapreduce_reduce_memory_mb = hiera('hadoop_config_mapreduce_reduce_memory_mb', 4096)
+    $hadoop_config_mapreduce_map_java_opts = hiera('hadoop_config_mapreduce_map_java_opts', 1536)
+    $hadoop_config_mapreduce_reduce_java_opts = hiera('hadoop_config_mapreduce_reduce_java_opts', 3556)
+    $hadoop_config_yarn_nodemanager_vmem_pmem_ratio = hiera('hadoop_config_yarn_nodemanager_vmem_pmem_ratio', 2.1)
+    $hadoop_config_mapreduce_task_io_sort_mb = hiera('hadoop_config_mapreduce_task_io_sort_mb', 512)
+    $hadoop_config_mapreduce_task_io_sort_factor = hiera('hadoop_config_mapreduce_task_io_sort_factor', 100)
+    $hadoop_config_mapreduce_reduce_shuffle_parallelcopies = hiera('hadoop_config_mapreduce_reduce_shuffle_parallelcopies', 50)
     #mapred-site.xml
     $hadoop_jobhistory_host = $hadoop_mapreduce_master
     $num_of_nodes = hiera('number_of_nodes')
@@ -548,10 +559,10 @@ class hadoop {
 
     file { $mapred_data_dirs:
       ensure => directory,
-        owner => mapred,
-        group => hadoop,
-        mode => 755,
-        require => [ Package["hadoop-0.20-mapreduce"], Exec["create-root-dir"]],
+      owner => mapred,
+      group => hadoop,
+      mode => 755,
+      require => [ Package["hadoop-0.20-mapreduce"], Exec["create-root-dir"]],
     }
 
     if ($hadoop_security_authentication == "kerberos") {
