@@ -27,38 +27,36 @@
 # Copyright 2012 cloudwick technologies, unless otherwise noted.
 #
 
-class java7 {
+class java7 inherits java7::params {
 
-  require java7::params
-
-  file {"$java7::params::java_base":
+  file { $java7_base:
     ensure => "directory",
     owner => "root",
     group => "root",
-    alias => "java-base"
+    alias => "java7-base"
   }
 
-  file { "${java7::params::java_base}/jdk${java7::params::java_version}.tar.gz":
+  file { "${java7_base}/jdk${java7_version}.tar.gz":
     mode => 0644,
     owner => root,
     group => root,
-    source => "puppet:///modules/java7/jdk${java7::params::java_version}.tar.gz",
-    alias => "java-source-tgz",
-    before => Exec["untar-java"],
-    require => File["java-base"]
+    source => "puppet:///modules/java7/jdk${java7_version}.tar.gz",
+    alias => "java7-source-tgz",
+    before => Exec["untar-java7"],
+    require => File["java7-base"]
   }
 
-  exec { "untar jdk${java7::params::java_version}.tar.gz":
-    command => "/bin/tar -zxf jdk${java7::params::java_version}.tar.gz",
-    cwd => "${java7::params::java_base}",
-    creates => "${java7::params::java_base}/jdk${java7::params::java_version}",
-    alias => "untar-java",
+  exec { "untar jdk${java7_version}.tar.gz":
+    command => "/bin/tar -zxf jdk${java7_version}.tar.gz",
+    cwd => "${java7_base}",
+    creates => "${java7_base}/jdk${java7_version}",
+    alias => "untar-java7",
     refreshonly => true,
-    subscribe => File["java-source-tgz"],
+    subscribe => File["java7-source-tgz"],
     before => File["java7-app-dir"]
   }
 
-  file { "${java7::params::java_base}/jdk${java7::params::java_version}":
+  file { "${java7_base}/jdk${java7_version}":
     ensure => "directory",
     mode => 0644,
     owner => root,
