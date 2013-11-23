@@ -55,7 +55,7 @@ class java7 {
     alias => "untar-java",
     refreshonly => true,
     subscribe => File["java-source-tgz"],
-    before => File["java-app-dir"]
+    before => File["java7-app-dir"]
   }
 
   file { "${java7::params::java_base}/jdk${java7::params::java_version}":
@@ -63,7 +63,7 @@ class java7 {
     mode => 0644,
     owner => root,
     group => root,
-    alias => "java-app-dir"
+    alias => "java7-app-dir"
   }
 
   file { "/etc/profile.d/set_java7_home.sh":
@@ -72,10 +72,10 @@ class java7 {
     mode  => 0755,
     owner => root,
     group   => root,
-    require =>  File["java-app-dir"],
+    require =>  File["java7-app-dir"],
   }
 
-  exec { "source-java":
+  exec { "source-java7":
     command => "/etc/profile.d/set_java7_home.sh | sh",
     user    => 'root',
     group   => 'root',

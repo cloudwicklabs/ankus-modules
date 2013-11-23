@@ -41,13 +41,13 @@ class cassandra inherits cassandra::params {
     'Ubuntu': {
       package { "dsc20":
         ensure => latest,
-        require => [ File["java-app-dir"], Apt::Source['datastax-repo'] ],
+        require => [ File["java7-app-dir"], Apt::Source['datastax-repo'] ],
       }
     }
     'CentOS': {
       package { $cassandra_pkg:
         ensure => latest,
-        require => [ File["java-app-dir"], Yumrepo["datastax-repo"] ],
+        require => [ File["java7-app-dir"], Yumrepo["datastax-repo"] ],
       }
     }
   }
