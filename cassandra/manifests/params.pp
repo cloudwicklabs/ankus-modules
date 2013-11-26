@@ -3,7 +3,7 @@ class cassandra::params {
     include utilities
 
     $java_home = $::hostname ? {
-        default	=> "${java7::params::java_base}/jdk${java7::params::java_version}",
+        default	=> "${java7::params::java7_base}/jdk${java7::params::java7_version}",
     }
 
     $cassandra_base = $::hostname ? {
