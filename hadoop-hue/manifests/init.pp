@@ -35,7 +35,7 @@ class hadoop-hue (
     require utilities::repos
     $hadoop_deploy = hiera('hadoop_deploy')
     $mapreduce = $hadoop_deploy['mapreduce']
-    $ha = $hadoop_deploy['hadoop_ha']
+    $ha = $hadoop_deploy['ha']
     $impala = hiera('impala', 'disabled')
     $hadoop_namenode_host = $hadoop_deploy[hadoop_namenode]
     $hadoop_controller_host = hiera('controller')

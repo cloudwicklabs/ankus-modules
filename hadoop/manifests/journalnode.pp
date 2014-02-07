@@ -8,20 +8,19 @@ class hadoop::journalnode(
     require => [ File["java-app-dir"],Package["hadoop-hdfs"] ],
   }
 
-	file { $jn_data_dir:
-		ensure => directory,
-		owner => hdfs,
-  	group => hdfs,
-  	mode => 700,
-  	require => [Package["hadoop-hdfs-journalnode"], Exec["create-root-dir"]],
-	}
+  hadoop::create_dir_with_perm { $jn_data_dir:
+    user => "hdfs",
+    group => "hdfs",
+    mode => 700,
+    require => Package['hadoop-hdfs-journalnode']
+  }
 
 	service { "hadoop-hdfs-journalnode":
 	  enable => true,
 		ensure => running,
 		hasrestart => true,
 		hasstatus => true,
-		require => [ Package["hadoop-hdfs-journalnode"], File[$jn_data_dir] ],
+		require => [ Package["hadoop-hdfs-journalnode"], Hadoop::Create_dir_with_perm[$jn_data_dir]],
 	}
 
 	if ($hadoop_security_authentication == "kerberos") {

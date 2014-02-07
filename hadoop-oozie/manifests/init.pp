@@ -37,7 +37,7 @@
 class hadoop-oozie {
 
   class client(
-    $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>'))
+    $kerberos_realm = hiera('kerberos_realm', inline_template('<%= domain.upcase %>'))
     ) {
     require utilities::repos
     case $operatingsystem {
@@ -57,7 +57,7 @@ class hadoop-oozie {
   }
 
   class server(
-    $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>')),
+    $kerberos_realm = hiera('kerberos_realm', inline_template('<%= domain.upcase %>')),
     $hadoop_controller = hiera('controller'),
     $hadoop_security_authentication = hiera('security')
     ) {

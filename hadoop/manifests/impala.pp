@@ -4,10 +4,10 @@ class hadoop::impala inherits hadoop::common-hdfs {
   $hbase_install = $hbase_deploy['hbase_install']
   $hadoop_controller = hiera('controller')
   $impala = hiera('impala', 'disabled')
-  $jobtracker = $hadoop_mapreduce['master_node']
+  $jobtracker = $hadoop_mapreduce['master']
 
   if ($hbase_deploy != "disabled"){
-    $hbase_master = $hbase_deploy['hbase_master']
+    $hbase_master = $hbase_deploy['master']
     $hbase_zookeeper_quorum = hiera('zookeeper_quorum')
   }
 

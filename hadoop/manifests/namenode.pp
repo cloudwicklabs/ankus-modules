@@ -42,17 +42,24 @@ class hadoop::namenode inherits hadoop::common-hdfs {
     require => Package["hadoop-hdfs"],
   }
 
-  #for running jobs from namenode
+  # required for running jobs from namenode
   package { "hadoop-client":
     ensure => latest,
     require => Package["hadoop-hdfs-namenode"],
+  }
+
+  hadoop::create_dir_with_perm { $namenode_data_dirs:
+    user => "hdfs",
+    group => "hdfs",
+    mode => 700,
+    require => Package['hadoop-hdfs-namenode']
   }
 
   service { "hadoop-hdfs-namenode":
     ensure => running,
     hasstatus => true,
     subscribe => [Package["hadoop-hdfs-namenode"], File["/etc/hadoop/conf/core-site.xml"], File["/etc/hadoop/conf/hdfs-site.xml"], File["/etc/hadoop/conf/hadoop-env.sh"]],
-    require => [Package["hadoop-hdfs-namenode"]],
+    require => [Package["hadoop-hdfs-namenode"], Hadoop::Create_dir_with_perm[$namenode_data_dirs]],
   }
 
   if($hadoop_security_authentication == "kerberos") {
@@ -101,7 +108,7 @@ class hadoop::namenode inherits hadoop::common-hdfs {
       creates => "${namenode_data_dirs[0]}/current/VERSION",
       group => 'hadoop',
       logoutput => true,
-      require => [ Package["hadoop-hdfs-namenode"], File[$namenode_data_dirs], File["/etc/hadoop/conf/hdfs-site.xml"] ],
+      require => [ Package["hadoop-hdfs-namenode"], Hadoop::Create_dir_with_perm[$namenode_data_dirs], File["/etc/hadoop/conf/hdfs-site.xml"] ],
       tag     => "namenode-format",
     }
     #automatic ha failover
@@ -139,17 +146,17 @@ class hadoop::namenode inherits hadoop::common-hdfs {
     hadoop::namedir_copy { $namenode_data_dirs:
       source       => $first_namenode,
       ssh_identity => $sshfence_keypath,
-      require      => [File[$sshfence_keypath], File[$namenode_data_dirs]],
+      require      => [File[$sshfence_keypath], Hadoop::Create_dir_with_perm[$namenode_data_dirs]],
     }
   }
 
-  file { $namenode_data_dirs:
-    ensure => directory,
-    owner => hdfs,
-    group => hdfs,
-    mode => 700,
-    require => [Package["hadoop-hdfs-namenode"], Exec["create-root-dir"]],
-  }
+  # file { $namenode_data_dirs:
+  #   ensure => directory,
+  #   owner => hdfs,
+  #   group => hdfs,
+  #   mode => 700,
+  #   require => [Package["hadoop-hdfs-namenode"], Exec["create-root-dir"]],
+  # }
 
   #Becuase of Bug HDFS-3752
   define hadoop::namedir_copy ($source, $ssh_identity) {

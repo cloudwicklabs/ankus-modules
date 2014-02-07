@@ -8,37 +8,43 @@ class hadoop::resourcemanager (
 	) inherits hadoop::common-yarn {
 
 
-    package { "hadoop-yarn-resourcemanager":
-      ensure => latest,
-      require => File["java-app-dir"],
-    }
+  package { "hadoop-yarn-resourcemanager":
+    ensure => latest,
+    require => File["java-app-dir"],
+  }
 
-    service { "hadoop-yarn-resourcemanager":
-      ensure => running,
-      hasstatus => true,
-      subscribe => [Package["hadoop-yarn-resourcemanager"], File["/etc/hadoop/conf/hadoop-env.sh"],
-                    File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"],
-                    File["/etc/hadoop/conf/mapred-site.xml"]],
-      require => [ Package["hadoop-yarn-resourcemanager"], File[$yarn_data_dirs] ],
-    }
+  service { "hadoop-yarn-resourcemanager":
+    ensure => running,
+    hasstatus => true,
+    subscribe => [Package["hadoop-yarn-resourcemanager"], File["/etc/hadoop/conf/hadoop-env.sh"],
+                  File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"],
+                  File["/etc/hadoop/conf/mapred-site.xml"]],
+    require => [ Package["hadoop-yarn-resourcemanager"], Hadoop::Create_dir_with_perm[$yarn_master_dirs] ],
+  }
 
-    file { $yarn_data_dirs:
-      ensure => directory,
-      owner => yarn,
-      group => yarn,
-      mode => 755,
-      require => [ Package["hadoop-yarn-resourcemanager"], Exec["create-root-dir"]],
-    }
+  hadoop::create_dir_with_perm { $yarn_master_dirs:
+    user => "yarn",
+    group => "yarn",
+    mode => 755,
+    require => Package['hadoop-yarn-resourcemanager']
+  }
 
-  	cron { "orphanjobsfiles":
-      command => "find /var/log/hadoop/ -type f -mtime +3 -name \"job_*_conf.xml\" -delete",
-      user    => "root",
-      hour    => "3",
-      minute  => "0",
-  	}
+  file { $yarn_data_dirs:
+    ensure => directory,
+    owner => yarn,
+    group => yarn,
+    mode => 755,
+    require => [ Package["hadoop-yarn-resourcemanager"], Exec["create-root-dir"]],
+  }
 
-    if ($hadoop_security_authentication == "kerberos") {
-    	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-yarn-resourcemanager"]
+	cron { "orphanjobsfiles":
+    command => "find /var/log/hadoop/ -type f -mtime +3 -name \"job_*_conf.xml\" -delete",
+    user    => "root",
+    hour    => "3",
+    minute  => "0",
 	}
 
+  if ($hadoop_security_authentication == "kerberos") {
+  	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-yarn-resourcemanager"]
+  }
 }

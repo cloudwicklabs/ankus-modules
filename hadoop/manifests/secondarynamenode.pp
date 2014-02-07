@@ -1,11 +1,18 @@
 class hadoop::secondarynamenode inherits hadoop::common-hdfs {
 
-    file { $checkpoint_data_dirs:
-        ensure => directory,
-        owner => hdfs,
-        group => hdfs,
+    # file { $checkpoint_data_dirs:
+    #     ensure => directory,
+    #     owner => hdfs,
+    #     group => hdfs,
+    #     mode => 700,
+    #     require => [Package["hadoop-hdfs-secondarynamenode"], Exec["create-root-dir"]],
+    # }
+
+    hadoop::create_dir_with_perm { $checkpoint_data_dirs:
+        user => "hdfs",
+        group => "hdfs",
         mode => 700,
-        require => [Package["hadoop-hdfs-secondarynamenode"], Exec["create-root-dir"]],
+        require => Package['hadoop-hdfs-secondarynamenode']
     }
 
 	package { "hadoop-hdfs-secondarynamenode":
@@ -16,8 +23,8 @@ class hadoop::secondarynamenode inherits hadoop::common-hdfs {
     service { "hadoop-hdfs-secondarynamenode":
       ensure => running,
       hasstatus => true,
-      subscribe => [Package["hadoop-hdfs-secondarynamenode"], File[$checkpoint_data_dirs],File["/etc/hadoop/conf/core-site.xml"], File["/etc/hadoop/conf/hdfs-site.xml"], File["/etc/hadoop/conf/hadoop-env.sh"]],
-      require => [Package["hadoop-hdfs-secondarynamenode"]],
+      subscribe => [Package["hadoop-hdfs-secondarynamenode"], File["/etc/hadoop/conf/core-site.xml"], File["/etc/hadoop/conf/hdfs-site.xml"], File["/etc/hadoop/conf/hadoop-env.sh"]],
+      require => [Package["hadoop-hdfs-secondarynamenode"], Hadoop::Create_dir_with_perm[$checkpoint_data_dirs]],
     }
 
     if($hadoop_security_authentication == "kerberos") {

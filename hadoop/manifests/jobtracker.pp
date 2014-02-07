@@ -4,12 +4,19 @@ class hadoop::jobtracker inherits hadoop::common-mapreduce {
 		require => Package["hadoop-0.20-mapreduce"],
 	}
 
+  hadoop::create_dir_with_perm { $mapred_master_dirs:
+    user => "mapred",
+    group => "hadoop",
+    mode => 755,
+    require => Package['hadoop-0.20-mapreduce']
+  }
+
 	service { "hadoop-0.20-mapreduce-jobtracker":
   	ensure => running,
   	hasstatus => true,
   	subscribe => [Package["hadoop-0.20-mapreduce-jobtracker"], File["/etc/hadoop/conf/hadoop-env.sh"],
                 File["/etc/hadoop/conf/mapred-site.xml"], File["/etc/hadoop/conf/core-site.xml"]],
-  	require => [ Package["hadoop-0.20-mapreduce-jobtracker"], File[$mapred_data_dirs] ],
+  	require => [ Package["hadoop-0.20-mapreduce-jobtracker"], Hadoop::Create_dir_with_perm[$mapred_master_dirs] ],
 	}
 
   cron { "orphanjobsfiles":

@@ -211,7 +211,7 @@ class hadoop {
     $hadoop_tasktracker_opts = hiera('hadoop_tasktracker_opts', '-Xmx1000m')
     #core-site.xml
     $hadoop_deploy = hiera('hadoop_deploy')
-    $ha = $hadoop_deploy['hadoop_ha']
+    $ha = $hadoop_deploy['ha']
     #Components
     $hue = hiera('hue', 'disabled') #flag to setup hue or not (enabled/disabled)
     $impala = hiera('impala', 'disabled')
@@ -220,7 +220,7 @@ class hadoop {
       $hadoop_ha_nameservice_id = hiera('hadoop_ha_nameservice_id', 'ha-nn-uri')
       $upgradetoha = hiera('upgradetoha', 'false')
     }
-    $hadoop_namenode_host = $hadoop_deploy['hadoop_namenode']
+    $hadoop_namenode_host = $hadoop_deploy['namenode']
     $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
     if ($ha == "enabled") {
       $hadoop_namenode_uri = "hdfs://${hadoop_ha_nameservice_id}"
@@ -236,21 +236,24 @@ class hadoop {
     $hadoop_config_io_bytes_per_checksum = hiera('hadoop_config_io_bytes_per_checksum', '512')
     $hadoop_config_fs_trash_interval = hiera('hadoop_config_fs_trash_interval', 0)
     #dirs
-    $data_dirs = hiera('storage_dirs', ['/tmp/data'])
+    $data_dirs = $hadoop_deploy['data_dirs']
+    $master_dirs = $hadoop_deploy['master_dirs']
     $data_dir1 = inline_template("<%= data_dirs.to_a[0] %>")
-    $yarn_data_dirs = append_each("/yarn",$data_dirs)
-    $yarn_container_log_dirs = append_each("/yarn-local",$data_dirs)
-    $namenode_data_dirs = append_each("/name",$data_dirs)
-    $hdfs_data_dirs = append_each("/hdfs",$data_dirs)
-    #right now, journal node can only write to 1 dir
-    $journal_data_dir = inline_template("<%= data_dirs.to_a[0] %>")
+    $yarn_master_dirs = append_each("/yarn", $master_dirs)
+    $yarn_data_dirs = append_each("/yarn", $data_dirs)
+    $yarn_container_log_dirs = append_each("/yarn-local", $data_dirs)
+    $namenode_data_dirs = append_each("/nn", $master_dirs)
+    $hdfs_data_dirs = append_each("/hdfs", $data_dirs)
+    # VENDOR BUG:: Journal node can only write to 1 dir
+    $journal_data_dir = inline_template("<%= master_dirs.to_a[0] %>")
     $jn_data_dir = "$journal_data_dir/jn"
     $mapred_data_dirs = append_each("/mapred", $data_dirs)
-    $checkpoint_data_dirs = append_each("/checkpoint",$data_dirs)
+    $mapred_master_dirs = append_each("/mapred", $master_dirs)
+    $checkpoint_data_dirs = append_each("/checkpoint", $master_dirs)
     #security
     if ($hadoop_security_authentication == "kerberos") {
-      $kerberos_domain     = hiera("hadoop_kerberos_domain", inline_template('<%= domain %>'))
-      $kerberos_realm      = hiera("hadoop_kerberos_realm", inline_template('<%= domain.upcase %>'))
+      $kerberos_domain     = hiera("kerberos_domain", inline_template('<%= domain %>'))
+      $kerberos_realm      = hiera("kerberos_realm", inline_template('<%= domain.upcase %>'))
       $kerberos_kdc_server = hiera("controller")
       #package["hadoop"] -> class { "hadoop::kerberos": }
       #include hadoop::kerberos
@@ -274,22 +277,6 @@ class hadoop {
       if ($hadoop_mapreduce_framework == 'mr2') {
         $hadoop_mapred_home = '/usr/lib/hadoop-mapreduce'
       }
-    }
-
-    file {
-      "/etc/hadoop/conf/createdir.sh":
-      content => template('hadoop/createdir.sh.erb'),
-      require => Package["hadoop"],
-    }
-
-    exec { "create-root-dir":
-      command => "/bin/sh /etc/hadoop/conf/createdir.sh",
-      path => "/usr/bin:/usr/sbin:/bin:/usr/local/bin",
-      user => root,
-      group => root,
-      creates => $data_dir1,
-      require => File["/etc/hadoop/conf/createdir.sh"],
-      #refreshonly => true,
     }
 
     file {
@@ -557,13 +544,13 @@ class hadoop {
       require => [Package["hadoop"]],
     }
 
-    file { $mapred_data_dirs:
-      ensure => directory,
-      owner => mapred,
-      group => hadoop,
-      mode => 755,
-      require => [ Package["hadoop-0.20-mapreduce"], Exec["create-root-dir"]],
-    }
+    # file { $mapred_data_dirs:
+    #   ensure => directory,
+    #   owner => mapred,
+    #   group => hadoop,
+    #   mode => 755,
+    #   require => [ Package["hadoop-0.20-mapreduce"], Exec["create-root-dir"]],
+    # }
 
     if ($hadoop_security_authentication == "kerberos") {
       require kerberos::client

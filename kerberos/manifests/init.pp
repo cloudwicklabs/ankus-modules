@@ -55,8 +55,8 @@
 class kerberos {
   class site {
     #TODO: Get values from hiera
-    $domain     = hiera('hadoop_kerberos_domain', inline_template('<%= domain %>'))
-    $realm      = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>'))
+    $domain     = hiera('kerberos_domain', inline_template('<%= domain %>'))
+    $realm      = hiera('kerberos_realm', inline_template('<%= domain.upcase %>'))
     $kdc_server = hiera('controller')
     $kdc_port   = hiera('kerberos_kdc_port', '88')
     $admin_port = 749 #BUG: linux daemon packaging doesn't let us tweak this

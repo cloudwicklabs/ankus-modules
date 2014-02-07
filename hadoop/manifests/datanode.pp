@@ -4,11 +4,18 @@ class hadoop::datanode inherits hadoop::common-hdfs {
   	require => Package["hadoop-hdfs"],
   }
 
+  hadoop::create_dir_with_perm { $hdfs_data_dirs:
+    user => "hdfs",
+    group => "hdfs",
+    mode => 700,
+    require => Package['hadoop-hdfs-datanode']
+  }  
+
   service { "hadoop-hdfs-datanode":
     ensure => running,
     hasstatus => true,
     subscribe => [Package["hadoop-hdfs-datanode"], File["/etc/hadoop/conf/core-site.xml"], File["/etc/hadoop/conf/hdfs-site.xml"], File["/etc/hadoop/conf/hadoop-env.sh"]],
-    require => [ Package["hadoop-hdfs-datanode"], File[$hdfs_data_dirs] ],
+    require => [ Package["hadoop-hdfs-datanode"], Hadoop::Create_dir_with_perm[$hdfs_data_dirs] ],
   }
 
   if ($hadoop_security_authentication == "kerberos") {
@@ -17,14 +24,6 @@ class hadoop::datanode inherits hadoop::common-hdfs {
         content => template('hadoop/hadoop-hdfs.erb'),
         require => [Package["hadoop-hdfs-datanode"], Kerberos::Host_keytab["hdfs"]],
     }
-  }
-
-  file { $hdfs_data_dirs:
-    ensure => directory,
-    owner => hdfs,
-    group => hdfs,
-    mode => 700,
-    require => [ Package["hadoop-hdfs-datanode"], Exec["create-root-dir"]],
   }
 
   if ($impala == "enabled") {

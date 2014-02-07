@@ -4,12 +4,19 @@ class hadoop::tasktracker inherits hadoop::common-mapreduce {
 		require => Package["hadoop-0.20-mapreduce"],
 	}
 
+  hadoop::create_dir_with_perm { $mapred_data_dirs:
+    user => "mapred",
+    group => "hadoop",
+    mode => 755,
+    require => Package['hadoop-0.20-mapreduce-tasktracker']
+  }
+
 	service { "hadoop-0.20-mapreduce-tasktracker":
   	ensure => running,
   	hasstatus => true,
   	subscribe => [Package["hadoop-0.20-mapreduce-tasktracker"], File["/etc/hadoop/conf/hadoop-env.sh"],
                 File["/etc/hadoop/conf/mapred-site.xml"], File["/etc/hadoop/conf/core-site.xml"]],
-  	require => [ Package["hadoop-0.20-mapreduce-tasktracker"], File[$mapred_data_dirs] ],
+  	require => [ Package["hadoop-0.20-mapreduce-tasktracker"], Hadoop::Create_dir_with_perm[$mapred_data_dirs] ],
 	}
 
 	if ($hadoop_security_authentication == "kerberos") {

@@ -27,6 +27,8 @@
 #
 class kafka inherits kafka::params {
 
+  include java
+
   require utilities::packages
 
   #Params for populating ERb

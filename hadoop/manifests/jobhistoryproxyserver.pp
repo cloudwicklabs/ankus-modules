@@ -11,30 +11,29 @@ class hadoop::jobhistoryproxyserver(
 		require => File["java-app-dir"],
 	}
 
-    service { "hadoop-mapreduce-historyserver":
-      ensure => running,
-      hasstatus => true,
-      subscribe => [Package["hadoop-mapreduce-historyserver"], File["/etc/hadoop/conf/hadoop-env.sh"],
-                    File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"],
-                    File["/etc/hadoop/conf/mapred-site.xml"]],
-      require => [Package["hadoop-mapreduce-historyserver"]],
-    }
+  service { "hadoop-mapreduce-historyserver":
+    ensure => running,
+    hasstatus => true,
+    subscribe => [Package["hadoop-mapreduce-historyserver"], File["/etc/hadoop/conf/hadoop-env.sh"],
+                  File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"],
+                  File["/etc/hadoop/conf/mapred-site.xml"]],
+    require => [Package["hadoop-mapreduce-historyserver"]],
+  }
 
-    package { "hadoop-yarn-proxyserver":
-      ensure => latest,
-      require => File["java-app-dir"],
-    }
+  package { "hadoop-yarn-proxyserver":
+    ensure => latest,
+    require => File["java-app-dir"],
+  }
 
-    service { "hadoop-yarn-proxyserver":
-      ensure => running,
-      hasstatus => true,
-      subscribe => [Package["hadoop-yarn-proxyserver"], File["/etc/hadoop/conf/hadoop-env.sh"],
-                    File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"]],
-      require => [ Package["hadoop-yarn-proxyserver"] ],
-    }
+  service { "hadoop-yarn-proxyserver":
+    ensure => running,
+    hasstatus => true,
+    subscribe => [Package["hadoop-yarn-proxyserver"], File["/etc/hadoop/conf/hadoop-env.sh"],
+                  File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"]],
+    require => [ Package["hadoop-yarn-proxyserver"] ],
+  }
 
-    if($hadoop_security_authentication == "kerberos") {
-    	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-mapreduce-historyserver", "hadoop-yarn-proxyserver"]
-	}
-
+  if($hadoop_security_authentication == "kerberos") {
+  	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-mapreduce-historyserver", "hadoop-yarn-proxyserver"]
+  }
 }

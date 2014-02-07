@@ -28,14 +28,13 @@
 #
 
 class cassandra inherits cassandra::params {
-
   include java7
   require cassandra::params
   require utilities::repos
 
   $cassandra_deploy = hiera('cassandra_deploy')
-  $seeds = $cassandra_deploy['cassandra_seeds']
-  $data_dir1 = inline_template("<%= data_dirs.to_a[0] %>")
+  $seeds = $cassandra_deploy['seeds']
+  $nodes = $cassandra_deploy['nodes']
 
   case $operatingsystem {
     'Ubuntu': {
@@ -103,16 +102,21 @@ class cassandra inherits cassandra::params {
     notify  => Service['cassandra'];
   }
 
+  file { "/etc/default/cassandra":
+    ensure  => present,
+    alias   => 'conf-default',
+    require => Package[$cassandra_pkg],
+    content => template("cassandra/conf/cassandra.default.erb"),
+    notify  => Service['cassandra'];
+  }
+
   service { "cassandra":
     enable => true,
     ensure => running,
     hasrestart => true,
     hasstatus => true,
     require => [Package[$cassandra_pkg],
-                File['conf', 'conf-env'],
-                     # $data_path,
-                     # $commitlog_directory,
-                     # $saved_caches]],
+                File['conf', 'conf-env', 'conf-default'],
                 CreateDirWithPerm[$data_dirs, $commitlog_directory, $saved_caches]]
   }
 }

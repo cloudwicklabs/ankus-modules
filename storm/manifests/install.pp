@@ -3,6 +3,8 @@
 #
 class storm::install inherits storm::params {
 
+  include java
+
   require utilities::packages
 
   file { "${storm::params::packages_home}/${storm::params::storm_package}":

@@ -60,8 +60,8 @@ class zookeeper {
   class server(
     $myid,
     $ensemble = hiera('zookeeper_class_ensemble',['localhost:2888:3888']),
-    $kerberos_realm = hiera('hadoop_kerberos_realm', inline_template('<%= domain.upcase %>')),
-    $kerberos_domain = hiera('hadoop_kerberos_domain', inline_template('<%= domain %>')),
+    $kerberos_realm = hiera('kerberos_realm', inline_template('<%= domain.upcase %>')),
+    $kerberos_domain = hiera('kerberos_domain', inline_template('<%= domain %>')),
     $security = hiera('security', 'simple')
     ) inherits zookeeper
     {
