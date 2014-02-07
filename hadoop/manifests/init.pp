@@ -464,7 +464,7 @@ class hadoop {
     $hadoop_config_dfs_client_block_write_retries = hiera('hadoop_config_dfs_client_block_write_retries', '3')
     $num_of_nodes = hiera('number_of_nodes')
     if ($ha == "disabled") {
-      $hadoop_secondarynamenode_host = $hadoop_deploy['hadoop_secondarynamenode']
+      $hadoop_secondarynamenode_host = $hadoop_deploy['secondarynamenode']
       $hadoop_secondarynamenode_port = hiera('hadoop_secondarynamenode_port', 50090)
     }
     #for security
