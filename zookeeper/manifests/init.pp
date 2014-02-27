@@ -2,27 +2,21 @@
 #			zookeeper::client
 #			zookeeper::server
 #
-# This module installs and manages zookeeper, which is a
-# centralized service for maintaining configuration information,
-# naming, providing distributed synchronization, and providing
-# group services for hadoop/hbase
+# This module installs and manages zookeeper, which is a centralized service
+# for maintaining configuration information, naming, providing distributed
+# synchronization, and providing group services for hadoop/hbase
 #
 # === Parameters
 #
-# server::myid
-#	zookeeper id for specified host
-# server::ensemble
-#	zookeeper ensemble, array of zookeeper hosts with port numbers
-# server::kerberos_realm
-#	kerberos realm name if security is enabled
+# None
 #
 # === Variables
 #
-# Nothing.
+# None
 #
 # === Requires
 #
-# Java Module
+# Java
 #
 # === Examples
 #
@@ -34,109 +28,31 @@
 #		kerberos_realm => "CW.COM",
 #	}
 #
+# === Authors
+#
+# Ashrith <ashrith@cloudwick.com>
+#
+# === Copyright
+#
+# Copyright 2012 Cloudwick Inc, unless otherwise noted.
+#
 
 class zookeeper {
 
-  require utilities::repos
-
-  class client inherits zookeeper {
-    include java
-    case $operatingsystem {
-      'Ubuntu': {
-        package { "zookeeper":
-          ensure => installed,
-          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ]
-        }
-      }
-      'CentOS': {
-        package { "zookeeper":
-          ensure => installed,
-          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
-        }
-      }
-    }
+  $cloudera_repo_class = $::osfamily ? {
+    redhat => 'utils::repos::cloudera::yum',
+    debian => 'utils::repos::cloudera::apt'
   }
 
-  class server(
-    $myid,
-    $ensemble = hiera('zookeeper_class_ensemble',['localhost:2888:3888']),
-    $kerberos_realm = hiera('kerberos_realm', inline_template('<%= domain.upcase %>')),
-    $kerberos_domain = hiera('kerberos_domain', inline_template('<%= domain %>')),
-    $security = hiera('security', 'simple')
-    ) inherits zookeeper
-    {
-    include java
-    case $operatingsystem {
-      'Ubuntu': {
-        package { "zookeeper-server":
-          ensure => installed,
-          require => [ File["java-app-dir"], Apt::Source['cloudera_precise'] ]
-        }
-      }
-      'CentOS': {
-        package { "zookeeper-server":
-          ensure => installed,
-          require => [ File["java-app-dir"], Yumrepo["cloudera-repo"] ]
-        }
-      }
-    }
+  $hdp_repo_class = $::osfamily ? {
+    redhat => 'utils::repos::hdp::yum',
+    debian => 'utils::repos::hdp::apt'
+  }
 
-    service { "zookeeper-server":
-      enable => true,
-      ensure => running,
-      hasrestart => true,
-      hasstatus => true,
-      require => [ Package["zookeeper-server"], Exec["zookeeper-server-init"] ],
-      subscribe => [ File[ "zookeeper-conf", "zookeeper-myid", "zookeeper-setjavapath" ] ],
-    }
+  $deployment_mode = $hadoop_deploy['packages_source']
 
-    file { "/etc/zookeeper/conf/zoo.cfg":
-      alias => "zookeeper-conf",
-      content => template("zookeeper/zoo.cfg.erb"),
-      require => Package["zookeeper-server"],
-    }
-
-    file { "/var/lib/zookeeper/myid":
-      alias => "zookeeper-myid",
-      content => inline_template("<%= myid %>"),
-      require => Package["zookeeper-server"],
-    }
-
-    file { "/etc/default/bigtop-utils":
-      alias => "zookeeper-setjavapath",
-      content => template("zookeeper/bigtop-utils.erb"),
-      require => Package["zookeeper-server"],
-    }
-
-    exec { "zookeeper-server-init":
-      command => "/usr/bin/zookeeper-server-initialize",
-      user => "zookeeper",
-      creates => "/var/lib/zookeeper/version-2",
-      require => Package["zookeeper-server"],
-    }
-
-    #TODO: Add for kerberos
-    if ($security == "kerberos") {
-      require kerberos::client
-
-      kerberos::host_keytab { "zookeeper":
-        spnego => true,
-        notify => Service["zookeeper-server"],
-      }
-
-      Package["zookeeper-server"] -> Kerberos::Host_keytab<| title == "zookeeper" |>
-
-      file { "/etc/zookeeper/conf/java.env":
-        source  => "puppet:///modules/zookeeper/java.env",
-        require => Package["zookeeper-server"],
-        notify  => Service["zookeeper-server"],
-      }
-
-      file { "/etc/zookeeper/conf/jaas.conf":
-        content => template("zookeeper/jaas.conf.erb"),
-        require => Package["zookeeper-server"],
-        notify  => Service["zookeeper-server"],
-      }
-    }
+  $repo_class = $::deployment_mode ? {
+    cdh  => $cloudera_repo_class,
+    hdp  => $hdp_repo_class
   }
 }
