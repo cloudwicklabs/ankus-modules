@@ -225,19 +225,29 @@
   </property>
   <% end -%>
   <% end -%>
+  <% if hbase == 'enabled' -%>
+  <property>
+    <name>dfs.datanode.max.xcievers</name>
+    <value>4096</value>
+  </property>
+  <% end -%>
   <% if impala == "enabled" -%>
   <!-- Impala Config -->
   <property>
-    <name>dfs.datanode.data.dir.perm</name>
-    <value>750</value>
+    <name>dfs.client.read.shortcircuit</name>
+    <value>true</value>
   </property>
   <property>
-    <name>dfs.block.local-path-access.user</name>
-    <value>impala</value>
+    <name>dfs.domain.socket.path</name>
+    <value>/var/run/hadoop-hdfs/dn._PORT</value>
+  </property>
+  <property>
+    <name>dfs.client.file-block-storage-locations.timeout</name>
+    <value>3000</value>
   </property>
   <property>
     <name>dfs.datanode.hdfs-blocks-metadata.enabled</name>
     <value>true</value>
-  </property>
+  </property>   
   <% end -%>
 </configuration>

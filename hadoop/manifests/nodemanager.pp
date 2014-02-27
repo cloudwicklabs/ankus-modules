@@ -1,36 +1,68 @@
-class hadoop::nodemanager inherits hadoop::common-yarn {
+# == Class: hadoop::nodemanager
+#
+# Installs and manages node manager daemon for yarn based deployments
+#
+# === Parameters
+#
+# None
+#
+# === Variables
+#
+# None
+#
+# === Examples
+#
+# include hadoop::nodemanager
+#
+# === Authors
+#
+# Ashrith <ashrith@cloudwick.com>
+#
+# === Copyright
+#
+# Copyright 2012 Cloudwick Inc, unless otherwise noted.
+#
+class hadoop::nodemanager inherits hadoop::common_yarn {
+  include hadoop::params::yarn
 
-    package { "hadoop-yarn-nodemanager":
-      ensure => latest,
-      require => File["java-app-dir"],
-    }
+  package { 'hadoop-yarn-nodemanager':
+    ensure  => latest,
+    require => Package['hadoop-yarn'],
+  }
 
-    service { "hadoop-yarn-nodemanager":
-      ensure => running,
-      hasstatus => true,
-      subscribe => [Package["hadoop-yarn-nodemanager"], File["/etc/hadoop/conf/hadoop-env.sh"],
-                    File["/etc/hadoop/conf/yarn-site.xml"], File["/etc/hadoop/conf/core-site.xml"]],
-      require => [ Package["hadoop-yarn-nodemanager"], File[$yarn_data_dirs] ],
-    }
+  service { 'hadoop-yarn-nodemanager':
+    ensure    => running,
+    hasstatus => true,
+    subscribe => [
+                    Package['hadoop-yarn-nodemanager'],
+                    File['/etc/hadoop/conf/hadoop-env.sh'],
+                    File['/etc/hadoop/conf/yarn-site.xml'],
+                    File['/etc/hadoop/conf/core-site.xml']
+                  ],
+    require   => [
+                    Package['hadoop-yarn-nodemanager'],
+                    File[$hadoop::params::default::yarn_data_dirs]
+                  ],
+  }
 
-    file { $yarn_data_dirs:
-    	ensure => directory,
-    	owner => yarn,
-      group => yarn,
-      mode => 755,
-    	require => [ Package["hadoop-yarn-nodemanager"], Exec["create-root-dir"]],
-    }
+  file { $hadoop::params::default::yarn_data_dirs:
+    ensure  => directory,
+    owner   => 'yarn',
+    group   => 'yarn',
+    mode    => '0755',
+    require => Package['hadoop-yarn-nodemanager']
+  }
 
-    file { $yarn_container_log_dirs:
-      ensure => directory,
-      owner => yarn,
-      group => yarn,
-      mode => 755,
-      require => [ Package["hadoop-yarn-nodemanager"], Exec["create-root-dir"]],
-    }
+  file { $hadoop::params::default::yarn_container_log_dirs:
+    ensure  => directory,
+    owner   => 'yarn',
+    group   => 'yarn',
+    mode    => '0755',
+    require => Package['hadoop-yarn-nodemanager']
+  }
 
-    if ($hadoop_security_authentication == "kerberos") {
-    	Kerberos::Host_keytab <| tag == "yarn" |> -> Service["hadoop-yarn-nodemanager"]
-	}
+  if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
+    Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-nodemanager']
+  }
 
 }
