@@ -3,7 +3,7 @@
 # Oozie client is a command-line utility that interacts with the Oozie server via the Oozie
 # web-services API
 #
-class hadoop::oozie_client
+class hadoop::oozie_client {
   include java
   include hadoop::params::oozie
 

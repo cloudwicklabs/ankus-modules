@@ -39,7 +39,7 @@ class hadoop::jobhistoryproxyserver inherits hadoop::common_yarn {
                     File['/etc/hadoop/conf/yarn-site.xml'],
                     File['/etc/hadoop/conf/core-site.xml'],
                     File['/etc/hadoop/conf/mapred-site.xml']
-                  ]
+                  ],
     require   => Package['hadoop-mapreduce-historyserver']
   }
 
