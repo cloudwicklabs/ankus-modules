@@ -1,4 +1,4 @@
-class utilities::php {
+class utils::php {
   package {'php':
     ensure => installed,
   }

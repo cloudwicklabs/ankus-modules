@@ -1,5 +1,4 @@
-class utilities {
-
+class utils {
   #Add lubmerjack_default to monitor default config files based on OS
   $log_aggregation = hiera('log_aggregation', 'disabled')
 

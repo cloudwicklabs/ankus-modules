@@ -1,4 +1,4 @@
-class utilities::httpd {
+class utils::httpd {
   if $::osfamily == 'RedHat' or $::operatingsystem == 'amazon' {
     $apache_name          = 'httpd'
     $user                 = 'apache'
