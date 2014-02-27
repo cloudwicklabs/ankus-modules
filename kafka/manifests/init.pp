@@ -29,7 +29,7 @@ class kafka inherits kafka::params {
 
   include java
 
-  require utilities::packages
+  require utils::packages_home
 
   #Params for populating ERb
   $hosts          = $kafka::params::hosts

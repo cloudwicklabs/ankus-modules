@@ -30,7 +30,7 @@
 class cassandra inherits cassandra::params {
   include java7
   require cassandra::params
-  require utilities::repos
+  require utils::repos
 
   $cassandra_deploy = hiera('cassandra_deploy')
   $seeds = $cassandra_deploy['seeds']

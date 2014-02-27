@@ -1,9 +1,9 @@
 class kafka::params {
   include java::params
-  include utilities::params
+  include utils::params
   
   $kafka_pkgs_base = $::hostname ? {
-    default => $utilities::params::packages_base
+    default => $utils::params::packages_base
   }
   $kafka_pkgs_home = $::hostname ? {
     default => "${kafka_pkgs_base}/packages"
