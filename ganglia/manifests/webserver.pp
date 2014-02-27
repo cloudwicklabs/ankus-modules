@@ -16,8 +16,8 @@ class ganglia::webserver {
 
   include ganglia
 
-  include utilities::httpd
-  include utilities::php
+  include utils::httpd
+  include utils::php
 
   file { "/tmp/ganglia-web-3.5.10.tar":
     mode    => 0644,

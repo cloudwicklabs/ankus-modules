@@ -34,7 +34,7 @@
 
 
 class hadoop-flume {
-  require utilities::repos
+  require utils::repos
   class client {
     package { "flume":
       ensure => latest,

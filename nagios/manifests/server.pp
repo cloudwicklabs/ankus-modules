@@ -47,8 +47,8 @@ class nagios::server inherits nagios {
   include nagios::params
   include nagios::target
 
-  include utilities::php
-  include utilities::httpd
+  include utils::php
+  include utils::httpd
 
   $adminemail = hiera('admin_email')
 
