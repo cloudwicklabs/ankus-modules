@@ -37,14 +37,32 @@ class hadoop::hue inherits hadoop::params::hue {
     }
   }
 
-  $hue_packages = [ 'hue', 'hue-server', 'hue-plugins' ]
+  $hue_packages = $::operatingsystem ? {
+    /CentOS|RedHat/ => [ 'hue', 'hue-server', 'hue-plugins', 'python-psycopg2', 'postgresql-devel' ],
+    /Ubuntu/        => [ 'hue', 'hue-server', 'hue-plugins', 'python-psycopg2', 'build-dep' ],
+  }
+
+  $syncdb_cmd_flag = $hadoop::params::default::deployment_mode ? {
+    cdh => '/usr/share/hue/build/env',
+    hdp => '/usr/lib/hue/build/env',
+  }
+
+  $syncdb_cmd = $hadoop::params::default::deployment_mode ? {
+    cdh => "/usr/share/hue/build/env/bin/hue syncdb --noinput && touch ${syncdb_cmd_flag}/SYNC_COMPLETE",
+    hdp => "/usr/lib/hue/build/env/bin/hue syncdb --noinput && touch ${syncdb_cmd_flag}/SYNC_COMPLETE",
+  }
+
+  $hue_config = $hadoop::params::default::deployment_mode ? {
+    cdh => '/etc/hue/hue.ini',
+    hdp => '/etc/hue/conf/hue.ini',
+  }
 
   package { $hue_packages:
     ensure  => latest,
     require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
   }
 
-  file { '/etc/hue/hue.ini':
+  file { $hue_config:
     content => template('hadoop/hue/hue.ini.erb'),
     require => Package['hue'],
   }
@@ -67,16 +85,17 @@ class hadoop::hue inherits hadoop::params::hue {
   #   require => Package[$hue_packages],
   # }
 
-  # exec { 'sync-db':
-  #   command => '/usr/share/hue/build/env/bin/hue syncdb --noinput',
-  #   user    => 'root',
-  #   require => Exec['install-psycopg2'],
-  # }
+  exec { 'sync-db':
+    command => $syncdb_cmd,
+    user    => 'root',
+    creates => "${syncdb_cmd_flag}/SYNC_COMPLETE",
+    require => Package[$hue_packages]
+  }
 
   service { 'hue':
     ensure      => running,
-    require     => [ Package['hue'], File['/etc/hue/hue.ini'] ],
-    subscribe   => File['/etc/hue/hue.ini'],
+    require     => [ Package['hue'], File[$hue_config] ],
+    subscribe   => File[$hue_config],
     hasrestart  => true,
     hasstatus   => true,
   }

@@ -192,7 +192,7 @@
     #
     # Note that for sqlite3, 'name', below is a filename;
     # for other backends, it is the database name.
-    engine=postgresql_psycopg2
+    engine=postgresql
     host=<%= @hadoop_controller %>
     port=5432
     user=hue
@@ -315,7 +315,7 @@
 
     [[[default]]]
       # Enter the filesystem uri , fs.defaultFS
-      fs_defaultfs=<%= @default_fs %>
+      fs_defaultfs=<%= @hadoop_namenode_uri %>
 
       # Change this if your HDFS cluster is Kerberos-secured
       security_enabled=<%= if (@hadoop_security_authentication == "kerberos") ; "true" else "false" end %>

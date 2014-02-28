@@ -44,11 +44,12 @@ class hadoop::params::default {
     $upgradetoha              = hiera('upgradetoha', false)
   }
   $hadoop_namenode_host = $hadoop_deploy['namenode']
+  $first_namenode = inline_template("<%= @hadoop_namenode_host.to_a[0] %>")
   $hadoop_namenode_port = hiera('hadoop_namenode_port', '8020')
   if ($ha == 'enabled') {
     $hadoop_namenode_uri = "hdfs://${hadoop_ha_nameservice_id}"
   } else {
-    $hadoop_namenode_uri = "hdfs://${hadoop_namenode_host}:${hadoop_namenode_port}"
+    $hadoop_namenode_uri = "hdfs://${first_namenode}:${hadoop_namenode_port}"
   }
   $hadoop_security_authentication       = hiera('security', 'simple')
   $hadoop_snappy_codec                  = hiera('hadoop_snappy_codec', 'disabled')

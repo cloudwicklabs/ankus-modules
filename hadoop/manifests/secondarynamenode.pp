@@ -60,7 +60,7 @@ class hadoop::secondarynamenode inherits hadoop::common_hdfs {
       logstash_port => 5672,
       daemon_name   => 'lumberjack_secondarynamenode',
       field         => "secondarynamenode-${::fqdn}",
-      logfiles      => ['/var/log/hadoop-0.20-mapreduce/hadoop-hdfs-secondarynamenode*.log'],
+      logfiles      => ['/var/log/hadoop-hdfs/hadoop-hdfs-secondarynamenode*.log'],
       require       => Service['hadoop-hdfs-secondarynamenode']
     }
   }
