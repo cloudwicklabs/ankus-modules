@@ -22,8 +22,8 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::common_hdfs inherits hadoop::common {
-  include hadoop::params::hdfs
+class hadoop::common_hdfs inherits hadoop::params::hdfs {
+  require hadoop::common
 
   package { 'hadoop-hdfs':
     ensure  => latest,

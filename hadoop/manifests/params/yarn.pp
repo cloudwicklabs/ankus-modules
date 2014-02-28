@@ -1,7 +1,7 @@
 # Class: hadoop::params::yarn
 #
 #
-class hadoop::params::yarn {
+class hadoop::params::yarn inherits hadoop::params::default {
   # yarn-env
   $yarn_heap_size                 = hiera('yarn_heapsize', '1000')
   $yarn_resourcemanager_opts      = hiera('yarn_resourcemanager_opts', '-Xmx1000m')
@@ -146,10 +146,9 @@ class hadoop::params::yarn {
   $hadoop_resourcewebapp_port                             = hiera('hadoop_resourcewebapp_port', 8088)
   $hadoop_proxyserver_port                                = hiera('hadoop_proxyserver_port', 8089)
   $hadoop_journalnode_port                                = hiera('hadoop_journalnode_port', 8485)
-  $hadoop_jobhistory_host                                 = hiera('hadoop_jobhistory_host', $::fqdn)
+  $hadoop_jobhistory_host                                 = hiera('hadoop_jobhistory_host', $hadoop_mapreduce_master)
   $hadoop_jobhistory_port                                 = hiera('hadoop_jobhistory_port', '10020')
   $hadoop_jobhistory_webapp_port                          = hiera('hadoop_jobhistory_webapp_port', '19888')
-  $hadoop_proxyserver_port                                = hiera('hadoop_proxyserver_port', '8089')
   $hadoop_config_yarn_nodemanager_resource_memory_mb      = hiera('hadoop_config_yarn_nodemanager_resource_memory_mb', $container_max_allocation) #8048
   $hadoop_config_yarn_scheduler_minimum_allocation_mb     = hiera('hadoop_config_yarn_scheduler_minimum_allocation_mb', $container_final_ram) # 1024
   $hadoop_config_yarn_scheduler_maximum_allocation_mb     = hiera('hadoop_config_yarn_scheduler_maximum_allocation_mb', $container_max_allocation) #10240
@@ -165,7 +164,6 @@ class hadoop::params::yarn {
   $hadoop_config_mapreduce_reduce_shuffle_parallelcopies  = hiera('hadoop_config_mapreduce_reduce_shuffle_parallelcopies', 50)
 
   #TODO: Validate whether these are required
-  $hadoop_jobhistory_host = $hadoop_mapreduce_master
   $num_of_nodes = hiera('number_of_nodes')
   $hadoop_config_mapred_map_tasks_speculative_execution = hiera('hadoop_config_mapred_map_tasks_speculative_execution', true)
   if ($num_of_nodes > '2'){
@@ -178,6 +176,6 @@ class hadoop::params::yarn {
   $hadoop_config_mapred_reduce_tasks_speculative_execution = hiera('hadoop_config_mapred_reduce_tasks_speculative_execution', false)
   $hadoop_config_tasktracker_http_threads = hiera('hadoop_config_tasktracker_http_threads', '64')
   $hadoop_config_use_map_compression = hiera('hadoop_config_use_map_compression', false)
-  #default value is 0.05 can increase it to 0.8, put this value closer to 1 for faster networks and close to 0 for saturated networks
+  # default value is 0.05 can increase it to 0.8, put this value closer to 1 for faster networks and close to 0 for saturated networks
   $hadoop_config_mapred_reduce_slowstart_completed_maps = hiera('hadoop_config_mapred_reduce_slowstart_completed_maps', '0.05')
 }

@@ -4,12 +4,11 @@ IMPALA_BACKEND_PORT=22000
 IMPALA_LOG_DIR=/var/log/impala
 
 IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} "
-<% if hadoop_security_authentication == "kerberos" -%>
+<% if @hadoop_security_authentication == "kerberos" -%>
 IMPALA_STATE_STORE_ARGS=" -log_dir=${IMPALA_LOG_DIR} \
     -state_store_port=${IMPALA_STATE_STORE_PORT} \
     -kerberos_reinit_interval=60 \
     -principal=impala/<%= @fqdn -%>@<%= @kerberos_realm -%> \
-    -principal <%= @ -%> \
     -keytab_file=/etc/impala.keytab"
 IMPALA_SERVER_ARGS=" \
     -log_dir=${IMPALA_LOG_DIR} \

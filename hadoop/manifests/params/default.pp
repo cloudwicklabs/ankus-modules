@@ -2,25 +2,25 @@
 #
 #
 class hadoop::params::default {
-  include java::params
+  include ::java::params
 
   $hadoop_deploy = hiera('hadoop_deploy')
 
   $cloudera_repo_class = $::osfamily ? {
-    redhat => 'utils::repos::cloudera::yum',
-    debian => 'utils::repos::cloudera::apt'
+    /(?i-mx:redhat)/ => 'utils::repos::cloudera::yum',
+    /(?i-mx:debian)/ => 'utils::repos::cloudera::apt',
   }
 
   $hdp_repo_class = $::osfamily ? {
-    redhat => 'utils::repos::hdp::yum',
-    debian => 'utils::repos::hdp::apt'
+    /(?i-mx:redhat)/ => 'utils::repos::hdp::yum',
+    /(?i-mx:debian)/ => 'utils::repos::hdp::apt',
   }
 
   $deployment_mode = $hadoop_deploy['packages_source']
 
-  $repo_class = $::deployment_mode ? {
+  $repo_class = $deployment_mode ? {
     cdh  => $cloudera_repo_class,
-    hdp  => $hdp_repo_class
+    hdp  => $hdp_repo_class,
   }
 
   $ulimits_nofiles = 64000

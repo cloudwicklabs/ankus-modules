@@ -23,7 +23,7 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::jobtracker inherits hadoop::common_mapreduce {
-  include hadoop::params::mapreduce
+  require hadoop::common_mapreduce
 
   package { 'hadoop-0.20-mapreduce-jobtracker':
     ensure  => installed,

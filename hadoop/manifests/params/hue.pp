@@ -1,8 +1,7 @@
 # Class: hadoop::params::hue
 #
 #
-class hadoop::params::hue {
-  include hadoop::params::default
+class hadoop::params::hue inherits hadoop::params::default {
 
   $hadoop_oozie_url = "http://localhost:11000/oozie"
   $hadoop_hue_host = hiera('hadoop_hue_host', '0.0.0.0')

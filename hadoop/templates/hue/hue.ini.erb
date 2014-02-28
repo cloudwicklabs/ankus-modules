@@ -399,7 +399,7 @@
 [liboozie]
   # The URL where the Oozie service runs on. This is required in order for
   # users to submit jobs.
-  <% if @hadoop::params::default::oozie != 'disabled' -%>
+  <% if @oozie != 'disabled' -%>
   oozie_url=http://localhost:11000/oozie
   <% else -%>
   ## oozie_url=http://localhost:11000/oozie
@@ -523,7 +523,7 @@
   # This does not support matching GET parameters.
   ## blacklist=()
 
-<% if @hadoop::params::default::deployment_mode == 'cdh' -%>
+<% if @deployment_mode == 'cdh' -%>
 ###########################################################################
 # Settings to configure Impala
 ###########################################################################
@@ -562,7 +562,7 @@
   # Hard limit of rows or columns per row fetched before truncating.
   ## truncate_limit = 500
 
-<% if @hadoop::params::default::deployment_mode == 'cdh' -%>
+<% if @deployment_mode == 'cdh' -%>
 ###########################################################################
 # Settings to configure Solr Search
 ###########################################################################

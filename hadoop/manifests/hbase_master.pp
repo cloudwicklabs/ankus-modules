@@ -24,9 +24,9 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-class hadoop::hbase_master {
+class hadoop::hbase_master inherits hadoop::params::hbase {
+  include $::hadoop::params::default::repo_class
   include java
-  include hadoop::params::hbase
 
   package { 'hbase-master':
     ensure  => latest,

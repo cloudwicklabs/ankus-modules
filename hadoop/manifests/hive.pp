@@ -31,8 +31,8 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-class hadoop::hive {
-  include hadoop::params::hive
+class hadoop::hive inherits hadoop::params::hive {
+  include $::hadoop::params::default::repo_class
   include java
 
   package { $hadoop::params::hive::hive_packages:

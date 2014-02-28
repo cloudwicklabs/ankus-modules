@@ -23,7 +23,7 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::datanode inherits hadoop::common_hdfs {
-  include hadoop::params::hdfs
+  require hadoop::common_hdfs
   
   package { 'hadoop-hdfs-datanode':
     ensure   => latest,

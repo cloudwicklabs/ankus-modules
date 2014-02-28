@@ -36,18 +36,18 @@
 <% end -%>
 <% end -%>
 
-<% if hadoop_security_authentication == "kerberos" -%>
+<% if @hadoop_security_authentication == "kerberos" -%>
   <property>
     <name>httpfs.authentication.type</name>
     <value>kerberos</value>
   </property>
   <property>
     <name>kerberos.realm</name>
-    <value><%= kerberos_realm %></value>
+    <value><%= @kerberos_realm %></value>
   </property>
   <property>
     <name>httpfs.authentication.kerberos.principal</name>
-    <value>HTTP/<%= fqdn %></value>
+    <value>HTTP/<%= @fqdn %></value>
   </property>
   <property>
     <name>httpfs.authentication.kerberos.keytab</name>
@@ -60,7 +60,7 @@
   </property>
   <property>
     <name>httpfs.hadoop.authentication.kerberos.principal</name>
-    <value>httpfs/<%= fqdn %></value>
+    <value>httpfs/<%= @fqdn %></value>
   </property>
   <property>
     <name>httpfs.hadoop.authentication.kerberos.keytab</name>

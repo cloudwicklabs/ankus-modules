@@ -22,8 +22,8 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::namenode inherits hadoop::common-hdfs {
-  include hadoop::params::hdfs
+class hadoop::namenode inherits hadoop::common_hdfs {
+  require hadoop::common_hdfs
 
   $first_namenode = inline_template('<%= @hadoop_namenode_host.to_a[0] %>')
 

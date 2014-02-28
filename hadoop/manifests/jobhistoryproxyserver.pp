@@ -23,7 +23,8 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::jobhistoryproxyserver inherits hadoop::common_yarn {
-  include hadoop::parms::yarn
+  require hadoop::common_yarn
+  require hadoop::common_hdfs
 
   package { 'hadoop-mapreduce-historyserver':
     ensure  => latest,

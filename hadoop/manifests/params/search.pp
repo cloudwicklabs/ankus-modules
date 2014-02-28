@@ -1,8 +1,7 @@
 # Class: hadoop::params::search
 #
 #
-class hadoop::params::search {
-  include hadoop::params::default
+class hadoop::params::search inherits hadoop::params::default {
 
   $search_repo_class = $::osfamily ? {
     redhat => 'utils::repos::search::yum',

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--File Managed by puppet -->
-<% namenode_hosts = hadoop_namenode_host.to_a -%>
+<% @namenode_hosts = @hadoop_namenode_host.to_a -%>
 <configuration>
-<% if ha != "disabled" -%>
+<% if @ha != "disabled" -%>
   <!-- HA Configuration -->
   <property>
     <name>dfs.ha.automatic-failover.enabled</name>
@@ -11,49 +11,49 @@
   </property>
   <property>
     <name>ha.zookeeper.quorum</name>
-    <value><%= zk %></value>
+    <value><%= @zk %></value>
   </property>
   <property>
     <name>dfs.nameservices</name>
-    <value><%= hadoop_ha_nameservice_id %></value>
+    <value><%= @hadoop_ha_nameservice_id %></value>
   </property>
   <property>
-    <name>dfs.ha.namenodes.<%= hadoop_ha_nameservice_id %></name>
-    <value><%= (1..namenode_hosts.length).map { |n| "nn#{n}" }.join(",") %></value>
+    <name>dfs.ha.namenodes.<%= @hadoop_ha_nameservice_id %></name>
+    <value><%= (1..@namenode_hosts.length).map { |n| "nn#{n}" }.join(",") %></value>
   </property>
-<%   namenode_hosts.each_with_index do |host,idx| -%>
+<%   @namenode_hosts.each_with_index do |host,idx| -%>
   <property>
-    <name>dfs.namenode.rpc-address.<%= hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
-    <value><%= host %>:<%= hadoop_namenode_port %></value>
+    <name>dfs.namenode.rpc-address.<%= @hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
+    <value><%= host %>:<%= @hadoop_namenode_port %></value>
   </property>
   <property>
-    <name>dfs.namenode.http-address.<%= hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
+    <name>dfs.namenode.http-address.<%= @hadoop_ha_nameservice_id %>.nn<%= idx+1 %></name>
     <value><%= host %>:50070</value>
   </property>
 <%   end -%>
   <!--Journal nodes configuration -->
   <property>
     <name>dfs.namenode.shared.edits.dir</name>
-    <value><%= journal_shared_edits_dir %></value>
+    <value><%= @journal_shared_edits_dir %></value>
   </property>
   <property>
     <name>dfs.journalnode.edits.dir</name>
-    <value><%= jn_data_dir %></value>
+    <value><%= @jn_data_dir %></value>
   </property>
   <property>
-    <name>dfs.client.failover.proxy.provider.<%= hadoop_ha_nameservice_id %></name>
+    <name>dfs.client.failover.proxy.provider.<%= @hadoop_ha_nameservice_id %></name>
     <value>org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider</value>
   </property>
   <property>
     <name>dfs.ha.fencing.methods</name>
-    <value>sshfence(<%= sshfence_user %>)</value>
+    <value>sshfence(<%= @sshfence_user %>)</value>
   </property>
   <property>
     <name>dfs.ha.fencing.ssh.private-key-files</name>
-    <value><%= sshfence_keypath %></value>
+    <value><%= @sshfence_keypath %></value>
   </property>
 <% end -%>
-<% if hadoop_security_authentication == "kerberos" -%>
+<% if @hadoop_security_authentication == "kerberos" -%>
   <!--Security configuraiton-->
   <property>
     <name>dfs.block.access.token.enable</name>
@@ -65,11 +65,11 @@
   </property>
   <property>
     <name>dfs.namenode.kerberos.principal</name>
-    <value>hdfs/_HOST@<%= kerberos_realm %></value>
+    <value>hdfs/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>dfs.namenode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+    <value>HTTP/_HOST@<%= @kerberos_realm %></value>
   </property>
   <% if ha == "disabled" -%>
   <!-- Secondary NameNode security config -->
@@ -79,11 +79,11 @@
   </property>
   <property>
     <name>dfs.secondary.namenode.kerberos.principal</name>
-    <value>hdfs/_HOST@<%= kerberos_realm %></value>
+    <value>hdfs/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>dfs.secondary.namenode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+    <value>HTTP/_HOST@<%= @kerberos_realm %></value>
   </property>
   <% else -%>
  <!--Quoram based storage security config -->
@@ -93,11 +93,11 @@
   </property>
   <property>
     <name>dfs.journalnode.kerberos.principal</name>
-    <value>hdfs/_HOST@<%= kerberos_realm %></value>
+    <value>hdfs/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>dfs.journalnode.kerberos.internal.spnego.principal</name>
-    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+    <value>HTTP/_HOST@<%= @kerberos_realm %></value>
   </property>
   <%   end -%>
   <!-- DataNode security config -->
@@ -119,50 +119,50 @@
   </property>
   <property>
     <name>dfs.datanode.kerberos.principal</name>
-    <value>hdfs/_HOST@<%= kerberos_realm %></value>
+    <value>hdfs/_HOST@<%= @kerberos_realm %></value>
   </property>
 <% end -%>
   <!-- General -->
   <property>
     <name>dfs.namenode.name.dir</name>
-    <value><%= namenode_data_dirs.join(",") %></value>
+    <value><%= @namenode_data_dirs.join(",") %></value>
   </property>
   <property>
     <name>dfs.datanode.data.dir</name>
-    <value><%= hdfs_data_dirs.join(",") %></value>
+    <value><%= @hdfs_data_dirs.join(",") %></value>
   </property>
-<% if hdfs_support_append == "true" -%>
+<% if @hdfs_support_append == "true" -%>
   <property>
     <name>dfs.support.append</name>
-    <value><%= hdfs_support_append %></value>
+    <value><%= @hdfs_support_append %></value>
   </property>
 <% end -%>
-<% if ha == "disabled" -%>
+<% if @ha == "disabled" and @hadoop_secondarynamenode_host -%>
   <property>
      <name>dfs.namenode.checkpoint.dir</name>
-     <value><%= checkpoint_data_dirs.join(",") %></value>
+     <value><%= @checkpoint_data_dirs.join(",") %></value>
   </property>
   <property>
      <name>dfs.secondary.http.address</name>
-     <value><%= hadoop_secondarynamenode_host -%>:50090</value>
+     <value><%= @hadoop_secondarynamenode_host -%>:50090</value>
   </property>
 <% end -%>
   <property>
     <name>dfs.permissions.superusergroup</name>
-    <value><%= hadoop_config_dfs_permissions_supergroup -%></value>
+    <value><%= @hadoop_config_dfs_permissions_supergroup -%></value>
   </property>
   <property>
     <name>dfs.datanode.max.transfer.threads</name>
-    <value><%= hadoop_config_dfs_datanode_max_transfer_threads -%></value>
+    <value><%= @hadoop_config_dfs_datanode_max_transfer_threads -%></value>
   </property>
   <property>
     <name>dfs.blocksize</name>
-    <value><%= hadoop_config_dfs_block_size %></value>
+    <value><%= @hadoop_config_dfs_block_size %></value>
   </property>
-  <% if num_of_nodes > 1 -%>
+  <% if @num_of_nodes > 1 -%>
   <property>
     <name>dfs.namenode.handler.count</name>
-    <value><%= [Math.log(num_of_nodes) * 20].max.round %></value>
+    <value><%= [Math.log(@num_of_nodes) * 20].max.round %></value>
   </property>
   <% else -%>
   <property>
@@ -172,52 +172,52 @@
   <% end -%>
   <property>
     <name>dfs.datanode.du.reserved</name>
-    <value><%= hadoop_config_dfs_datanode_du_reserved -%></value>
+    <value><%= @hadoop_config_dfs_datanode_du_reserved -%></value>
   </property>
   <property>
     <name>dfs.datanode.balance.bandwidthPerSec</name>
-    <value><%= hadoop_config_dfs_datanode_balance_bandwidthpersec -%></value>
+    <value><%= @hadoop_config_dfs_datanode_balance_bandwidthpersec -%></value>
   </property>
   <property>
     <name>dfs.permissions.enabled</name>
-    <value><%= hadoop_config_dfs_permissions_enabled -%></value>
+    <value><%= @hadoop_config_dfs_permissions_enabled -%></value>
   </property>
   <property>
     <name>dfs.namenode.safemode.threshold-pct</name>
-    <value><%= hadoop_config_dfs_namenode_safemode_threshold_pct -%></value>
+    <value><%= @hadoop_config_dfs_namenode_safemode_threshold_pct -%></value>
   </property>
   <property>
     <name>dfs.replication</name>
-    <value><%= hadoop_config_dfs_replication -%></value>
+    <value><%= @hadoop_config_dfs_replication -%></value>
   </property>
   <property>
     <name>dfs.namenode.replication.min</name>
-    <value><%= hadoop_config_dfs_namenode_replication_min -%></value>
+    <value><%= @hadoop_config_dfs_namenode_replication_min -%></value>
   </property>
   <property>
     <name>dfs.namenode.safemode.extension</name>
-    <value><%= hadoop_config_dfs_namenode_safemode_extension -%></value>
+    <value><%= @hadoop_config_dfs_namenode_safemode_extension -%></value>
   </property>
   <property>
     <name>dfs.df.interval</name>
-    <value><%= hadoop_config_dfs_df_interval -%></value>
+    <value><%= @hadoop_config_dfs_df_interval -%></value>
   </property>
   <property>
     <name>dfs.client.block.write.retries</name>
-    <value><%= hadoop_config_dfs_client_block_write_retries -%></value>
+    <value><%= @hadoop_config_dfs_client_block_write_retries -%></value>
   </property>
-  <% if hue == "enabled" -%>
+  <% if @hue == "enabled" -%>
   <!-- Hue settings -->
   <property>
     <name>dfs.webhdfs.enabled</name>
     <value>true</value>
     <description>enables webhdfs in namenode and datanodes</description>
   </property>
-  <% if hadoop_security_authentication == "kerberos" -%>
+  <% if @hadoop_security_authentication == "kerberos" -%>
   <!-- WebHDFS Security settings -->
   <property>
     <name>dfs.web.authentication.kerberos.principal</name>
-    <value>HTTP/_HOST@<%= kerberos_realm %></value>
+    <value>HTTP/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>dfs.web.authentication.kerberos.keytab</name>
@@ -225,13 +225,13 @@
   </property>
   <% end -%>
   <% end -%>
-  <% if hbase == 'enabled' -%>
+  <% if @hbase == 'enabled' -%>
   <property>
     <name>dfs.datanode.max.xcievers</name>
     <value>4096</value>
   </property>
   <% end -%>
-  <% if impala == "enabled" -%>
+  <% if @impala == "enabled" -%>
   <!-- Impala Config -->
   <property>
     <name>dfs.client.read.shortcircuit</name>

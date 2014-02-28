@@ -1,6 +1,5 @@
 # Class: hadoop::params::hcatalog
 #
 #
-class hadoop::params::hcatalog {
-  include hadoop::params::default
+class hadoop::params::hcatalog inherits hadoop::params::default {
 }

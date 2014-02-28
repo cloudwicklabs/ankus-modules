@@ -22,9 +22,11 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::common {
-  include hadoop::params::default
+class hadoop::common inherits hadoop::params::default {
+  include $::hadoop::params::default::repo_class
   include java
+
+  notice("ulimits : $ulimits_nofiles")
 
   package { 'hadoop':
     ensure  => latest,

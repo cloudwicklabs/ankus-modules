@@ -27,8 +27,7 @@
 
 #TODO: This can now only be installed on jobtracker and supports only webhdfs
 
-class hadoop-hue {
-  include hadoop::params::hue
+class hadoop::hue inherits hadoop::params::hue {
 
   if ($hadoop_security_authentication == "kerberos") {
     require kerberos::client

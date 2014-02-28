@@ -31,9 +31,9 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-class hadoop::hcatalog {
-  include hadoop::params::hcatalog
+class hadoop::hcatalog inherits hadoop::params::hcatalog {
   include java
+  include $::hadoop::params::default::repo_class
 
   package { 'hcatalog':
     ensure  => installed,

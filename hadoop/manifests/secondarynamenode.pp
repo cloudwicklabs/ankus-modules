@@ -23,6 +23,7 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::secondarynamenode inherits hadoop::common_hdfs {
+  require hadoop::common_hdfs
 
   hadoop::create_dir_with_perm { $hadoop::params::default::checkpoint_data_dirs:
     user    => 'hdfs',

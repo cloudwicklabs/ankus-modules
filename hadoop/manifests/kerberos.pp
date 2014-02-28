@@ -22,9 +22,8 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::kerberos {
+class hadoop::kerberos inherits hadoop::params::default {
   require kerberos::client
-  include hadoop::params::default
 
   kerberos::host_keytab { 'hdfs':
     princs => [ 'host', 'hdfs' ],

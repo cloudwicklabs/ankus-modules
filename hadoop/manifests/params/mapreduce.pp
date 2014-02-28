@@ -1,9 +1,7 @@
 # Class: hadoop::params::mapreduce
 #
 #
-class hadoop::params::mapreduce {
-  include hadoop::params::default
-
+class hadoop::params::mapreduce inherits hadoop::params::default {
   #
   # Auto compute configuration params
   #

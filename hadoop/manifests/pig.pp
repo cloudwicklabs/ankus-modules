@@ -25,9 +25,7 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-
-class hadoop::pig {
-  include hadoop::params::default
+class hadoop::pig inherits hadoop::params::default {
 
   # REGISTER /usr/lib/pig/datafu-0.0.4-cdh4.3.0.jar
   $package_datafu = $::osfamily ? {

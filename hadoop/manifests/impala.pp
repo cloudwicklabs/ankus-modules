@@ -1,7 +1,8 @@
 # class hadoop::imapala
 #
-class hadoop::impala inherits hadoop::common_hdfs {
-  include hadoop::params::impala
+class hadoop::impala inherits hadoop::params::impala {
+  require hadoop::common_hdfs
+  include $::hadoop::params::default::repo_class
 
   package { 'impala':
     ensure  => installed,

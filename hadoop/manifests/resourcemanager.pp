@@ -23,7 +23,7 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::resourcemanager inherits hadoop::common_yarn {
-  include hadoop::params::yarn
+  require hadoop::common_yarn
 
   package { 'hadoop-yarn-resourcemanager':
     ensure  => latest,
@@ -48,14 +48,6 @@ class hadoop::resourcemanager inherits hadoop::common_yarn {
 
   hadoop::create_dir_with_perm { $hadoop::params::default::yarn_master_dirs:
     user    => 'yarn',
-    group   => 'yarn',
-    mode    => '0755',
-    require => Package['hadoop-yarn-resourcemanager']
-  }
-
-  file { $hadoop::params::default::yarn_data_dirs:
-    ensure  => directory,
-    owner   => 'yarn',
     group   => 'yarn',
     mode    => '0755',
     require => Package['hadoop-yarn-resourcemanager']

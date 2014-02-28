@@ -25,7 +25,8 @@
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
 
-class hadoop::sqoop {
+class hadoop::sqoop inherits hadoop::params::default {
+  include $::hadoop::params::default::repo_class
   include java
 
   if ($hadoop::params::default::deployment_mode == 'cdh') {
@@ -60,11 +61,6 @@ class hadoop::sqoop {
     package { "sqoop":
       ensure => installed,
       require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
-    }
-
-    file { "/var/lib/sqoop2/mysql-connector-java-5.1.22-bin.jar":
-      source  => 'puppet:///modules/hadoop/mysql-connector-java-5.1.22-bin.jar',
-      require => Package['sqoop'],
     }
   }
 }

@@ -2,8 +2,9 @@
 #
 # Installs and manages solr daemon
 #
-class hadoop::search {
+class hadoop::search inherits hadoop::params::search {
   include java
+  include $::hadoop::params::default::repo_class
 
   package { "solr":
     ensure => latest,

@@ -23,7 +23,7 @@
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
 class hadoop::nodemanager inherits hadoop::common_yarn {
-  include hadoop::params::yarn
+  require hadoop::common_yarn
 
   package { 'hadoop-yarn-nodemanager':
     ensure  => latest,
@@ -45,21 +45,19 @@ class hadoop::nodemanager inherits hadoop::common_yarn {
                   ],
   }
 
-  file { $hadoop::params::default::yarn_data_dirs:
-    ensure  => directory,
-    owner   => 'yarn',
+  hadoop::create_dir_with_perm { $hadoop::params::default::yarn_data_dirs:
+    user    => 'yarn',
     group   => 'yarn',
     mode    => '0755',
     require => Package['hadoop-yarn-nodemanager']
-  }
+  }  
 
-  file { $hadoop::params::default::yarn_container_log_dirs:
-    ensure  => directory,
-    owner   => 'yarn',
+  hadoop::create_dir_with_perm { $hadoop::params::default::yarn_container_log_dirs:
+    user    => 'yarn',
     group   => 'yarn',
     mode    => '0755',
     require => Package['hadoop-yarn-nodemanager']
-  }
+  }  
 
   if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-nodemanager']

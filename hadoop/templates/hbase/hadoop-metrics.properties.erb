@@ -30,7 +30,7 @@ hbase.extendedperiod = 3600
 # hbase.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 hbase.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 hbase.period=10
-hbase.servers=<%= ganglia_server %>:8649
+hbase.servers=<%= @ganglia_server %>:8649
 
 # Configuration of the "jvm" context for null
 # jvm.class=org.apache.hadoop.metrics.spi.NullContextWithUpdateThread
@@ -45,7 +45,7 @@ hbase.servers=<%= ganglia_server %>:8649
 # jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 jvm.period=10
-jvm.servers=<%= ganglia_server %>:8649
+jvm.servers=<%= @ganglia_server %>:8649
 
 # Configuration of the "rpc" context for null
 # rpc.class=org.apache.hadoop.metrics.spi.NullContextWithUpdateThread
@@ -60,11 +60,11 @@ jvm.servers=<%= ganglia_server %>:8649
 # rpc.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 rpc.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 rpc.period=10
-rpc.servers=<%= ganglia_server %>:8649
+rpc.servers=<%= @ganglia_server %>:8649
 
 # Configuration of the "rest" context for ganglia
 # Pick one: Ganglia 3.0 (former) or Ganglia 3.1 (latter)
 # rest.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 rest.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 rest.period=10
-rest.servers=<%= ganglia_server %>:8649
+rest.servers=<%= @ganglia_server %>:8649

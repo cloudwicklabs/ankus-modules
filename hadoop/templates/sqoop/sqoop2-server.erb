@@ -5,7 +5,7 @@
 #   /usr/lib/sqoop2/sqoop-server-0.20 for MR1 clusters
 CATALINA_BASE=/usr/lib/sqoop2/sqoop-server-0.20
 
-export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>
+export JAVA_HOME=<%= @hadoop_java_home %>
 
 SQOOP_USER=sqoop2
 SQOOP_CONFIG=/etc/sqoop2/conf

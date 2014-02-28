@@ -22,8 +22,8 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::common_yarn inherits hadoop::common {
-  include hadoop::params::yarn
+class hadoop::common_yarn inherits hadoop::params::yarn {
+  require hadoop::common
 
   package { 'hadoop-yarn':
     ensure  => latest,

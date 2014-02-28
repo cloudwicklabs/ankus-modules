@@ -162,7 +162,7 @@
 
     <property>
         <name>oozie.service.HadoopAccessorService.kerberos.enabled</name>
-        <value><%= if (hadoop_security_authentication == "kerberos") ; "true" else "false" end %></value>
+        <value><%= if (@hadoop_security_authentication == "kerberos") ; "true" else "false" end %></value>
         <description>
             Indicates if Oozie is configured to use Kerberos.
         </description>
@@ -170,7 +170,7 @@
 
     <property>
         <name>oozie.authentication.type</name>
-        <value><%= if (hadoop_security_authentication == "kerberos") ; "kerberos" else "simple" end %></value>
+        <value><%= if (@hadoop_security_authentication == "kerberos") ; "kerberos" else "simple" end %></value>
         <description>
             Defines authentication used for Oozie HTTP endpoint.
             Supported values are: simple | kerberos | #AUTHENTICATION_HANDLER_CLASSNAME#
@@ -178,10 +178,10 @@
     </property>
 
     <!-- Security settings -->
-    <% if hadoop_security_authentication == 'kerberos' -%>
+    <% if @hadoop_security_authentication == 'kerberos' -%>
     <property>
         <name>local.realm</name>
-        <value><%= kerberos_realm %></value>
+        <value><%= @kerberos_realm %></value>
         <description>
             Kerberos Realm used by Oozie and Hadoop. Using 'local.realm' to be aligned with Hadoop configuration
         </description>
@@ -197,7 +197,7 @@
 
     <property>
         <name>oozie.service.HadoopAccessorService.kerberos.principal</name>
-        <value>oozie/<%= fqdn %>@<%= kerberos_realm %></value>
+        <value>oozie/<%= @fqdn %>@<%= @kerberos_realm %></value>
         <description>
             Kerberos principal for Oozie service.
         </description>
@@ -205,7 +205,7 @@
 
     <property>
         <name>oozie.authentication.kerberos.principal</name>
-        <value>HTTP/<%= fqdn %>@<%= kerberos_realm %></value>
+        <value>HTTP/<%= @fqdn %>@<%= @kerberos_realm %></value>
         <description>
             Indicates the Kerberos principal to be used for HTTP endpoint.
             The principal MUST start with 'HTTP/' as per Kerberos HTTP SPNEGO specification.

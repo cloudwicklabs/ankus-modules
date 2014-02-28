@@ -4,7 +4,7 @@
 
 # The java implementation to use.  Java 1.6 required.
 # export JAVA_HOME=/usr/java/jdk1.6.0/
-export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>
+export JAVA_HOME=<%= @hadoop_java_home %>
 
 # Extra Java CLASSPATH elements.  Optional.
 export HBASE_CLASSPATH=/etc/hadoop/conf
@@ -27,7 +27,7 @@ export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Xms<%= hbase_regionser
 export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS <%= hbase_master_gc_tuning_options %> <%= hbase_master_gc_log_opts %> -Xloggc:/var/log/hbase/hbase-master-gc.log"
 export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS <%= hbase_regionserver_gc_tuning_opts %> <%= hbase_regionserver_gc_log_opts %> -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
 
-<% if auth == "kerberos" -%>
+<% if @auth == "kerberos" -%>
 # Secure Zookeeper settings
 export HBASE_OPTS="$HBASE_OPTS -Djava.security.auth.login.config=/etc/hbase/conf/jaas.conf"
 export HBASE_MANAGES_ZK=false

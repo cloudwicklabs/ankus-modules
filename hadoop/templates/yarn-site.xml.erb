@@ -2,11 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!-- File Managed by puppet -->
 <configuration>
-<% if hadoop_security_authentication == "kerberos" -%>
+<% if @hadoop_security_authentication == "kerberos" -%>
   <!-- ResourceManager security configs -->
   <property>
     <name>yarn.resourcemanager.principal</name>
-    <value>yarn/_HOST@<%= kerberos_realm %></value>
+    <value>yarn/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>yarn.resourcemanager.keytab</name>
@@ -15,7 +15,7 @@
   <!-- NodeManager security configs -->
   <property>
     <name>yarn.nodemanager.principal</name>
-    <value>yarn/_HOST@<%= kerberos_realm %></value>
+    <value>yarn/_HOST@<%= @kerberos_realm %></value>
   </property>
   <property>
     <name>yarn.nodemanager.keytab</name>
@@ -32,7 +32,7 @@
   <!-- MapReduce Job History Server security configs -->
   <property>
     <name>mapreduce.jobhistory.address</name>
-    <value><%= hadoop_jobhistory_host %>:10020</value>
+    <value><%= @hadoop_jobhistory_host %>:10020</value>
   </property>
   <property>
     <name>mapreduce.jobhistory.keytab</name>
@@ -40,48 +40,56 @@
   </property>
   <property>
     <name>mapreduce.jobhistory.principal</name>
-    <value>yarn/_HOST@<%= kerberos_realm %></value>
+    <value>yarn/_HOST@<%= @kerberos_realm %></value>
   </property>
 <% end -%>
   <property>
     <name>yarn.web-proxy.address</name>
-    <value><%= hadoop_jobhistory_host %>:<%= hadoop_proxyserver_port %></value>
+    <value><%= @hadoop_jobhistory_host %>:<%= @hadoop_proxyserver_port %></value>
   </property>
   <property>
     <description>address of the applications manager interface in the ResouceManager</description>
     <name>yarn.resourcemanager.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcemanager_port %></value>
+    <value><%= @hadoop_resourcemanager_host %>:<%= @hadoop_resourcemanager_port %></value>
   </property>
   <property>
     <description>address of the scheduler interface</description>
     <name>yarn.resourcemanager.scheduler.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcescheduler_port %></value>
+    <value><%= @hadoop_resourcemanager_host %>:<%= @hadoop_resourcescheduler_port %></value>
   </property>
   <property>
     <description>address of the resouce tracker interface</description>
     <name>yarn.resourcemanager.resource-tracker.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcetracker_port %></value>
+    <value><%= @hadoop_resourcemanager_host %>:<%= @hadoop_resourcetracker_port %></value>
   </property>  
   <property>
     <description>address of the ResourceManager admin interface</description>
     <name>yarn.resourcemanager.admin.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourceadmin_port %></value>
+    <value><%= @hadoop_resourcemanager_host %>:<%= @hadoop_resourceadmin_port %></value>
   </property>
   <property>
     <description>address of the ResourceManager web application</description>
     <name>yarn.resourcemanager.webapp.address</name>
-    <value><%= hadoop_resourcemanager_host %>:<%= hadoop_resourcewebapp_port %></value>
+    <value><%= @hadoop_resourcemanager_host %>:<%= @hadoop_resourcewebapp_port %></value>
   </property>
   <property>
     <description>staging directory for temp files created during running jobs</description>
     <name>yarn.app.mapreduce.am.staging-dir</name>
     <value>/user</value>
   </property>
+  <% if @deployment_mode == 'cdh' -%>
   <property>
     <description>Shuffle service that needs to be set for MapReduce apps</description>
     <name>yarn.nodemanager.aux-services</name>
     <value>mapreduce.shuffle</value>
-  </property>
+  </property>  
+  <% else -%>
+  <property>
+    <description>Shuffle service that needs to be set for MapReduce apps</description>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+  </property>  
+  <% end -%>
   <property>
     <description>exact name of the class for shuffle service</description>
     <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
@@ -98,13 +106,13 @@
       put here for the duration of application run.
     </description>
     <name>yarn.nodemanager.local-dirs</name>
-    <value><%= yarn_data_dirs.join(",") %></value>
+    <value><%= @yarn_data_dirs.join(",") %></value>
     <final>true</final>
   </property>
   <property>
     <description>Where to store container logs.</description>
     <name>yarn.nodemanager.log-dirs</name>
-    <value><%= yarn_container_log_dirs.join(",") %></value>
+    <value><%= @yarn_container_log_dirs.join(",") %></value>
   </property>
   <property>
     <description>Where to aggregate logs to.</description>

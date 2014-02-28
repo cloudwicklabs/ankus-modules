@@ -1,13 +1,12 @@
 # Class: hadoop::params::hbase
 #
 #
-class hadoop::params::hbase {
-  include hadoop::params::default
+class hadoop::params::hbase inherits hadoop::params::default {
 
-  $hbase_deploy                             = hiera('hbase_deploy', 'disabled')
+  $hbase_deploy               = hiera('hbase_deploy', 'disabled')
   if ($hbase_deploy != "disabled") {
-    $hbase_master                           = $hbase_deploy['hbase_master']
-    $hbase_zookeeper_quorum                 = hiera('zookeeper_quorum')
+    $hbase_master             = $hbase_deploy['hbase_master']
+    $hbase_zookeeper_quorum   = hiera('zookeeper_quorum')
   }
 
   # reserved for hbase

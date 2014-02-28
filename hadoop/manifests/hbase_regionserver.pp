@@ -24,9 +24,9 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-class hadoop::hbase_regionserver {
+class hadoop::hbase_regionserver inherits hadoop::params::hbase {
   include java
-  include hadoop::params::hbase
+  include $::hadoop::params::default::repo_class
 
   package { 'hbase-regionserver':
     ensure  => latest,

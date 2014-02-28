@@ -1,5 +1,4 @@
 #File Managed by puppet
-
 <% def shell_config(shell_var, *puppet_var)
      puppet_var = puppet_var[0] || shell_var.downcase
      if has_variable? puppet_var
@@ -7,7 +6,7 @@
      else
         return "#export #{shell_var}="
      end
-   end %>
+   end -%>
 
 # The java implementation to use.  Required.
 <%= shell_config("JAVA_HOME", "hadoop_java_home") %>

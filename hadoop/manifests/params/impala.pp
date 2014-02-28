@@ -1,8 +1,7 @@
 # Class: hadoop::params::impala
 #
 #
-class hadoop::params::impala {
-  include hadoop::params::default
+class hadoop::params::impala inherits hadoop::params::default {
 
   $impala_repo_class = $::osfamily ? {
     redhat => 'utils::repos::impala::yum',

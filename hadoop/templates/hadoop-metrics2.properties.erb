@@ -9,13 +9,13 @@
 
 *.sink.ganglia.class=org.apache.hadoop.metrics2.sink.ganglia.GangliaSink31
 *.period=10
-namenode.sink.ganglia.servers=<%= ganglia_server %>:8649
-datanode.sink.ganglia.servers=<%= ganglia_server %>:8649
-nodemanager.sink.ganglia.servers=<%= ganglia_server %>:8649
-resourcemanager.sink.ganglia.servers=<%= ganglia_server %>:8649
-secondarynamenode.sink.ganglia.servers=<%= ganglia_server %>:8649
-jobtracker.sink.ganglia.servers=<%= ganglia_server %>:8649
-tasktracker.sink.ganglia.servers=<%= ganglia_server %>:8649
+namenode.sink.ganglia.servers=<%= @ganglia_server %>:8649
+datanode.sink.ganglia.servers=<%= @ganglia_server %>:8649
+nodemanager.sink.ganglia.servers=<%= @ganglia_server %>:8649
+resourcemanager.sink.ganglia.servers=<%= @ganglia_server %>:8649
+secondarynamenode.sink.ganglia.servers=<%= @ganglia_server %>:8649
+jobtracker.sink.ganglia.servers=<%= @ganglia_server %>:8649
+tasktracker.sink.ganglia.servers=<%= @ganglia_server %>:8649
 
 # The namenode-metrics.out will contain metrics from all context
 #namenode.sink.file.filename=namenode-metrics.out

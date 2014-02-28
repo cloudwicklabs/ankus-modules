@@ -1,7 +1,8 @@
 # Class: hadoop::params::hdfs
 #
 #
-class hadoop::params::hdfs {
+class hadoop::params::hdfs inherits hadoop::params::default {
+
   if ($hadoop::params::default::ha != 'disabled' ) {
     # core-site
     $hadoop_ha_nameservice_id = hiera('hadoop_ha_nameservice_id', 'ha-nn-uri')
@@ -14,11 +15,11 @@ class hadoop::params::hdfs {
       'disabled' => '',
       default => "qjournal://${jn}/${shared_edits_dir}"
     }
-    $sshfence_user            = hiera('hadoop_ha_sshfence_user', 'hdfs')
-    $sshfence_user_home       = hiera('hadoop_ha_sshfence_user_home', '/var/lib/hadoop-hdfs')
-    $sshfence_keydir          = "${sshfence_user_home}/.ssh"
-    $sshfence_keypath         = "${sshfence_keydir}/id_sshfence"
   }
+  $sshfence_user            = hiera('hadoop_ha_sshfence_user', 'hdfs')
+  $sshfence_user_home       = hiera('hadoop_ha_sshfence_user_home', '/var/lib/hadoop-hdfs')
+  $sshfence_keydir          = "${sshfence_user_home}/.ssh"
+  $sshfence_keypath         = "${sshfence_keydir}/id_sshfence"
 
   # hdfs-site
   $hdfs_support_append                                  = hiera('hadoop_support_append', true)

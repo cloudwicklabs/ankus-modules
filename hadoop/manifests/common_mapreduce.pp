@@ -22,8 +22,12 @@
 #
 # Copyright 2012 Cloudwick Inc, unless otherwise noted.
 #
-class hadoop::common_mapreduce inherits hadoop::common {
-  include hadoop::params::mapreduce
+class hadoop::common_mapreduce inherits hadoop::params::mapreduce {
+  require hadoop::common
+
+  if ($hadoop::params::default::deployment_mode == 'hdp') {
+    fail("HDP 2.0 deployments dont support mapreduce")
+  }
 
   package { 'hadoop-0.20-mapreduce':
     ensure  => latest,
