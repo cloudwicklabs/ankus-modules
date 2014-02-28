@@ -20,8 +20,8 @@ class hadoop::flume inherits hadoop::params::flume {
   }
 
   service { $hadoop::params::flume::service_name:
-    ensure => running,
-    enable => true,
+    ensure  => running,
+    enable  => true,
     require => File['/etc/flume/conf/flume-env.sh'],
   }
 }

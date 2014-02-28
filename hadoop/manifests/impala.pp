@@ -34,11 +34,11 @@ class hadoop::impala inherits hadoop::params::impala {
       enable  => true,
       require => [ 
                     Package['impala-state-store'],
-                    File["/etc/impala/conf/core-site.xml",
-                      "/etc/default/impala",
-                      "/etc/impala/conf/hdfs-site.xml",
-                      "/etc/impala/conf/hive-site.xml",
-                      "/etc/impala/conf/impala-log4j.properties"],
+                    File['/etc/impala/conf/core-site.xml',
+                      '/etc/default/impala',
+                      '/etc/impala/conf/hdfs-site.xml',
+                      '/etc/impala/conf/hive-site.xml',
+                      '/etc/impala/conf/impala-log4j.properties'],
                   ]
 
     }
@@ -48,11 +48,11 @@ class hadoop::impala inherits hadoop::params::impala {
       enable  => true,
       require => [ 
                     Package['impala-catalog'],
-                    File["/etc/impala/conf/core-site.xml",
-                      "/etc/default/impala",
-                      "/etc/impala/conf/hdfs-site.xml",
-                      "/etc/impala/conf/hive-site.xml",
-                      "/etc/impala/conf/impala-log4j.properties"],
+                    File['/etc/impala/conf/core-site.xml',
+                      '/etc/default/impala',
+                      '/etc/impala/conf/hdfs-site.xml',
+                      '/etc/impala/conf/hive-site.xml',
+                      '/etc/impala/conf/impala-log4j.properties'],
                   ]
     }    
 
@@ -79,11 +79,11 @@ class hadoop::impala inherits hadoop::params::impala {
       enable  => true,
       require => [ 
                     Package['impala-server'],
-                    File["/etc/impala/conf/core-site.xml",
-                      "/etc/default/impala",
-                      "/etc/impala/conf/hdfs-site.xml",
-                      "/etc/impala/conf/hive-site.xml",
-                      "/etc/impala/conf/impala-log4j.properties"],
+                    File['/etc/impala/conf/core-site.xml',
+                      '/etc/default/impala',
+                      '/etc/impala/conf/hdfs-site.xml',
+                      '/etc/impala/conf/hive-site.xml',
+                      '/etc/impala/conf/impala-log4j.properties'],
                   ]
     }    
 
@@ -101,28 +101,28 @@ class hadoop::impala inherits hadoop::params::impala {
   }
 
   file { '/etc/impala/conf':
-    ensure => "directory",
-    require => Package["impala"],
+    ensure => 'directory',
+    require => Package['impala'],
   }
 
   file { '/etc/default/impala':
     content => template('hadoop/impala/default.erb'),
-    require => Package["impala"],
+    require => Package['impala'],
   }
 
   file { '/etc/impala/conf/core-site.xml':
     content => template('hadoop/core-site.xml.erb'),
-    require => [Package["impala"], File["/etc/impala/conf"]],
+    require => [Package['impala'], File['/etc/impala/conf']],
   }
 
   file { '/etc/impala/conf/hdfs-site.xml':
     content => template('hadoop/hdfs-site.xml.erb'),
-    require => [Package["impala"], File["/etc/impala/conf"]],
+    require => [Package['impala'], File['/etc/impala/conf']],
   }
 
   file { '/etc/impala/conf/hive-site.xml':
       content => template('hadoop/hive-site.xml.erb'),
-      require => [Package["impala"], File["/etc/impala/conf"]],
+      require => [Package['impala'], File['/etc/impala/conf']],
   }
 
   file { '/etc/impala/conf/impala-log4j.properties':
@@ -135,16 +135,16 @@ class hadoop::impala inherits hadoop::params::impala {
     require => Package['impala'],
   }
 
-  if ( $hadoop_security_authentication == 'kerberos' ) {
+  if ( $hadoop::params::default::hadoop_security_authentication == 'kerberos' ) {
     require kerberos::client
 
-    $sec_packages = ["python-devel", "cyrus-sasl-devel", "gcc-c++", "python-setuptools", "openssl-devel", "python-pip"]
+    $sec_packages = ['python-devel', 'cyrus-sasl-devel', 'gcc-c++', 'python-setuptools', 'openssl-devel', 'python-pip']
 
     package { $sec_packages:
       ensure => latest,
     }
 
-    exec { "install-ssl":
+    exec { 'install-ssl':
       command => 'pip install ssl',
       user => "root",
       require => Package[$sec_packages],

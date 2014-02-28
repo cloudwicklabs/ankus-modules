@@ -26,7 +26,7 @@ class hadoop::common_mapreduce inherits hadoop::params::mapreduce {
   require hadoop::common
 
   if ($hadoop::params::default::deployment_mode == 'hdp') {
-    fail("HDP 2.0 deployments dont support mapreduce")
+    fail('HDP 2.0 deployments dont support mapreduce')
   }
 
   package { 'hadoop-0.20-mapreduce':

@@ -24,7 +24,7 @@
 #
 class hadoop::datanode inherits hadoop::common_hdfs {
   require hadoop::common_hdfs
-  
+
   package { 'hadoop-hdfs-datanode':
     ensure   => latest,
     require  => Package['hadoop-hdfs'],
@@ -63,8 +63,8 @@ class hadoop::datanode inherits hadoop::common_hdfs {
       domain  => 'hdfs',
       type    => hard,
       item    => nofile,
-      value   => $hadoop::params::default::ulimit_nofiles;    
-  }  
+      value   => $hadoop::params::default::ulimit_nofiles;
+  }
 
   if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     file { '/etc/default/hadoop-hdfs-datanode':

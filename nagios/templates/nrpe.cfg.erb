@@ -69,7 +69,7 @@ nrpe_group=<%= scope.lookupvar('nagios::nrpe::nagiosgroup') %>
 #
 # NOTE: This option is ignored if NRPE is running under either inetd or xinetd
 
-allowed_hosts=127.0.0.1,<%= @ipaddress %>,<%= nagiosserver %>
+allowed_hosts=127.0.0.1,<%= @ipaddress %>,<%= @nagiosserver %>
 
 
 
@@ -205,6 +205,7 @@ command[check_nn_health]=<%= scope.lookupvar('nagios::params::user1') %>/check_n
 command[check_nn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_nn_status
 command[check_snn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_snn_status
 command[check_jt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_jt_status
+command[check_rm_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rm_status
 command[check_hadoop_dfs]=<%= scope.lookupvar('nagios::params::user1') %>/check_hadoop_dfs -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 <% if @security == 'kerberos' -%>
 command[check_dn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_dn_status -p 1004
@@ -214,12 +215,14 @@ command[check_dn_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_d
 command[check_hbase_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_hbase -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
 <% end -%>
 command[check_tt_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_tt_status
+command[check_nm_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_nm_status
 command[check_mr_tts]=<%= scope.lookupvar('nagios::params::user1') %>/check_mr_tts -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
-<% if @ha == "enabled" or @hbase != "disabled" -%>
+command[check_mr_nms]=<%= scope.lookupvar('nagios::params::user1') %>/check_mr_nms -w <%= @warning_num_nodes %> -c <%= @critical_num_nodes %>
+<% if @ha == "enabled" or @hbase_deploy != "disabled" -%>
 command[check_zk_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_status -z <%= @zookeepers.join(',') %> -w 20 -c 40
 command[check_zk_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_zk_daemon
 <% end -%>
-<% if @hbase != "disabled" -%>
+<% if @hbase_deploy != "disabled" -%>
 #HBASE PLUGINS
 command[check_hmaster_daemon]=<%= scope.lookupvar('nagios::params::user1') %>/check_hmaster_daemon
 command[check_regionserver_status]=<%= scope.lookupvar('nagios::params::user1') %>/check_rs_status

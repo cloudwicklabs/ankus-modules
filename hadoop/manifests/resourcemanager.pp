@@ -40,8 +40,8 @@ class hadoop::resourcemanager inherits hadoop::common_yarn {
                     File['/etc/hadoop/conf/core-site.xml'],
                     File['/etc/hadoop/conf/mapred-site.xml']
                   ],
-    require   => [ 
-                    Package['hadoop-yarn-resourcemanager'], 
+    require   => [
+                    Package['hadoop-yarn-resourcemanager'],
                     Hadoop::Create_dir_with_perm[$hadoop::params::default::yarn_master_dirs]
                   ],
   }
@@ -53,14 +53,14 @@ class hadoop::resourcemanager inherits hadoop::common_yarn {
     require => Package['hadoop-yarn-resourcemanager']
   }
 
-	cron { 'orphanjobsfiles':
+  cron { 'orphanjobsfiles':
     command => 'find /var/log/hadoop/ -type f -mtime +3 -name "job_*_conf.xml" -delete',
     user    => 'root',
     hour    => '3',
     minute  => '0',
-	}
+  }
 
   if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
-  	Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-resourcemanager']
+    Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-resourcemanager']
   }
 }

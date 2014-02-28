@@ -7,24 +7,24 @@ class hadoop::oozie_server inherits hadoop::params::oozie {
   include java
   include $::hadoop::params::default::repo_class
 
-  if($hadoop::params::default::hadoop_security_authentication == "kerberos") {
+  if($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     require kerberos::client
 
-    kerberos::host_keytab { "oozie":
+    kerberos::host_keytab { 'oozie':
       spnego => true,
     }
 
-    Kerberos::Host_keytab <| title == "oozie" |> -> Service["oozie"]
+    Kerberos::Host_keytab <| title == 'oozie' |> -> Service['oozie']
   }
 
-  package { oozie:
+  package { 'oozie':
     ensure  => installed,
     require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
   }
 
   file { '/etc/oozie/conf/oozie-site.xml':
     alias   => 'oozie-conf',
-    content => template("hadoop/oozie/oozie-site.xml.erb"),
+    content => template('hadoop/oozie/oozie-site.xml.erb'),
     require => Package['oozie'],
     notify  => Service['oozie']
   }
@@ -65,7 +65,7 @@ class hadoop::oozie_server inherits hadoop::params::oozie {
       group   => 'root',
       alias   => 'postgresql-oozie-jar-libext',
       require =>  [ Package['oozie'], File['/usr/lib/oozie/libext'] ]
-    }    
+    }
 
     file { '/etc/oozie/conf/oozie-env.sh':
       alias   => 'oozie-env',

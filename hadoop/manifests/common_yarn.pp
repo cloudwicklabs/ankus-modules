@@ -50,7 +50,7 @@ class hadoop::common_yarn inherits hadoop::params::yarn {
     content => template('hadoop/container-executor.cfg.erb'),
     owner   => root,
     group   => yarn,
-    mode    => 400,
+    mode    => '0400',
     require => Package['hadoop-yarn'],
   }
 

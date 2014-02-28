@@ -27,6 +27,5 @@
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
 
-class nagios {
-	require nagios::params
+class nagios inherits nagios::params {
 }

@@ -50,14 +50,14 @@ class hadoop::nodemanager inherits hadoop::common_yarn {
     group   => 'yarn',
     mode    => '0755',
     require => Package['hadoop-yarn-nodemanager']
-  }  
+  }
 
   hadoop::create_dir_with_perm { $hadoop::params::default::yarn_container_log_dirs:
     user    => 'yarn',
     group   => 'yarn',
     mode    => '0755',
     require => Package['hadoop-yarn-nodemanager']
-  }  
+  }
 
   if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-nodemanager']

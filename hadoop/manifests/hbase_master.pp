@@ -1,6 +1,6 @@
 # Class: hadoop::hbase_master
 #
-# Installs and manages hbase master node, hbase is a distributed, scalable, 
+# Installs and manages hbase master node, hbase is a distributed, scalable,
 # big data store
 #
 # === Parameters
@@ -43,12 +43,12 @@ class hadoop::hbase_master inherits hadoop::params::hbase {
 
   file { '/etc/hbase/conf/hbase-env.sh':
     content => template('hadoop/hbase/hbase-env.sh.erb'),
-    require => Package["hbase"],
+    require => Package['hbase']
   }
 
   if ($hadoop::params::default::monitoring == 'enabled') {
     file { '/etc/hbase/conf/hadoop-metrics.properties':
-      content => template("hadoop/hbase/hadoop-metrics.properties.erb"),
+      content => template('hadoop/hbase/hadoop-metrics.properties.erb'),
       require => Package['hbase-master'],
     }
   }

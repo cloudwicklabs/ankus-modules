@@ -67,33 +67,29 @@ class nagios::nrpe(
   $nagiosserver = hiera('nagios_server'),
   $nsostype = hiera('nagios_server_ostype'),
 	) inherits nagios {
-	#parameter1: nagiosserver -> nagios server ipaddress (req)
-	#parameter2: nsostype -> nagios server os type (req) -> Ex: Centos|RedHat|Ubuntu
 	include nagios::params
-  #parametes required for monitoring hadoop daemons
+
   $hadoop_deploy = hiera('hadoop_deploy')
   if ($hadoop_deploy != 'disabled') {
     $num_of_nodes = hiera('number_of_nodes')
     $warning_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.75].max.round %>")
     $critical_num_nodes = inline_template("<%= [num_of_nodes.to_i * 0.50].max.round %>")
     $hbase_deploy = hiera('hbase_deploy')
-    $ha = $hadoop_deploy['hadoop_ha']
+    $ha = $hadoop_deploy['ha']
     $mapreduce = $hadoop_deploy['mapreduce']
     if ($mapreduce != 'disabled') {
-      if ($mapreduce['type'] == "mr1") {
-        $jobtracker_host = $mapreduce['master']
-      }
+      $jobtracker_host = $mapreduce['master']
       $hadoop_mapreduce_framework = $mapreduce['type']
     }
-    $namenode_hosts = $hadoop_deploy['hadoop_namenode']
+    $namenode_hosts = $hadoop_deploy['namenode']
     $second_namenode = inline_template("<%= namenode_hosts.to_a[1] %>")
     $security = hiera('security', 'simple')
-    $slaves = hiera('slave_nodes')
+    $slaves = hiera('worker_nodes')
     if ($ha == "disabled") {
-      $secondarynamenode_host = $hadoop_deploy['hadoop_secondarynamenode']
+      $secondarynamenode_host = $hadoop_deploy['secondarynamenode']
     }
     if ($hbase_deploy != 'disabled') {
-      $hbase_master = $hbase_deploy['hbase_master']
+      $hbase_master = $hbase_deploy['master']
     }
     if ($ha == "enabled") or ($hbase_deploy != "disabled") {
       $zookeepers = hiera('zookeeper_quorum')
@@ -357,9 +353,16 @@ class nagios::nrpe(
           service_description =>  'HDFS Datanode Status',
         }
         if ($mapreduce != 'disabled') {
-          @@nagios_service{ "check_tasktracker_${::fqdn}":
-            check_command => 'check_nrpe!check_tt_status',
-            service_description =>  'MapReduce TaskTracker Status',
+          if ($hadoop_mapreduce_framework == 'mr1') {
+            @@nagios_service{ "check_tasktracker_${::fqdn}":
+              check_command => 'check_nrpe!check_tt_status',
+              service_description =>  'MapReduce TaskTracker Status',
+            }
+          } else {
+            @@nagios_service{ "check_nodemanager_${::fqdn}":
+              check_command => 'check_nrpe!check_nm_status',
+              service_description =>  'Yarn NodeManager Status',
+            }            
           }
         }
       }
@@ -416,13 +419,24 @@ class nagios::nrpe(
       }
       if ($mapreduce != 'disabled') {
         if ($::fqdn == $jobtracker_host) {
-          @@nagios_service{ "check_jt_status_${::fqdn}":
-            check_command       =>  'check_nrpe!check_jt_status',
-            service_description =>  'Hadoop Jobtracker Status',
-          }
-          @@nagios_service{ "check_mr_tts_${::fqdn}":
-            check_command       =>  'check_nrpe!check_mr_tts',
-            service_description =>  'MapReduce TaskTrackers Status',
+          if ($hadoop_mapreduce_framework == 'mr1') {
+            @@nagios_service{ "check_jt_status_${::fqdn}":
+              check_command       =>  'check_nrpe!check_jt_status',
+              service_description =>  'Hadoop Jobtracker Status',
+            }
+            @@nagios_service{ "check_mr_tts_${::fqdn}":
+              check_command       =>  'check_nrpe!check_mr_tts',
+              service_description =>  'MapReduce TaskTrackers Status',
+            }
+          } else {
+            @@nagios_service{ "check_rm_status_${::fqdn}":
+              check_command       =>  'check_nrpe!check_rm_status',
+              service_description =>  'Hadoop ResourceManager Status',
+            }
+            @@nagios_service{ "check_mr_nms_${::fqdn}":
+              check_command       =>  'check_nrpe!check_mr_nms',
+              service_description =>  'MapReduce NodeManagers Status',
+            }            
           }
         }
       }

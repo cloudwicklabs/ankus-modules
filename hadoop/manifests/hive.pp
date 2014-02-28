@@ -2,10 +2,10 @@
 #
 # Installs and manages:
 #   - hive: a data warehouse system for Hadoop
-#   - hive-metastore: stores the metadata for Hive tables and partitions in a 
-#       relational database, and provides clients (including Hive) access to 
+#   - hive-metastore: stores the metadata for Hive tables and partitions in a
+#       relational database, and provides clients (including Hive) access to
 #       this information via the metastore service API
-#   - hive-server2: allows a remote client to submit requests to Hive, using a 
+#   - hive-server2: allows a remote client to submit requests to Hive, using a
 #       variety of programming languages, and retrieve results.
 #
 # TODO: Add support for hive-server2 deployments which requires zookeeper
@@ -66,8 +66,8 @@ class hadoop::hive inherits hadoop::params::hive {
   }
 
   service { 'hive-metastore':
-    enable  => true,
     ensure  => running,
+    enable  => true,
     require => [ File['hive-conf'], File['hive-env'] ]
   }
 }

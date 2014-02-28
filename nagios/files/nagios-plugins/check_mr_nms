@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+PROGNAME=`basename $0`
+VERSION="Version 1.0"
+
+#TODO: Remove hostname dependecy because this is being run from resourcemanager
+
+ST_OK=0
+ST_WR=1
+ST_CR=2
+ST_UK=3
+
+print_help() {
+  echo "$PROGNAME $VERSION"
+  echo ""
+  echo "$PROGNAME is a Nagios plugin to check the Number of NodeManagers"
+  echo ""
+  echo "Options:"
+  echo "  -w|--warning)"
+  echo "     Defines the warning level for available nodemanagers. Default"
+  echo "     is: off"
+  echo "  -c|--critical)"
+  echo "     Defines the critical level for available nodemanagers. Default"
+  echo "     is: off"
+    exit $ST_UK
+}
+#validate input arguments
+while [ -n "$1" ]; do
+    case "$1" in
+        --help|-h)
+            print_help
+            exit $ST_UK
+            ;;
+        --version|-v)
+            print_version $PROGNAME $VERSION
+            exit $ST_UK
+            ;;
+        --warning|-w)
+            warning=$2
+            shift
+            ;;
+        --critical|-c)
+            critical=$2
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            print_help
+            exit $ST_UK
+            ;;
+        esac
+    shift
+done
+
+get_wcdiff() {
+    if [ ! -z "$warning" -a ! -z "$critical" ]
+    then
+        wclvls=1
+
+        if [ ${warning} -lt ${critical} ]
+        then
+            wcdiff=1
+        fi
+    elif [ ! -z "$warning" -a -z "$critical" ]
+    then
+        wcdiff=2
+    elif [ -z "$warning" -a ! -z "$critical" ]
+    then
+        wcdiff=3
+    fi
+}
+
+val_wcdiff() {
+    if [ "$wcdiff" = 1 ]
+    then
+        echo "Please adjust your warning/critical thresholds. The warning \
+must be higher than the critical level!"
+        exit $ST_UK
+    elif [ "$wcdiff" = 2 ]
+    then
+        echo "Please also set a critical value when you want to use \
+warning/critical thresholds!"
+        exit $ST_UK
+    elif [ "$wcdiff" = 3 ]
+    then
+        echo "Please also set a warning value when you want to use \
+warning/critical thresholds!"
+        exit $ST_UK
+    fi
+}
+
+get_vals() {
+    hostname=`uname -n`
+    tmp_vals=`curl http://${hostname}:8088/cluster 2>&1 /dev/null`
+    url=`echo -e "$tmp_vals" | grep "<a href=\"\/cluster\/nodes\">[0-9]<\/a>"`
+    num_nms=`echo $url | grep -o [0-9]*`
+}
+
+do_output() {
+  output="NodeManagers up and running: ${num_nms}"
+}
+
+#Call the Functions
+get_wcdiff
+val_wcdiff
+get_vals  #collects the actual values
+do_output
+
+if [ -n "$warning" -a -n "$critical" ]
+then
+    if [ "$num_nms" -le "$warning" -a "$num_nms" -gt "$critical" ]
+    then
+        echo "WARNING - ${output}"
+      exit $ST_WR
+    elif [ "$num_nms" -le "$critical" ]
+    then
+        echo "CRITICAL - ${output}"
+      exit $ST_CR
+    else
+        echo "OK - ${output}"
+      exit $ST_OK
+    fi
+else
+    echo "OK - ${output}"
+    exit $ST_OK
+fi

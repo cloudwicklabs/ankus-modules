@@ -26,8 +26,6 @@ class hadoop::common inherits hadoop::params::default {
   include $::hadoop::params::default::repo_class
   include java
 
-  notice("ulimits : $ulimits_nofiles")
-
   package { 'hadoop':
     ensure  => latest,
     require => [

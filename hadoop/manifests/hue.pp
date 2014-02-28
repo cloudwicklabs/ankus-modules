@@ -29,15 +29,15 @@
 
 class hadoop::hue inherits hadoop::params::hue {
 
-  if ($hadoop_security_authentication == "kerberos") {
+  if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     require kerberos::client
 
-    kerberos::host_keytab { "hue":
+    kerberos::host_keytab { 'hue':
       spnego => false,
     }
   }
 
-  $hue_packages = [ "hue", "hue-server", "hue-plugins" ]
+  $hue_packages = [ 'hue', 'hue-server', 'hue-plugins' ]
 
   package { $hue_packages:
     ensure  => latest,

@@ -30,7 +30,7 @@ class hadoop::secondarynamenode inherits hadoop::common_hdfs {
     group   => 'hdfs',
     mode    => '0700',
     require => Package['hadoop-hdfs-secondarynamenode']
-  } 
+  }
 
   package { 'hadoop-hdfs-secondarynamenode':
     ensure  => latest,

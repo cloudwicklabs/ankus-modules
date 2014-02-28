@@ -24,11 +24,11 @@
 #
 class hadoop::nosecondarynamenode inherits hadoop::common_hdfs {
   service { 'hadoop-hdfs-secondarynamenode':
-    ensure => "stopped",
+    ensure => 'stopped',
   }
-  
+
   package { 'hadoop-hdfs-secondarynamenode':
-    ensure => 'absent',
+    ensure  => 'absent',
     require => Service['hadoop-hdfs-secondarynamenode'],
   }
 }

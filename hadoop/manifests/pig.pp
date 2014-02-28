@@ -1,7 +1,7 @@
 # == Class: hadoop::pig
 #
 # Apache Pig is a platform for analyzing large data sets that consists of a
-# high-level language for expressing data analysis programs, coupled with 
+# high-level language for expressing data analysis programs, coupled with
 # infrastructure for evaluating these programs
 #
 # === Parameters
@@ -49,6 +49,6 @@ class hadoop::pig inherits hadoop::params::default {
     content => template('hadoop/pig/pig.properties.erb'),
     require => Package['pig'],
     owner   => 'root',
-    mode    => '755'
+    mode    => '0755'
   }
 }

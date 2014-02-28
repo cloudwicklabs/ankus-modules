@@ -30,36 +30,36 @@ class hadoop::sqoop inherits hadoop::params::default {
   include java
 
   if ($hadoop::params::default::deployment_mode == 'cdh') {
-    package { "sqoop2-server":
-      ensure => installed,
+    package { 'sqoop2-server':
+      ensure  => installed,
       require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
     }
 
-    package { "sqoop2-client":
-      ensure => installed,
+    package { 'sqoop2-client':
+      ensure  => installed,
       require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
     }
 
-    file { "/etc/default/sqoop2-server":
+    file { '/etc/default/sqoop2-server':
       alias   => 'sqoop-server-defaults',
       content => template('hadoop/sqoop/sqoop2-server.erb'),
       require => Package['sqoop2-server'],
       notify  => Service['sqoop2-server']
     }
 
-    service { "sqoop2-server":
-      enable => true,
-      ensure => running,
+    service { 'sqoop2-server':
+      ensure  => running,
+      enable  => true,
       require => File['sqoop-server-defaults'],
     }
 
-    file { "/var/lib/sqoop2/mysql-connector-java-5.1.22-bin.jar":
-      source  => "puppet:///modules/hadoop/mysql-connector-java-5.1.22-bin.jar",
-      require => Package["sqoop2-server"],
+    file { '/var/lib/sqoop2/mysql-connector-java-5.1.22-bin.jar':
+      source  => 'puppet:///modules/hadoop/mysql-connector-java-5.1.22-bin.jar',
+      require => Package['sqoop2-server'],
     }
   } else {
-    package { "sqoop":
-      ensure => installed,
+    package { 'sqoop':
+      ensure  => installed,
       require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
     }
   }
