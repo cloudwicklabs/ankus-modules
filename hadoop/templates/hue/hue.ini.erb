@@ -36,7 +36,7 @@
   http_500_debug_mode=0
 
   # Server email for internal error messages
-  ## django_server_email='hue@localhost.localdomain'  
+  ## django_server_email='hue@localhost.localdomain'
 
   # Set to true to use CherryPy as the webserver, set to false
   # to use Spawning as the webserver. Defaults to Spawning if
@@ -192,7 +192,7 @@
     #
     # Note that for sqlite3, 'name', below is a filename;
     # for other backends, it is the database name.
-    engine=postgresql
+    engine=postgresql_psycopg2
     host=<%= @hadoop_controller %>
     port=5432
     user=hue
@@ -368,7 +368,7 @@
   # Configuration for YARN (MR2)
   # ------------------------------------------------------------------------
   [[yarn_clusters]]
-  
+
     [[[default]]]
       # Enter the host on which you are running the ResourceManager
       resourcemanager_host=localhost
@@ -376,19 +376,19 @@
       resourcemanager_port=8032
       # Whether to submit jobs to this cluster
       submit_to=true
-  
+
       # Change this if your YARN cluster is Kerberos-secured
       security_enabled=<%= if (@hadoop_security_authentication == "kerberos") ; "true" else "false" end %>
-  
+
       # Settings about this MR2 cluster. If you install MR2 in a
       # different location, you need to set the following.
-  
+
       # Defaults to $HADOOP_MR2_HOME or /usr/lib/hadoop-mapreduce
       hadoop_mapred_home=/usr/lib/hadoop-mapreduce
-  
+
       # Defaults to $HADOOP_BIN or /usr/bin/hadoop
       ## hadoop_bin=/usr/bin/hadoop
-  
+
       # Defaults to $HADOOP_CONF_DIR or /etc/hadoop/conf
       ## hadoop_conf_dir=/etc/hadoop/conf
 
@@ -430,7 +430,7 @@
   ## share_jobs=True
 
   # Maximum of Oozie workflows or coodinators to retrieve in one API call.
-  ## oozie_jobs_count=100  
+  ## oozie_jobs_count=100
 
 ###########################################################################
 # Settings to configure Beeswax

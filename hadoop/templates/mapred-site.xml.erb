@@ -26,7 +26,7 @@
     <value>org.apache.hadoop.io.compress.SnappyCodec</value>
   </property>
   <% end -%>
-<% if @hadoop_security_authentication == "kerberos" -%>
+  <% if @hadoop_security_authentication == "kerberos" -%>
   <!-- JobTracker security configs -->
   <property>
     <name>mapreduce.jobtracker.kerberos.principal</name>
@@ -54,43 +54,7 @@
     <name>mapreduce.tasktracker.group</name>
     <value>mapred</value>
   </property>
-<% end -%>
-<% end -%>
-<% if @hadoop_mapreduce_framework == "mr2" -%>
-  <property>
-    <name>mapreduce.framework.name</name>
-    <value>yarn</value>
-  </property>
-  <property>
-    <name>mapreduce.jobhistory.address</name>
-    <value><%= @hadoop_jobhistory_host %>:10020</value>
-  </property>
-  <property>
-    <name>mapreduce.jobhistory.webapp.address</name>
-    <value><%= @hadoop_jobhistory_host %>:19888</value>
-  </property>
-  <% if @hadoop_snappy_codec == "enabled" -%>
-  <property>
-    <name>mapreduce.map.output.compress</name>
-    <value>true</value>
-  </property>
-  <property>
-    <name>mapred.map.output.compress.codec</name>
-    <value>org.apache.hadoop.io.compress.SnappyCodec</value>
-  </property>
   <% end -%>
-<% if @hadoop_security_authentication == "kerberos" -%>
-  <!-- HistoryServer security configs -->
-  <property>
-    <name>mapreduce.jobhistory.principal</name>
-    <value>mapred/_HOST@<%= @kerberos_realm %></value>
-  </property>
-  <property>
-    <name>mapreduce.jobhistory.keytab</name>
-    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
-  </property>
-<% end -%>
-<% end -%>
   <property>
     <name>mapred.child.java.opts</name>
     <value>-Xmx<%= @hadoop_config_mapred_child_java_opts %>m</value>
@@ -146,6 +110,75 @@
     <name>mapreduce.job.reduce.slowstart.completedmaps</name>
     <value><%= @hadoop_config_mapred_reduce_slowstart_completed_maps %></value>
   </property>
+  <property>
+    <name>mapreduce.tasktracker.http.threads</name>
+    <value><%= @hadoop_config_tasktracker_http_threads %></value>
+  </property>
+<% end -%>
+<% if @hadoop_mapreduce_framework == "mr2" -%>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.address</name>
+    <value><%= @hadoop_jobhistory_host %>:10020</value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value><%= @hadoop_jobhistory_host %>:19888</value>
+  </property>
+  <% if @hadoop_snappy_codec == "enabled" -%>
+  <property>
+    <name>mapreduce.map.output.compress</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>mapred.map.output.compress.codec</name>
+    <value>org.apache.hadoop.io.compress.SnappyCodec</value>
+  </property>
+  <% end -%>
+  <% if @hadoop_security_authentication == "kerberos" -%>
+  <!-- HistoryServer security configs -->
+  <property>
+    <name>mapreduce.jobhistory.principal</name>
+    <value>mapred/_HOST@<%= @kerberos_realm %></value>
+  </property>
+  <property>
+    <name>mapreduce.jobhistory.keytab</name>
+    <value>/etc/mapred.keytab</value> <!-- path to the MapReduce keytab -->
+  </property>
+  <% end -%>
+  <!-- MapReduce 2 -->
+  <property>
+    <name>mapreduce.map.memory.mb</name>
+    <value><%= @hadoop_config_mapreduce_map_memory_mb -%></value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.memory.mb</name>
+    <value><%= @hadoop_config_mapreduce_reduce_memory_mb -%></value>
+  </property>
+  <property>
+    <name>mapreduce.map.java.opts</name>
+    <value>-Xmx<%= @hadoop_config_mapreduce_map_java_opts -%>m</value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.java.opts</name>
+    <value>-Xmx<%= @hadoop_config_mapreduce_reduce_java_opts -%>m</value>
+  </property>
+  <property>
+    <name>mapreduce.task.io.sort.mb</name>
+    <value><%= @hadoop_config_mapreduce_task_io_sort_mb -%></value>
+  </property>
+  <property>
+    <name>mapreduce.task.io.sort.factor</name>
+    <value><%= @hadoop_config_mapreduce_task_io_sort_factor -%></value>
+  </property>
+  <property>
+    <name>mapreduce.reduce.shuffle.parallelcopies</name>
+    <value><%= @hadoop_config_mapreduce_reduce_shuffle_parallelcopies -%></value>
+  </property>
+<% end -%>
   <% if @hue == "enabled" -%>
   <property>
     <name>jobtracker.thrift.address</name>

@@ -35,7 +35,8 @@ class hadoop::params::mapreduce inherits hadoop::params::default {
   }
   $gb = 1024
 
-  $mem = inline_template('<%= (@memorytotal).scan(/\\d+[.,]\\d+/).first.to_f.ceil -%>')
+  $mem_in_mb = $::memorysize_mb
+  $mem = inline_template('<%= (@mem_in_mb.to_f / @gb.to_f).ceil -%>')
 
   # calculate the reserved memory for stack which includes os + dn + nm
   if has_key($reserved_for_stack, $mem) {

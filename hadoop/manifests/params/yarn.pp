@@ -46,7 +46,8 @@ class hadoop::params::yarn inherits hadoop::params::default {
   }
   $gb = 1024
 
-  $mem = inline_template('<%= (@memorytotal).scan(/\\d+[.,]\\d+/).first.to_f.ceil -%>')
+  $mem_in_mb = $::memorysize_mb
+  $mem = inline_template('<%= (@mem_in_mb.to_f / @gb.to_f).ceil -%>')
 
   # calculate the minimum container size
   if $mem <= 4 {
@@ -88,15 +89,7 @@ class hadoop::params::yarn inherits hadoop::params::default {
   # calculate the usable memory
   $reserved_mem = $reserved_for_stack_mem + $reserved_for_hbase_mem
   $usable_mem   = $mem - $reserved_mem
-
-  if $usable_mem < 2 {
-    $final_mem          = 2
-    $reserved_mem_final = max(0, $final_mem - $reserved_mem)
-  } else {
-    $final_mem          = $usable_mem
-    $reserved_mem_final = $reserved_mem
-  }
-  $final_mem_in_mb = $mem * $gb # get mem in mb
+  $final_mem_in_mb = $usable_mem * $gb # get mem in mb
 
   $disks          = inline_template('<%= `lsblk --noheadings | wc -l`.chomp -%>') # get the number of disks
   $containers     = inline_template('<%= [3, [2 * @physicalprocessorcount.to_i, [(1.8 * @disks.to_f), (@final_mem_in_mb.to_i / @min_container_size.to_i)].min].min].max -%>')
@@ -118,21 +111,25 @@ class hadoop::params::yarn inherits hadoop::params::default {
   $mapreduce_task_io_sort_mb          = inline_template('<%= [0.4 * @map_memory, 1024].min.to_i -%>')
   $mapreduce_task_io_sort_factor      = inline_template('<%= @mapreduce_task_io_sort_mb.to_i / 10 -%>')
 
-  notice(" Disks = ${disks}, FinalMemInMB = ${final_mem_in_mb}, MinContainerSize = ${min_container_size} ")
-  notice("Number of containers = ${containers}")
-  notice("Container RAM = ${container_final_ram} MB")
-  notice("Used RAM = ${used_ram} GB")
-  notice("Unused RAM = ${reserved_mem_final} GB")
-  notice("yarn.scheduler.minimum-allocation-mb = ${container_final_ram}")
-  notice("yarn.scheduler.maximum-allocation-mb = ${container_max_allocation}")
-  notice("yarn.nodemanager.resource.memory-mb = ${container_max_allocation}")
-  notice("mapreduce.map.memory.mb = ${map_memory}")
-  notice("mapreduce.map.java.opts = -Xmx${mapreduce_map_java_opts}m")
-  notice("mapreduce.reduce.memory.mb = ${reduce_memory}")
-  notice("mapreduce.reduce.java.opts=-Xmx${mapreduce_reduce_java_opts}m")
-  notice("yarn.app.mapreduce.am.resource.mb = ${am_memory}")
-  notice("yarn.app.mapreduce.am.command-opts = -Xmx${yarn_app_mapreduce_am_command_opts}m")
-  notice("mapreduce.task.io.sort.mb = ${mapreduce_task_io_sort_mb}")
+  Notify {
+    loglevel => debug
+  }
+
+  notify { "Memory in the server (in GB): ${mem}": }
+  notify { "Usable Memory (in MB): ${final_mem_in_mb}": }
+  notify { "Disks = ${disks}, FinalMemInMB = ${final_mem_in_mb}, MinContainerSize = ${min_container_size} ": }
+  notify { "Number of containers = ${containers}": }
+  notify { "Container RAM = ${container_final_ram} MB": }
+  notify { "yarn.scheduler.minimum-allocation-mb = ${container_final_ram}": }
+  notify { "yarn.scheduler.maximum-allocation-mb = ${container_max_allocation}": }
+  notify { "yarn.nodemanager.resource.memory-mb = ${container_max_allocation}": }
+  notify { "mapreduce.map.memory.mb = ${map_memory}": }
+  notify { "mapreduce.map.java.opts = -Xmx${mapreduce_map_java_opts}m": }
+  notify { "mapreduce.reduce.memory.mb = ${reduce_memory}": }
+  notify { "mapreduce.reduce.java.opts=-Xmx${mapreduce_reduce_java_opts}m": }
+  notify { "yarn.app.mapreduce.am.resource.mb = ${am_memory}": }
+  notify { "yarn.app.mapreduce.am.command-opts = -Xmx${yarn_app_mapreduce_am_command_opts}m": }
+  notify { "mapreduce.task.io.sort.mb = ${mapreduce_task_io_sort_mb}": }
 
   #yarn-site.xml
   $hadoop_mapreduce                                       = $hadoop::params::default::hadoop_deploy['mapreduce']
@@ -162,20 +159,4 @@ class hadoop::params::yarn inherits hadoop::params::default {
   $hadoop_config_mapreduce_task_io_sort_mb                = hiera('hadoop_config_mapreduce_task_io_sort_mb', $mapreduce_task_io_sort_mb) #512
   $hadoop_config_mapreduce_task_io_sort_factor            = hiera('hadoop_config_mapreduce_task_io_sort_factor', $mapreduce_task_io_sort_factor) #100
   $hadoop_config_mapreduce_reduce_shuffle_parallelcopies  = hiera('hadoop_config_mapreduce_reduce_shuffle_parallelcopies', 50)
-
-  #TODO: Validate whether these are required
-  $num_of_nodes = hiera('number_of_nodes')
-  $hadoop_config_mapred_map_tasks_speculative_execution = hiera('hadoop_config_mapred_map_tasks_speculative_execution', true)
-  if ($num_of_nodes > '2'){
-    $mapred_parallel_copies_default = inline_template('<%= [Math.log(num_of_nodes) * 4].max.round %>')
-  }
-  else{
-    $mapred_parallel_copies_default = '5'
-  }
-  $hadoop_config_mapred_reduce_parallel_copies = hiera('hadoop_config_mapred_reduce_parallel_copies', $mapred_parallel_copies_default)
-  $hadoop_config_mapred_reduce_tasks_speculative_execution = hiera('hadoop_config_mapred_reduce_tasks_speculative_execution', false)
-  $hadoop_config_tasktracker_http_threads = hiera('hadoop_config_tasktracker_http_threads', '64')
-  $hadoop_config_use_map_compression = hiera('hadoop_config_use_map_compression', false)
-  # default value is 0.05 can increase it to 0.8, put this value closer to 1 for faster networks and close to 0 for saturated networks
-  $hadoop_config_mapred_reduce_slowstart_completed_maps = hiera('hadoop_config_mapred_reduce_slowstart_completed_maps', '0.05')
 }

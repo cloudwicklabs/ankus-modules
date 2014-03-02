@@ -75,7 +75,7 @@ class hadoop::oozie_server inherits hadoop::params::oozie {
     }
 
     exec { 'oozie-prepare-war':
-      command   => 'bash -c \'/usr/lib/oozie/bin/oozie-setup.sh prepare-war && touch DB_PREPARE_WAR\'',
+      command   => 'bash -c \'source /etc/profile.d/set_java_home.sh && /usr/lib/oozie/bin/oozie-setup.sh prepare-war && touch DB_PREPARE_WAR\'',
       cwd       => '/usr/lib/oozie',
       creates   => '/usr/lib/oozie/DB_PREPARE_WAR',
       logoutput => on_failure,
@@ -84,7 +84,7 @@ class hadoop::oozie_server inherits hadoop::params::oozie {
     }
 
     exec { 'Oozie DB init':
-      command   => 'bash -c \'/usr/lib/oozie/bin/ooziedb.sh create -sqlfile oozie.sql -run && touch DB_INIT_COMPLETE\'',
+      command   => 'bash -c \'source /etc/profile.d/set_java_home.sh && /usr/lib/oozie/bin/ooziedb.sh create -sqlfile oozie.sql -run && touch DB_INIT_COMPLETE\'',
       cwd       => '/usr/lib/oozie',
       logoutput => on_failure,
       creates   => '/usr/lib/oozie/DB_INIT_COMPLETE',
