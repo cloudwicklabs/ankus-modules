@@ -16,6 +16,7 @@ define jmxtrans::gangliawriter (
     group   => 'root',
     mode    => '0644',
     content => template('jmxtrans/gangliawriter.json.erb'),
-    require => Package[$jmxtrans::package_name]
+    require => Package[$jmxtrans::package_name],
+    notify  => Service[$jmxtrans::service]
   }
 }

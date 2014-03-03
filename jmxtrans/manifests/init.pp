@@ -31,10 +31,13 @@
 #
 
 class jmxtrans inherits jmxtrans::params {
+  include java
+
   case $::operatingsystem {
     'RedHat', 'CentOS': {
       $pkg_provider       = 'rpm'
       $package            = "jmxtrans-${jmxtrans::params::redhat_version}.noarch.rpm"
+      $service            = 'jmxtrans'
       $package_name       = inline_template("<%= @package[0..-5] %>")
       $tmpsource          = "/tmp/${package_name}"
       $defaults_file_path = '/etc/sysconfig/jmxtrans'
@@ -42,6 +45,7 @@ class jmxtrans inherits jmxtrans::params {
     'Debian', 'Ubuntu': {
       $pkg_provider       = 'dpkg'
       $package            = "jmxtrans_${jmxtrans::params::debian_version}_all.deb"
+      $service            = 'jmxtrans'
       $package_name       = inline_template("<%= @package[0..-5] %>")
       $tmpsource          = "/tmp/${package_name}"
       $defaults_file_path = '/etc/default/jmxtrans'
@@ -51,7 +55,7 @@ class jmxtrans inherits jmxtrans::params {
     }
   }
 
-  # Variables to build erb
+  # Variables to build templates
   $java_home = $jmxtrans::params::java_home
   $seconds_between_run = $jmxtrans::params::seconds_between_run
   $json_dir = $jmxtrans::params::json_dir
@@ -72,7 +76,8 @@ class jmxtrans inherits jmxtrans::params {
   package { $package_name:
     ensure    => installed,
     source    => $tmpsource,
-    provider  => $pkg_provider
+    provider  => $pkg_provider,
+    require   => File['java-app-dir'],
   }
 
   file { "${defaults_file_path}":
@@ -81,7 +86,7 @@ class jmxtrans inherits jmxtrans::params {
     require => Package[$package_name]
   }
 
-  service { "jmxtrans":
+  service { $service:
     enable      => true,
     ensure      => running,
     hasrestart  => true,
