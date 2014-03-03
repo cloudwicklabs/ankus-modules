@@ -1,29 +1,29 @@
 #
 # File Managed by Puppet, Any modifications will be overwritten on next run
 #
-cluster_name: '<%= cluster_name %>'
-num_tokens: '<%= num_tokens %>'
+cluster_name: '<%= @cluster_name %>'
+num_tokens: '<%= @num_tokens %>'
 # initial_token:
 hinted_handoff_enabled: true
 max_hint_window_in_ms: 10800000 # 3 hours
 hinted_handoff_throttle_in_kb: 1024
 max_hints_delivery_threads: 2
-authenticator: <%= authenticator %>
-authorizer: <%= authorizer %>
+authenticator: <%= @authenticator %>
+authorizer: <%= @authorizer %>
 permissions_validity_in_ms: 2000
-partitioner: <%= partitioner %>
+partitioner: <%= @partitioner %>
 data_file_directories:
-<% data_dirs.each do |dir| -%>
+<% @data_dirs.each do |dir| -%>
 - <%= dir %>
 <% end -%>
-commitlog_directory: <%= commitlog_directory %>
-saved_caches_directory: <%= saved_caches %>
-disk_failure_policy: <%= disk_failure_policy %>
+commitlog_directory: <%= @commitlog_directory %>
+saved_caches_directory: <%= @saved_caches %>
+disk_failure_policy: <%= @disk_failure_policy %>
 key_cache_size_in_mb:
 key_cache_save_period: 14400
 row_cache_size_in_mb: 0
 row_cache_save_period: 0
-row_cache_provider: SerializingCacheProvider
+# row_cache_provider: SerializingCacheProvider
 commitlog_sync: periodic
 commitlog_segment_size_in_mb: 32
 commitlog_sync_period_in_ms: 10000
@@ -31,9 +31,9 @@ seed_provider:
     - class_name: org.apache.cassandra.locator.SimpleSeedProvider
       parameters:
           - seeds: "<%= @seeds.join(',') %>"
-flush_largest_memtables_at: 0.75
-reduce_cache_sizes_at: 0.85
-reduce_cache_capacity_to: 0.61
+# flush_largest_memtables_at: 0.75
+# reduce_cache_sizes_at: 0.85
+# reduce_cache_capacity_to: 0.61
 concurrent_reads: 32
 concurrent_writes: 32
 memtable_flush_queue_size: 4
@@ -62,11 +62,11 @@ in_memory_compaction_limit_in_mb: 64
 multithreaded_compaction: false
 compaction_throughput_mb_per_sec: 16
 compaction_preheat_key_cache: true
-read_request_timeout_in_ms: <%= read_request_timeout_in_ms %>
-range_request_timeout_in_ms: <%= range_request_timeout_in_ms %>
-write_request_timeout_in_ms: <%= write_request_timeout_in_ms %>
-truncate_request_timeout_in_ms: <%= truncate_request_timeout_in_ms %>
-request_timeout_in_ms: <%= request_timeout_in_ms %>
+read_request_timeout_in_ms: <%= @read_request_timeout_in_ms %>
+range_request_timeout_in_ms: <%= @range_request_timeout_in_ms %>
+write_request_timeout_in_ms: <%= @write_request_timeout_in_ms %>
+truncate_request_timeout_in_ms: <%= @truncate_request_timeout_in_ms %>
+request_timeout_in_ms: <%= @request_timeout_in_ms %>
 cross_node_timeout: false
 endpoint_snitch: SimpleSnitch
 dynamic_snitch_update_interval_in_ms: 100

@@ -30,25 +30,14 @@
 class cassandra inherits cassandra::params {
   include java7
   require cassandra::params
-  require utils::repos
+  include $::cassandra::params::repo_class
 
-  $cassandra_deploy = hiera('cassandra_deploy')
-  $seeds = $cassandra_deploy['seeds']
-  $nodes = $cassandra_deploy['nodes']
-
-  case $operatingsystem {
-    'Ubuntu': {
-      package { "dsc20":
-        ensure => latest,
-        require => [ File["java7-app-dir"], Apt::Source['datastax-repo'] ],
-      }
-    }
-    'CentOS': {
-      package { $cassandra_pkg:
-        ensure => latest,
-        require => [ File["java7-app-dir"], Yumrepo["datastax-repo"] ],
-      }
-    }
+  package { $::cassandra::params::cassandra_pkg:
+    ensure   => installed,
+    require  => [
+                  File['java7-app-dir'],
+                  Class[$::cassandra::params::repo_class]
+    ]
   }
 
   # Define: createDirWithPerm creates directories with parent directories
@@ -60,63 +49,83 @@ class cassandra inherits cassandra::params {
     }
 
     file { $name:
-      ensure => directory,
-      owner => $user,
-      group => $group,
-      mode => 700,
-      require => Mkdir_p[$name]
+      ensure   => directory,
+      owner    => $user,
+      group    => $group,
+      mode     => 0700,
+      require  => Mkdir_p[$name]
     }
   }
 
-  createDirWithPerm { $data_dirs:
-    user => "cassandra",
-    group => "cassandra",
-    require => Package[$cassandra_pkg]
+  createDirWithPerm {
+    $data_dirs:
+      user    => 'cassandra',
+      group   => 'cassandra',
+      require => Package[$::cassandra::params::cassandra_pkg];
+    $commitlog_directory:
+      user    => 'cassandra',
+      group   => 'cassandra',
+      require => Package[$::cassandra::params::cassandra_pkg];
+    $saved_caches:
+      user    => 'cassandra',
+      group   => 'cassandra',
+      require => Package[$::cassandra::params::cassandra_pkg];
   }
 
-  createDirWithPerm { $commitlog_directory:
-    user => "cassandra",
-    group => "cassandra",
-    require => Package[$cassandra_pkg]
+  file {
+    "${cassandra::params::cassandra_base}/cassandra.yaml":
+      ensure  => present,
+      alias   => 'conf',
+      require => Package[$cassandra_pkg],
+      content => template('cassandra/conf/cassandra.yaml.erb'),
+      notify  => Service['cassandra'];
+    "${cassandra::params::cassandra_base}/cassandra-env.sh":
+      ensure  => present,
+      alias   => 'conf-env',
+      require => Package[$cassandra_pkg],
+      content => template('cassandra/conf/cassandra-env.sh.erb'),
+      notify  => Service['cassandra'];
+    '/etc/default/cassandra':
+      ensure  => present,
+      alias   => 'conf-default',
+      require => Package[$cassandra_pkg],
+      content => template('cassandra/conf/cassandra.default.erb'),
+      notify  => Service['cassandra'];
   }
 
-  createDirWithPerm { $saved_caches:
-    user => "cassandra",
-    group => "cassandra",
-    require => Package[$cassandra_pkg]
-  }
-
-  file { "${cassandra::params::cassandra_base}/cassandra.yaml":
-    ensure  => present,
-    alias   => 'conf',
-    require => Package[$cassandra_pkg],
-    content => template("cassandra/conf/cassandra.yaml.erb"),
-    notify  => Service['cassandra'];
-  }
-
-  file { "${cassandra::params::cassandra_base}/cassandra-env.sh":
-    ensure  => present,
-    alias   => 'conf-env',
-    require => Package[$cassandra_pkg],
-    content => template("cassandra/conf/cassandra-env.sh.erb"),
-    notify  => Service['cassandra'];
-  }
-
-  file { "/etc/default/cassandra":
-    ensure  => present,
-    alias   => 'conf-default',
-    require => Package[$cassandra_pkg],
-    content => template("cassandra/conf/cassandra.default.erb"),
-    notify  => Service['cassandra'];
-  }
-
-  service { "cassandra":
-    enable => true,
-    ensure => running,
+  service { 'cassandra':
+    enable     => true,
+    ensure     => running,
     hasrestart => true,
-    hasstatus => true,
-    require => [Package[$cassandra_pkg],
-                File['conf', 'conf-env', 'conf-default'],
-                CreateDirWithPerm[$data_dirs, $commitlog_directory, $saved_caches]]
+    hasstatus  => true,
+    require    => [
+                    Package[$cassandra_pkg],
+                    File['conf', 'conf-env', 'conf-default'],
+                    CreateDirWithPerm[
+                      $data_dirs,
+                      $commitlog_directory,
+                      $saved_caches
+                    ]
+                  ]
+  }
+
+  # log_stash
+  if ($cassandra::params::log_aggregation == 'enabled') {
+    logstash::lumberjack_conf { 'cassandra_system_log':
+      logstash_host => $cassandra::params::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_cassandra_system',
+      field         => "cassandra-system-${::fqdn}",
+      logfiles      => ['/var/log/cassandra/system.log'],
+      require       => Service['cassandra']
+    }
+    logstash::lumberjack_conf { 'cassandra':
+      logstash_host => $cassandra::params::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_cassandra',
+      field         => "cassandra-${::fqdn}",
+      logfiles      => ['/var/log/cassandra/cassandra.log'],
+      require       => Service['cassandra']
+    }
   }
 }
