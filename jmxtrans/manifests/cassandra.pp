@@ -328,7 +328,7 @@ class jmxtrans::cassandra {
   ]
 
   # query cassandra node for its JMX metrics
-  jmxtrans::gangliawriter { 'cassandra1':
+  jmxtrans::gangliawriter { 'cassandra':
       jmx     => "${::fqdn}:7199",
       ganglia => "${ganglia_server}:8649",
       ganglia_group_name => 'cassandra',

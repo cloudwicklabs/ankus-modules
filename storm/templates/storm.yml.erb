@@ -2,21 +2,39 @@
 # File Managed by Puppet
 #
 
+# Zookeeper custer to use
 storm.zookeeper.servers:
 <%= @zookeeper_hosts.collect { |host| "  - \"#{host}\"" }.join("\n") %>
+storm.zookeeper.port: 2181
 
-nimbus.host: <%= @nimbus_host %>
+# Local directory path to store small amounts of state (like jars, configs, ...)
 storm.local.dir: <%= @storm_local_dir %>
 
+# Worker nodes need to know which machine is the master in order to download
+# topology jars and conf's
+nimbus.host: <%= @nimbus_host %>
+
 <% if @worker_count -%>
-# Each port listed here corresponds to
-# a single worker on this node.
+# Each port listed here corresponds to a single worker running on this node.
 supervisor.slots.ports:
 <% @worker_count.times do |i| -%>
   - <%= 6700 + i %>
 <% end -%>
+supervisor.childopts: "-Dcom.sun.management.jmxremote=true
+-Dcom.sun.management.jmxremote.port=10000
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote.authenticate=false"
 <% end -%>
 
 <% if @ui_port -%>
 ui.port: <%= @ui_port %>
+ui.childopts: "-Xmx768m"
 <% end -%>
+
+# Worker - configs are for task workers - Nore '1%ID%' gets replcaed while=
+# worker bootup
+worker.childopts: " -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.ssl=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.port=1%ID%"

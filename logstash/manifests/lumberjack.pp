@@ -25,7 +25,7 @@
 # https://github.com/jordansissel/lumberjack/issues/49
 # https://github.com/jordansissel/lumberjack/issues/41
 
-class logstash::lumberjack {
+define logstash::lumberjack {
 
   notice('installing role lumberjack (agent)')
 
