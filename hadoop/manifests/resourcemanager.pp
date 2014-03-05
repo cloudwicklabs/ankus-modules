@@ -63,4 +63,16 @@ class hadoop::resourcemanager inherits hadoop::common_yarn {
   if ($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-resourcemanager']
   }
+
+  # log_stash
+  if ($hadoop::params::default::log_aggregation == 'enabled') {
+    logstash::lumberjack_conf { 'resourcemangaer':
+      logstash_host => $hadoop::params::default::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_resourcemanager',
+      field         => "resourcemanager-${::fqdn}",
+      logfiles      => ['/var/log/hadoop-yarn/hadoop*resourcemanager*.log'],
+      require       => Service['hadoop-yarn-resourcemanager']
+    }
+  }
 }

@@ -142,6 +142,15 @@ class hadoop::namenode inherits hadoop::common_hdfs {
     else {
       Service <| title == 'hadoop-hdfs-zkfc' |> -> Service <| title == 'hadoop-hdfs-namenode' |>
     }
+
+    logstash::lumberjack_conf { 'zkfc':
+      logstash_host => $hadoop::params::default::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_zkfc',
+      field         => "hdfs-zkfc-${::fqdn}",
+      logfiles      => ['/var/log/hadoop-hdfs/hadoop*zkfc*.log'],
+      require       => Service['hadoop-hdfs-zkfc']
+    }
   }
 
   #configuration specific to active namenode

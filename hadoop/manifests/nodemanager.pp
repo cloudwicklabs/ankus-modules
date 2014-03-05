@@ -63,4 +63,15 @@ class hadoop::nodemanager inherits hadoop::common_yarn {
     Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-yarn-nodemanager']
   }
 
+  # log_stash
+  if ($hadoop::params::default::log_aggregation == 'enabled') {
+    logstash::lumberjack_conf { 'nodemanager':
+      logstash_host => $hadoop::params::default::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_nodemanager',
+      field         => "nodemanager-${::fqdn}",
+      logfiles      => ['/var/log/hadoop-yarn/hadoop*nodemanager*.log'],
+      require       => Service['hadoop-yarn-nodemanager']
+    }
+  }
 }

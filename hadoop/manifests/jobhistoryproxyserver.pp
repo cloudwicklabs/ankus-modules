@@ -64,4 +64,16 @@ class hadoop::jobhistoryproxyserver inherits hadoop::common_yarn {
   if($hadoop::params::default::hadoop_security_authentication == 'kerberos') {
     Kerberos::Host_keytab <| tag == 'yarn' |> -> Service['hadoop-mapreduce-historyserver', 'hadoop-yarn-proxyserver']
   }
+
+  # log_stash
+  if ($hadoop::params::default::log_aggregation == 'enabled') {
+    logstash::lumberjack_conf { 'jobhistoryserver':
+      logstash_host => $hadoop::params::default::logstash_server,
+      logstash_port => 5672,
+      daemon_name   => 'lumberjack_jobhistoryserver',
+      field         => "jobhistory-${::fqdn}",
+      logfiles      => ['/var/log/hadoop-mapreduce/hadoop*jobhistoryserver*.log'],
+      require       => Service['hadoop-mapreduce-historyserver']
+    }
+  }
 }
