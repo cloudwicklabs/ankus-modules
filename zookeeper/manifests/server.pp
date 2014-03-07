@@ -44,10 +44,11 @@ class zookeeper::server(
   ) inherits zookeeper
   {
   include java
+  include $::zookeeper::repo_class
 
   package { 'zookeeper-server':
     ensure  => installed,
-    require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
+    require => [ File['java-app-dir'], Class[$::zookeeper::repo_class] ]
   }
 
   service { 'zookeeper-server':

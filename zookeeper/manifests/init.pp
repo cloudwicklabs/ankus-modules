@@ -38,7 +38,6 @@
 #
 
 class zookeeper {
-
   $cloudera_repo_class = $::osfamily ? {
     redhat => 'utils::repos::cloudera::yum',
     debian => 'utils::repos::cloudera::apt'
@@ -49,10 +48,16 @@ class zookeeper {
     debian => 'utils::repos::hdp::apt'
   }
 
-  $deployment_mode = $hadoop_deploy['packages_source']
+  $hadoop_deploy = hiera('hadoop_deploy', 'disabled')
 
-  $repo_class = $::deployment_mode ? {
-    cdh  => $cloudera_repo_class,
-    hdp  => $hdp_repo_class
+  if ($hadoop_deploy != 'disabled') {
+    $deployment_mode = $hadoop_deploy['packages_source']
+
+    $repo_class = $::deployment_mode ? {
+      cdh  => $cloudera_repo_class,
+      hdp  => $hdp_repo_class
+    }
+  } else {
+    $repo_class = $cloudera_repo_class
   }
 }

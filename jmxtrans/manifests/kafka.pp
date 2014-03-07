@@ -2,221 +2,159 @@ class jmxtrans::kafka {
   $ganglia_server = hiera('controller')
 
   $jmx_kafka_objects = [
-    #BrokerTopicMetrics
+    # Controller Stats
     {
-      'name'   => '\"kafka.server\":name=\"AllTopicsBytesInPerSec\",type=\"BrokerTopicMetrics\"',
-      'resultAlias' => 'AllTopicsBytesInPerSec',
-      'attributes'  => {
-        'Count' => { 'units' => 'bytes' },
-      }
-    },
-    {
-      'name'   => '\"kafka.server\":name=\"AllTopicsMessagesInPerSec\",type=\"BrokerTopicMetrics\"',
-      'resultAlias' => 'AllTopicsMessagesInPerSec',
-      'attributes'  => {
-        'Count' => { 'units' => 'bytes' },
-      }
-    },
-    {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-consumer|Fetch-follower}-RequestsPerSec\",type=\"RequestMetrics\"',
-      'resultAlias' => 'RequestRate',
-      'attributes'  => {
-        'Count' => { 'units' => 'requests' },
-      }
-    },
-    {
-      'name'   => '\"kafka.server\":name=\"AllTopicsBytesOutPerSec\",type=\"BrokerTopicMetrics\"',
-      'resultAlias' => 'AllTopicsBytesOutPerSec',
-      'attributes'  => {
-        'Count' => { 'units' => 'bytes' },
-      }
-    },
-    {
-      'name'   => '\"kafka.log\":name=\"LogFlushRateAndTimeMs\",type=\"LogFlushStats\"',
-      'resultAlias' => 'LogFlushRateAndTime',
-      'attributes'  => {
-        'Count' => { 'units' => 'millisecs' },
-      }
-    },
-    {
-      'name'   => '\"kafka.server\":name=\"UnderReplicatedPartitions\",type=\"ReplicaManager\"',
-      'resultAlias' => 'UnderReplicatedPartitions',
-      'attributes'  => {
-        'Count' => { 'units' => 'number' },
-      }
-    },
-    {
-      'name'   => '\"kafka.controller\":name=\"ActiveControllerCount\",type=\"KafkaController\"',
-      'resultAlias' => 'IsControllerActiveOnBroker',
-      'attributes'  => {
-        'Count' => { 'units' => '#_of_controllers' },
-      }
-    },
-    {
-      'name'   => '\"kafka.controller\":name=\"LeaderElectionRateAndTimeMs\",type=\"ControllerStats\"',
+      'name'   => '\"kafka.controller\":type=\"ControllerStats\",name=\"LeaderElectionRateAndTimeMs\"',
       'resultAlias' => 'LeaderElectionRate',
       'attributes'  => {
         'Count' => { 'units' => 'millisecs' },
       }
     },
     {
-      'name'   => '\"kafka.controller\":name=\"UncleanLeaderElectionsPerSec\",type=\"ControllerStats\"',
-      'resultAlias' => 'UncleanLeaderElectionRate',
-      'attributes'  => {
-        'Count' => { 'units' => 'count' },
-      }
-    },
-    # mostly even across brokers
-    {
-      'name'   => '\"kafka.server\":name=\"PartitionCount\",type=\"ReplicaManager\"',
-      'resultAlias' => 'PartitionCounts',
-      'attributes'  => {
-        'Count' => { 'units' => '#_of_partitions' },
-      }
-    },
-    # mostly even across brokers
-    {
-      'name'   => '\"kafka.server\":name=\"LeaderCount\",type=\"ReplicaManager\"',
-      'resultAlias' => 'LeaderReplicaCounts',
-      'attributes'  => {
-        'Count' => { 'units' => '#_of_replicas' },
-      }
-    },
-    # If a broker goes down, ISR for some of the partitions will shrink. When that
-    # broker is up again, ISR will be expanded once the replicas are fully caught
-    # up. Other than that, the expected value for both ISR shrink rate and
-    # expansion rate is 0.
-    {
-      'name'   => '\"kafka.server\":name=\"ISRShrinksPerSec\",type=\"ReplicaManager\"',
-      'resultAlias' => 'ISRShrinksPerSec',
+      'name'   => '\"kafka.controller\":type=\"ControllerStats\",name=\"UncleanLeaderElectionsPerSec\"',
+      'resultAlias' => 'UnclearLeaderElectionRate',
       'attributes'  => {
         'Count' => { 'units' => 'secs' },
       }
     },
     {
-      'name'   => '\"kafka.server\":name=\"ISRExpandsPerSec\",type=\"ReplicaManager\"',
-      'resultAlias' => 'ISRExpandsPerSec',
+      'name'   => '\"kafka.controller\":type=\"KafkaController\",name=\"ActiveControllerCount\"',
+      'resultAlias' => 'ControllerCount',
+      'attributes'  => { 'Value' => {} }
+    },
+    {
+      'name'   => '\"kafka.controller\":type=\"KafkaController\",name=\"OfflinePartitionCount\"',
+      'resultAlias' => 'OfflinePartitions',
+      'attributes'  => { 'Value' => {} }
+    },
+    # Network
+    {
+      'name'   => '\"kafka.network\":type=\"RequestChannel\",name=\"RequestQueueSize\"',
+      'resultAlias' => 'ReqQueueSize',
+      'attributes'  => { 'Value' => {} }
+    },
+    # Server
+    {
+      'name'   => '\"kafka.server\":type=\"BrokerTopicMetrics\",name=\"AllTopicsBytesInPerSec\"',
+      'resultAlias' => 'BytesIn',
       'attributes'  => {
         'Count' => { 'units' => 'secs' },
       }
     },
-    # Max lag in messages btw follower and leader replicas
     {
-      'name'   => '\"kafka.server\":name=\"([-.\\w]+)-MaxLag\",type=\"ReplicaFetcherManager\"',
-      'resultAlias' => 'MessagesLagBwFollowerAndLeader',
+      'name'   => '\"kafka.server\":type=\"BrokerTopicMetrics\",name=\"AllTopicsBytesOutPerSec\"',
+      'resultAlias' => 'BytesOut',
       'attributes'  => {
-        'Count' => { 'units' => 'messages' },
+        'Count' => { 'units' => 'secs' },
       }
     },
-    # Lag in messages per follower replica
     {
-      'name'   => '\"kafka.server\":name=\"([-.\\w]+)-ConsumerLag\",type=\"FetcherLagMetrics\"',
-      'resultAlias' => 'MessagesLagPerFollowerReplica',
+      'name'   => '\"kafka.server\":type=\"BrokerTopicMetrics\",name=\"AllTopicsFailedFetchRequestsPerSec\"',
+      'resultAlias' => 'FetchFailedRequests',
       'attributes'  => {
-        'Count' => { 'units' => 'messages' },
+        'Count' => { 'units' => 'secs' },
       }
     },
-    # Requests waiting in the producer purgatory
     {
-      'name'   => '\"kafka.server\":name=\"PurgatorySize\",type=\"ProducerRequestPurgatory\"',
+      'name'   => '\"kafka.server\":type=\"BrokerTopicMetrics\",name=\"AllTopicsFailedProduceRequestsPerSec\"',
+      'resultAlias' => 'FailedProduceRequests',
+      'attributes'  => {
+        'Count' => { 'units' => 'secs' },
+      }
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"BrokerTopicMetrics\",name=\"AllTopicsMessagesInPerSec\"',
+      'resultAlias' => 'TopicsMessages',
+      'attributes'  => {
+        'Count' => { 'units' => 'secs' },
+      }
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"DelayedFetchRequestMetrics\",name=\"ConsumerExpiresPerSecond\"',
+      'resultAlias' => 'ConsumerExpiries',
+      'attributes'  => {
+        'Count' => { 'units' => 'secs' },
+      }
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"DelayedFetchRequestMetrics\",name=\"FollowerExpiresPerSecond\"',
+      'resultAlias' => 'FollowerExpiries',
+      'attributes'  => {
+        'Count' => { 'units' => 'secs' },
+      }
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"DelayedProducerRequestMetrics\",name=\"AllExpiresPerSecond\"',
+      'resultAlias' => 'AllExpiries',
+      'attributes'  => {
+        'Count' => { 'units' => 'secs' },
+      }
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"FetchRequestPurgatory\",name=\"NumDeplayedRequests\"',
+      'resultAlias' => 'DeplayedRequests',
+      'attributes'  => { 'Value' => {} },
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"FetchRequestPurgatory\",name=\"PurgatorySize\"',
+      'resultAlias' => 'PurgatorySize',
+      'attributes'  => { 'Value' => {} },
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"ProducerRequestPurgatory\",name=\"NumDelayedRequests\"',
+      'resultAlias' => 'ProducerRequestsDelayed',
+      'attributes'  => { 'Value' => {} },
+    },
+    {
+      'name'   => '\"kafka.server\":type=\"ProducerRequestPurgatory\",name=\"PurgatorySize\"',
       'resultAlias' => 'ProducerPurgatorySize',
-      'attributes'  => {
-        'Count' => { 'units' => 'requests' },
-      }
+      'attributes'  => { 'Value' => {} },
     },
-    # Requests waiting in the fetch purgatory
     {
-      'name'   => '\"kafka.server\":name=\"PurgatorySize\",type=\"FetchRequestPurgatory\"',
-      'resultAlias' => 'FetchRequestPurgatory',
-      'attributes'  => {
-        'Count' => { 'units' => 'requests' },
-      }
+      'name'   => '\"kafka.server\":type=\"ReplicaFetchManager\",name=\"Replica-MaxLag\"',
+      'resultAlias' => 'ReplicaMaxLag',
+      'attributes'  => { 'Value' => {} },
     },
-    # Request total time
     {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-Consumer|Fetch-Follower}-TotalTimeMs\",type=\"RequestMetrics\"',
-      'resultAlias' => 'RequestTotalTime',
-      'attributes'  => {
-        'Count' => { 'units' => 'ms' },
-      }
+      'name'   => '\"kafka.server\":type=\"ReplicaFetchManager\",name=\"Replica-MinFetchRate\"',
+      'resultAlias' => 'ReplicaMinFetchRate',
+      'attributes'  => { 'Value' => {} },
     },
-    # Time the request waiting in the request queue
     {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-Consumer|Fetch-Follower}-QueueTimeMs\",type=\"RequestMetrics\"',
-      'resultAlias' => 'RequestTotalTimeInQueue',
+      'name'   => '\"kafka.server\":type=\"ReplicaManager\",name=\"ISRShrinksPerSec\"',
+      'resultAlias' => 'ISRShrinks',
       'attributes'  => {
-        'Count' => { 'units' => 'ms' },
-      }
+        'Count' => { 'units' => 'secs' },
+      },
     },
-    # Time the request being processed at the leader
     {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-Consumer|Fetch-Follower}-LocalTimeMs\",type=\"RequestMetrics\"',
-      'resultAlias' => 'RequestTotalTimeAtLeader',
+      'name'   => '\"kafka.server\":type=\"ReplicaManager\",name=\"IsrExpandsPerSec\"',
+      'resultAlias' => 'IsrExpands',
       'attributes'  => {
-        'Count' => { 'units' => 'ms' },
-      }
+        'Count' => { 'units' => 'secs' },
+      },
     },
-    # Time the request waits for the follower
     {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-Consumer|Fetch-Follower}-RemoteTimeMs\",type=\"RequestMetrics\"',
-      'resultAlias' => 'RequestTotalTimeForFollower',
+      'name'   => '\"kafka.server\":type=\"ReplicaManager\",name=\"LeaderCount\"',
+      'resultAlias' => 'LeaderCount',
       'attributes'  => {
-        'Count' => { 'units' => 'ms' },
-      }
+        'Value' => {},
+      },
     },
-    # Time to send the response
     {
-      'name'   => '\"kafka.network\":name=\"{Produce|Fetch-Consumer|Fetch-Follower}-ResponseSendTimeMs\",type=\"RequestMetrics\"',
-      'resultAlias' => 'ResponseTime',
+      'name'   => '\"kafka.server\":type=\"ReplicaManager\",name=\"PartitionCount\"',
+      'resultAlias' => 'PartitionCount',
       'attributes'  => {
-        'Count' => { 'units' => 'ms' },
-      }
+        'Value' => {},
+      },
     },
-    # Number of messages the consumer lags behind the broker among all partitions consumed
     {
-      'name'   => '\"kafka.network\":name=\"([-.\\w]+)-MaxLag\",type=\"ConsumerFetcherManager\"',
-      'resultAlias' => 'MessagesConsumerLag',
+      'name'   => '\"kafka.server\":type=\"ReplicaManager\",name=\"UnderReplicatedPartitions\"',
+      'resultAlias' => 'UnderReplicatedPartitions',
       'attributes'  => {
-        'Count' => { 'units' => 'messages' },
-      }
+        'Value' => {},
+      },
     },
-    # The min fetch rate among all fetchers to brokers in a consumer
-    {
-      'name'   => '\"kafka.network\":name=\"([-.\\w]+)-MinFetch\",type=\"ConsumerFetcherManager\"',
-      'resultAlias' => 'MinFetchRate',
-      'attributes'  => {
-        'Count' => { 'units' => 'messages' },
-      }
-    },
-    #
-
-    # {
-    #     'name'   => 'kafka:type=kafka.LogFlushStats',
-    #     'attrs'  => {
-    #         'FlushesPerSecond' => { 'units' => 'flushes' }, # 'both' is ganglia default slope value. Leaving it off here.
-    #         'NumFlushes'       => { 'units' => 'flushes', slope => 'positive' },
-    #         'AvgFlushMs'       => { 'units' => 'ms' },
-    #         'MaxFlushMs'       => { 'units' => 'ms' },
-    #         'TotalFlushMs'     => { 'units' => 'ms', 'slope' => 'positive' },
-    #     }
-    # },
-    # {
-    #     'name'   => 'kafka:type=kafka.SocketServerStats',
-    #     'attrs'  => {
-    #         'BytesReadPerSecond'       => { 'units' => 'bytes'},
-    #         'BytesWrittenPerSecond'    => { 'units' => 'bytes'},
-
-    #         'ProduceRequestsPerSecond' => { 'units' => 'requests'},
-    #         'AvgProduceRequestMs'      => { 'units' => 'requests'},
-    #         'MaxProduceRequestMs'      => { 'units' => 'requests'},
-    #         'TotalProduceRequestMs'    => { 'units' => 'ms' }
-
-    #         'FetchRequestsPerSecond'   => { 'units' => 'requests' },
-    #         'AvgFetchRequestMs'        => { 'units' => 'ms' },
-    #         'MaxFetchRequestMs'        => { 'units' => 'ms' },
-    #         'TotalFetchRequestMs'      => { 'units' => 'ms' },
-    #     }
-    # }
   ]
 
   # query cassandra node for its JMX metrics

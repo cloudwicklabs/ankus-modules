@@ -24,9 +24,10 @@
 #
 class zookeeper::client inherits zookeeper {
   include java
+  include $::zookeeper::repo_class
 
   package { 'zookeeper':
     ensure  => installed,
-    require => [ File['java-app-dir'], Class[$::hadoop::params::default::repo_class] ]
+    require => [ File['java-app-dir'], Class[$::zookeeper::repo_class] ]
   }
 }

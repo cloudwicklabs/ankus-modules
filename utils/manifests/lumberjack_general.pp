@@ -4,7 +4,6 @@ class utils::lumberjack_general {
 
   if ($log_aggregation == 'enabled') {
     $logstash_server = hiera('logstash_server')
-    #require logstash::lumberjack_def
     logstash::lumberjack_conf { "default":
       logstash_host => $logstash_server,
       logstash_port => 5672,
