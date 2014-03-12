@@ -1,4 +1,4 @@
-class cm::server_init.pp inherits cm::api::params {
+class cm::server_init inherits cm::api::params {
   # Create cluster entity
   cm::api::cluster { 'test_cluster':
     $cluster_version => 'CDH4',
