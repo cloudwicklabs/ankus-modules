@@ -76,7 +76,7 @@ class cm::agent(
 
   file { "/etc/default/cloudera-scm-agent":
     ensure => $file_ensure,
-    content => template('scm/cloudera-scm-agent.erb'),
+    content => template('cm/cloudera-scm-agent.erb'),
     require => Package['cloudera-manager-agent'],
     notify => Service['cloudera-scm-agent']
   }
@@ -84,7 +84,7 @@ class cm::agent(
   file { 'scm-config.ini':
     ensure  => $file_ensure,
     path    => '/etc/cloudera-scm-agent/config.ini',
-    content => template('scm/scm-config.ini.erb'),
+    content => template('cm/scm-config.ini.erb'),
     require => Package['cloudera-manager-agent'],
     notify  => Service['cloudera-scm-agent'],
   }

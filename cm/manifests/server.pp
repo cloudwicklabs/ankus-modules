@@ -68,7 +68,7 @@ class cm::server(
 
   file { "/etc/default/cloudera-scm-server":
     ensure => $file_ensure,
-    content => template('scm/cloudera-scm-server.erb'),
+    content => template('cm/cloudera-scm-server.erb'),
     require => Package['cloudera-manager-server'],
     notify => Service['cloudera-scm-server']
   }
