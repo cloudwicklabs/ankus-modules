@@ -1,0 +1,26 @@
+###
+### File managed by Puppet
+###
+#
+# Specify any command line arguments for the Cloudera SCM Server here.
+#
+
+CMF_SERVER_ARGS=""
+
+#
+# Locate the JDBC driver jar file.
+#
+# The default value is the default system mysql driver on RHEL/CentOS/Ubuntu
+#
+
+export CMF_JDBC_DRIVER_JAR="/usr/share/java/mysql-connector-java.jar"
+
+#
+# Java Options.
+#
+# Default value sets Java maximum heap size to 2GB, and Java maximum permanent
+# generation size to 256MB.
+#
+
+export CMF_JAVA_OPTS="-Xmx2G -XX:MaxPermSize=256m"
+export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>
