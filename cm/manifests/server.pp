@@ -34,6 +34,7 @@ class cm::server(
   validate_bool($autoupgrade)
 
   require java
+  include $::cm::params::repo_class
 
   case $ensure {
     /(present)/: {
