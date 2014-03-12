@@ -27,6 +27,9 @@
 #
 class cm::params {
 
+  $cm_username = hiera('cloudera_manager_username', 'admin')
+  $cm_password = hiera('cloudera_manager_username', 'admin')
+
   $repo_class = $::osfamily ? {
     /(?i-mx:redhat)/ => 'utils::repos::cm::yum',
     /(?i-mx:debian)/ => 'utils::repos::cm::apt',
