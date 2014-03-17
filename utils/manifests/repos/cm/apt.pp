@@ -7,7 +7,7 @@
 # None.
 #
 class utils::repos::cm::apt {
-  $cm_version = hiera('cloudera_manager_version', 4)
+  $cm_version = hiera('cloudera_manager_version', 5)
 
   apt::source { 'cloudera-manager':
     location    => "[arch=${::architecture}] http://archive.cloudera.com/cm${cm_version}/ubuntu/${::lsbdistcodename}/${::architecture}/cm",

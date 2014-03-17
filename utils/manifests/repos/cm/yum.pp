@@ -7,7 +7,7 @@
 # None.
 #
 class utils::repos::cm::yum {
-  $cm_version = hiera('cloudera_manager_version', 4)
+  $cm_version = hiera('cloudera_manager_version', 5)
 
   yumrepo { 'cloudera-manager':
     descr          => 'Cloudera Manager Repository',
