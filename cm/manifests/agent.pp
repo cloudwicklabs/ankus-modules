@@ -97,4 +97,11 @@ class cm::agent(
     hasstatus  => true,
     require    => Package['cloudera-manager-agent'],
   }
+
+  cm::api::host { $::fqdn:
+    host_name => $::fqdn,
+    ip_address => $::ipaddress,
+    rack_id => '/default',
+    require => Service['cloudera-scm-agent']
+  }
 }
