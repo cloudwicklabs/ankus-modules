@@ -29,21 +29,22 @@ class cm::params {
 
   $cm_username = hiera('cloudera_manager_username', 'admin')
   $cm_password = hiera('cloudera_manager_username', 'admin')
+  $cm_version  = hiera('cloudera_manager_version', 5)
+  $cm_api_port = hiera('cloduera_manager_api_port', '7180')
 
   $repo_class = $::osfamily ? {
     /(?i-mx:redhat)/ => 'utils::repos::cm::yum',
     /(?i-mx:debian)/ => 'utils::repos::cm::apt',
   }
 
-  $cm_server_host = $::cloudera_cm_server_host ? {
-    undef   => 'localhost',
-    default => $::cloudera_cm_server_host,
+  $cm_embedded_database_pkg = $cm_version ? {
+    /5/ => 'cloudera-manager-server-db-2',
+    /4/ => 'cloudera-manager-server-db',
   }
 
-  $cm_server_port = $::cloudera_cm_server_port ? {
-    undef   => '7182',
-    default => $::cloudera_cm_server_port,
-  }
+  $cm_server_host = hiera('cloudera_cm_server_host', 'localhost')
+
+  $cm_server_port = hiera('cloudera_cm_server_port', '7182')
 
   $ensure = $::cloudera_ensure ? {
     undef => 'present',
