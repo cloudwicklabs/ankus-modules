@@ -1,7 +1,7 @@
+# Custom puppet type for making a web-request
 require 'uri'
 
 Puppet::Type.newtype(:curl) do
-
   desc 'Custom puppet resource to make web requests'
 
   newparam :name
@@ -76,14 +76,22 @@ Puppet::Type.newtype(:curl) do
   end
 
   newparam(:contains) do
-    desc "XPath to verify as part of the result"
+    desc "JPath to verify as part of the result"
     munge do |value|
       Puppet::Type::Curl.munge_array_params(value)
     end
   end
 
+  newparam(:contains_key) do
+    desc "check the json output for a specific key"
+  end
+
+  newparam(:contains_value) do
+    desc "check the json output for a specific value matching the key"
+  end
+
   newparam(:does_not_contain) do
-    desc "XPath to verify as not being part of the result"
+    desc "JPath to verify as not being part of the result"
     munge do |value|
       Puppet::Type::Curl.munge_array_params(value)
     end
@@ -91,11 +99,6 @@ Puppet::Type.newtype(:curl) do
 
   newparam(:log_to) do
     desc "Log requests/responses to the specified file or directory"
-  end
-
-  newparam(:only_log_errors) do
-    desc "Boolean indicating if we should only log responses which did not pass validations"
-    newvalues(:true, :false)
   end
 
   newparam(:only_if) do

@@ -1,7 +1,9 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'fileutils'
 require 'net/http'
-require 'json' # we need json gem installed on all nodes
+# we need these gems installed on all nodes
+require 'json'
+require 'jsonpath'
 
 Puppet::Type.type(:curl).provide(:ruby) do
   # limit the use of this resource to redhat and debian based systems
@@ -85,12 +87,15 @@ Puppet::Type.type(:curl).provide(:ruby) do
         :returns          => params[:returns],
         :does_not_return  => params[:does_not_return],
         :contains         => params[:contains],
-        :does_not_contain => params[:does_not_contain]
+        :does_not_contain => params[:does_not_contain],
+        :contains_key     => params[:contains_key],
+        :contains_value   => params[:contains_value]
       )
     rescue Exception => e
       error = e
       Puppet.debug e.backtrace.join('\n')
-      raise Puppet::Error, "An exception was raised when invoking web request: #{e} (#{e.class})"
+      raise Puppet::Error, "An exception was raised when invoking web" \
+                           " request: #{e} (#{e.class})"
     ensure
       unless result.nil?
         log_response(
@@ -117,18 +122,20 @@ Puppet::Type.type(:curl).provide(:ruby) do
 
         result = curl.request(
           method.to_sym,
-          uri,
+          condition[method],  # make the request passed by the method in the condition
           params[:request_type] || 'json',
-          condition[:parameters] && eval(condition[:parameters]) || {}
+          condition[:parameters] && eval(condition[:parameters]) || {} # parse the params if any
         )
         result_succeeded = true
 
         begin
           verify_result(curl, result, condition)
-        rescue Puppet::Error
+        rescue Puppet::Error => ex
+          Puppet.debug ex.message
           result_succeeded = false
         end
-        if (c == :only_if && !result_succeeded) || (c == :unless && result_succeeded)
+        if (c == :only_if && !result_succeeded) ||
+          (c == :unless && result_succeeded)
           return true
         end
       end
@@ -150,6 +157,11 @@ Puppet::Type.type(:curl).provide(:ruby) do
     if verify[:does_not_contain].nil? && !verify['does_not_contain'].nil?
       verify[:does_not_contain] = verify['does_not_contain']
     end
+    if verify[:contains_key].nil? && !verify['contains_key'].nil?
+      verify[:contains_key] = verify['contains_key']
+      verify[:contains_value] = verify['contains_value']
+    end
+    Puppet.debug "Parsed verify hash: " + verify.inspect
 
     #
     # validates the status codes user is expecting
@@ -164,15 +176,16 @@ Puppet::Type.type(:curl).provide(:ruby) do
          "was not expecting one of #{verify[:does_not_return]}"
     end
 
-    #
-    # TODO update the method #valid_json_key? to validate the user input for a request
-    #
-    if !verify[:contains].nil? && !curl.valid_json_key?(verify[:contains])
+    if !verify[:contains].nil? && !curl.valid_json_path?(result, verify[:contains])
       raise Puppet::Error, "Expecting #{verify[:contains]} in the result"
     end
 
-    if !verify[:does_not_contain].nil? && curl.valid_json_key?(verify[:does_not_contain])
+    if !verify[:does_not_contain].nil? && curl.valid_json_path?(result, verify[:does_not_contain])
       raise Puppet::Error, "Not expecting #{verify[:does_not_contain]} in the result"
+    end
+
+    if !verify[:contains_key].nil? && !curl.valid_key_value?(result, verify[:contains_key], verify[:contains_value])
+      raise Puppet::Error, "Key '#{verify[:contains_key]}' does not match value '#{verify[:contains_value]}' in the result"
     end
   end
 
@@ -186,7 +199,6 @@ Puppet::Type.type(:curl).provide(:ruby) do
     puppet_params = params[:puppet_params]
 
     if puppet_params[:log_to]
-      return if puppet_params[:only_log_errors] == :true && error.nil?
       logfile = puppet_params[:log_to].strip
       exists = File.exists?(logfile)
       isfile = File.file?(logfile) || (!exists && (logfile[-1].chr != '/'))
@@ -294,6 +306,30 @@ class HashConversions
   end
 end
 
+# Monkey patch Hash to find nested key/value pairs
+class Hash
+  # finds and returns a key in a nested hash
+  def deep_return(key, object=self, found=nil)
+    if object.respond_to?(:key?) && object.key?(key)
+      return object[key]
+    elsif object.is_a? Enumerable
+      object.find { |*a| found = deep_return(key, a.last) }
+      return found
+    end
+  end
+
+  # retunrs if a key is present in the nested hash
+  def deep_find(key)
+    if key?(key)
+      true
+    else
+      self.values.inject(nil) do |memo, v|
+        memo ||= v.deep_find(key) if v.respond_to?(:deep_find)
+      end
+    end
+  end
+end
+
 # Class to handle web requests using 'net/http' and 'uri', specifically modelled
 # to handle json based web requests
 #
@@ -364,11 +400,33 @@ class Curl
     valid_values.include?(response.code)
   end
 
-  # Verifies if a key contains specified message
-  def valid_json_key?(result, key_value)
-    return
+  # Verifies if a value is returned with the input jpath
+  # @param [String] valid json string
+  # @param [String] valid jpath like following
+  # Usage:
+  #  1. To find if the price of any element is less than 20
+  #    valid_json_path? '{"books":[{"title":"A Tale of Two Somethings","price":18.88}]}', '$..price[?(@ < 20)]'
+  #  2. To find if a name key has value 'dfs_replication'
+  #    valid_json_path? '{"items":[{"name":"dfs_replication","value":"1"}}', "$..name[?(@ == 'dfs_replication')]"
+  def valid_json_path?(response, jpath)
+    Puppet.debug "JPath: " + jpath.inspect
+    Puppet.debug "Valid JsonPath: " + JsonPath.on(response.body, jpath).inspect
+    !JsonPath.on(response.body, jpath).empty?
   end
 
+  def valid_key_value?(response, key, value)
+    Puppet.debug "Validating if key(#{key}) has value(#{value})"
+    parsed_response = JSON.parse(response.body)
+    valid = false
+    if parsed_response.deep_find(key)
+      # key is present, now validate if value is same as user
+      valid = true if parsed_response.deep_return(key) == value
+    end
+    return valid
+  end
+
+  # Parses the json string and wraps it using openstruct object so that it's
+  # parsable
   def json_response(response)
     body = JSON.parse(response.body)
     OpenStruct.new(:code => response.code, :body => body)
