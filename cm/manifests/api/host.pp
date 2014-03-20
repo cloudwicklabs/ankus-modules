@@ -11,10 +11,10 @@ define cm::api::host($host_name, $ip_address, $rack_id = '/default_rack') {
     post         => "/api/${::cm::api::params::api_version}/hosts",
     parameters   => "{
                       'items' => [
-                        'hostId' => '${name}',
-                        'hostname' => '${host_name}',
-                        'ipAddress' => '${ip_address}',
-                        'rackId' => '${rack_id}'
+                        'hostId'     => '${name}',
+                        'hostname'   => '${host_name}',
+                        'ipAddress'  => '${ip_address}',
+                        'rackId'     => '${rack_id}'
                       ]
                     }",
     request_type => 'json',

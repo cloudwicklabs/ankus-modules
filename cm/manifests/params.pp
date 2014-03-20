@@ -32,6 +32,7 @@ class cm::params {
   $cm_api_port     = hiera('cloduera_manager_api_port', '7180')
   $cm_cluster_name = hiera('cm_cluster_name', 'ankus_cluster')
   $cm_cluster_ver  = hiera('cm_cluster_ver', 'CDH4')
+  $cm_nodes        = hiera('cm_cluster_nodes') # ['localhost']
 
   $repo_class = $::osfamily ? {
     /(?i-mx:redhat)/ => 'utils::repos::cm::yum',
@@ -94,6 +95,7 @@ class cm::params {
   $cm_smon_database_name     = hiera('cm_smon_database_name', 'smon')
   $cm_smon_database_user     = hiera('cm_smon_database_user', 'smon')
   $cm_smon_listen_port       = hiera('cm_smon_listen_port', '9997')
+  $cm_smon_debug_port        = hiera('cm_smon_debug_port', '8081')
   $cm_smon_database_type     = hiera('cm_smon_database_type', 'postgresql')
   $cm_smon_database_password = hiera('cm_smon_database_password', 'smon')
   $cm_hmon_database_name     = hiera('cm_hmon_database_name', 'hmon')
