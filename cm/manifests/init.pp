@@ -27,5 +27,21 @@
 #
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
-class cm {
+class cm($role, $pass = 1) {
+  if ($pass == 1) {
+    if ($role == 'server') {
+      class { 'cm::server': } ->
+      class { 'cm::agent': }
+    } else {
+      class { 'cm::agent': }
+    }
+  } elsif ($pass == 2) {
+    if ($role == 'server') {
+      class { 'cm::server': } ->
+      class { 'cm::agent': } ->
+      class { 'cm::api::parcels::configure': }
+    } else {
+      class { 'cm::agent': }
+    }
+  }
 }
