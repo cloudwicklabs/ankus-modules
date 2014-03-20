@@ -40,6 +40,9 @@ Puppet::Type.type(:wait_for).provide(:ruby) do
     info "polling frequency #{@polling_frequency}, max retries #{@max_retries}"
     error_message = "wait_for timed out while waiting until the output of #{@query} matched #{regex}, after #{@max_retries} retries with polling frequency #{@polling_frequency}."
     query_and_wait(error_message) do |exit_code, output|
+      unless @giveup_regex.nil?
+        return if output =~ @giveup_regex
+      end
       if output =~ regex
         info "Query output matched regex."
         return regex
@@ -54,6 +57,7 @@ Puppet::Type.type(:wait_for).provide(:ruby) do
     @query = resource[:query]
     @polling_frequency = resource[:polling_frequency]
     @max_retries = resource[:max_retries]
+    @giveup_regex = resource[:giveup_regex]
   end
 
   def query_and_wait(error_message)
