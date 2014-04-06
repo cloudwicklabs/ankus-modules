@@ -1,0 +1,9 @@
+###
+### File managed by Puppet
+###
+#
+# Specify any command line arguments for the Cloudera SCM Agent here.
+#
+
+CMF_AGENT_ARGS=""
+export JAVA_HOME=<%= scope.lookupvar('java::params::java_base') %>/jdk<%= scope.lookupvar('java::params::java_version') %>
