@@ -4,24 +4,21 @@ class cm::api::parcels::configure inherits cm::api::params {
   cm::api::parcels::download { 'Download CDH':
     product_name => 'CDH',
     product_version => '4'
-  } ->
+  }
   cm::api::parcels::download { 'Download IMPALA':
     product_name => 'IMPALA'
-  } ->
-  # add hosts to the cluster specified
-  cm::api::parcels::add_host_to_cluster { $::cm::params::cm_nodes:
-  } ->
+  }
   cm::api::parcels::distribute { 'Distribute CDH':
     product_name => 'CDH',
     product_version => '4'
-  } ->
+  }
   cm::api::parcels::distribute { 'Distribute IMPALA':
     product_name => 'IMPALA'
-  } ->
+  }
   cm::api::parcels::activate { 'Activate CDH':
     product_name => 'CDH',
     product_version => '4'
-  } ->
+  }
   cm::api::parcels::activate { 'Distribute IMPALA':
     product_name => 'IMPALA'
   }

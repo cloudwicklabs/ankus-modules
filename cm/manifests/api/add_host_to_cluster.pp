@@ -1,5 +1,5 @@
 # Adds a host to existing cluster
-define cm::api::parcels::add_host_to_cluster {
+define cm::api::add_host_to_cluster {
   require cm::api::params
 
   curl { "add-host-${name}-to-cluster":

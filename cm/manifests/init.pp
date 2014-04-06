@@ -28,28 +28,19 @@
 # Copyright 2012 Cloudwick Technologies, unless otherwise noted.
 #
 class cm($role, $pass = 1, $hdfs_enabled = true) {
-  if ($pass == 1) {
-    if ($role == 'server') {
-      class { 'cm::server': } ->
-      class { 'cm::agent': }
-    } else {
-      class { 'cm::agent': }
-    }
-  } elsif ($pass == 2) {
-    if ($role == 'server') {
-      class { 'cm::server': } ->
-      class { 'cm::agent': } ->
-      cm::api::cluster { $cm::params::cm_cluster_name:
-        cluster_version => $cm::params::cm_cluster_ver
-      } ->
-      class { 'cm::api::parcels::configure': }
-      if ($hdfs_enabled == true) {
-        class { 'cm::hdfs_init':
-          require => Class['cm::api::parcels::configure']
-        }
+  if ($role == 'server' and $pass == 1) {
+    class { 'cm::server': } ->
+    class { 'cm::agent': }
+  } elsif ($role == 'server' and $pass == 2) {
+    class { 'cm::server': } ->
+    class { 'cm::agent': } ->
+    class { 'cm::cluster_init': }
+    if ($hdfs_enabled == true) {
+      class { 'cm::hdfs_init':
+        require => Class['cm::cluster_init']
       }
-    } else {
-      class { 'cm::agent': }
     }
+  } elsif ($role == 'agent') {
+    class { 'cm::agent': }
   }
 }

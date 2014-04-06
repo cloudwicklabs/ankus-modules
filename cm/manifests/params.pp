@@ -44,7 +44,7 @@ class cm::params {
     /4/ => 'cloudera-manager-server-db',
   }
 
-  $cm_server_host = hiera('cloudera_cm_server_host', 'localhost')
+  $cm_server_host = hiera('cloudera_cm_server_host', $::fqdn)
 
   $cm_server_port = hiera('cloudera_cm_server_port', '7182')
 
@@ -103,4 +103,7 @@ class cm::params {
   $cm_hmon_listen_port       = hiera('cm_hmon_listen_port', '9995')
   $cm_hmon_database_type     = hiera('cm_hmon_database_type', 'postgresql')
   $cm_hmon_database_password = hiera('cm_hmon_database_password', 'hmon')
+
+  # Host specific
+  $namenode_host = hiera('hadoop_namenode', $::fqdn)
 }

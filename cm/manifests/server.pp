@@ -102,7 +102,7 @@ class cm::server(
     hasstatus  => true,
     require    => Package['cloudera-manager-server'],
   }
-
+  
   # package { $::cm::params::cm_embedded_database_pkg:
   #   ensure  => $package_ensure,
   #   require => Class[$::cm::params::repo_class]
