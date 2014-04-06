@@ -20,7 +20,7 @@ class utils::database {
     database => 'all',
     user => 'postgres',
     auth_method => 'ident',
-    order => 10
+    order => 01
   }
 
   postgresql::server::pg_hba_rule { 'allow local connections':
@@ -29,7 +29,7 @@ class utils::database {
     database => 'all',
     user => 'all',
     auth_method => 'md5',
-    order => 20
+    order => 02
   }
 
   postgresql::server::pg_hba_rule { 'ipv4 local connections':
@@ -38,7 +38,8 @@ class utils::database {
     database => 'all',
     user => 'all',
     address => '127.0.0.1/32',
-    auth_method => 'trust'
+    auth_method => 'trust',
+    order => 03
   }
 
   postgresql::server::pg_hba_rule { 'ipv6 local connections':
@@ -47,7 +48,8 @@ class utils::database {
     database => 'all',
     user => 'all',
     address => '::1/128',
-    auth_method => 'trust'
+    auth_method => 'trust',
+    order => 04
   }
 
   # create a database for puppetdb
