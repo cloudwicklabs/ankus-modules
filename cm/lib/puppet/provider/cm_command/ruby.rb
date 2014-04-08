@@ -51,7 +51,7 @@ Puppet::Type.type(:cm_command).provide(:ruby) do
     cmd_ids.each do |cmd_id|
       uri = URI.parse("http://localhost:7180")
       http = Net::HTTP.new(uri.host, uri.port)
-      req = Net::HTTP::Get.new("/api/v6/commands/27")
+      req = Net::HTTP::Get.new("/api/v6/commands/#{cmd_id}")
       req.basic_auth('admin', 'admin')
       res = http.request(req)
       while JSON.parse(res.body)['active']
