@@ -30,11 +30,11 @@ class cm::hdfs_init inherits cm::params {
     service_name => $service_name,
     role_name => $nn_role,
     meta_data => {
-                   'dfs_name_dir_list' => $cm::params::dfs_name_dir,
+                   'dfs_name_dir_list' => '/data',
                  },
   } ->
   # format namenode
 
   # start namenode role
-  
+
 }

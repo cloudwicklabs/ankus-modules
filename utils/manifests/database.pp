@@ -72,7 +72,7 @@ class utils::database {
   $hive_username = 'hive'
   $hive_password = 'hive'
 
-  postgresql::server::db { $hive_databse:
+  postgresql::server::db { $hive_database:
     user     => $hive_username,
     password => $hive_password
   }
@@ -91,7 +91,7 @@ class utils::database {
   $oozie_username = 'oozie'
   $oozie_password = 'oozie'
 
-  postgresql::server::db { $oozie_databse:
+  postgresql::server::db { $oozie_database:
     user     => $oozie_username,
     password => $oozie_password
   }
@@ -110,7 +110,7 @@ class utils::database {
   $hue_username = 'hue'
   $hue_password = 'hue'
 
-  postgresql::server::db { $hue_databse:
+  postgresql::server::db { $hue_database:
     user     => $hue_username,
     password => $hue_password
   }
