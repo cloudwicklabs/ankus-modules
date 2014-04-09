@@ -1,2 +1,7 @@
 .idea
 cm/manifests/api/apiclass.sh
+apt/
+concat/
+firewall/
+postgresql/
+stdlib/
