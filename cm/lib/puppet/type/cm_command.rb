@@ -22,9 +22,6 @@ Puppet::Type.newtype(:cm_command) do
 
   newparam(:params) do
     desc "Parameters for the requset body"
-    munge do |value|
-      Hash.new(value)
-    end
   end
 
   newparam(:wait) do
