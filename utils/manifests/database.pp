@@ -68,7 +68,7 @@ class utils::database {
   }
 
   # Hive metastore database
-  $hive_database = 'hive_metastore'
+  $hive_database = 'hive'
   $hive_username = 'hive'
   $hive_password = 'hive'
 

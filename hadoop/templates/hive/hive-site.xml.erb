@@ -19,7 +19,7 @@
 
 <property>
   <name>javax.jdo.option.ConnectionURL</name>
-  <value>jdbc:postgresql://<%= @hadoop_controller %>/hive_metastore</value>
+  <value>jdbc:postgresql://<%= @hadoop_controller %>/<%= @hive_psql_dbname -%></value>
   <description>JDBC connect string for a JDBC metastore</description>
 </property>
 
@@ -35,7 +35,7 @@
 
 <property>
   <name>javax.jdo.option.ConnectionPassword</name>
-  <value><%= @hive_pqsl_password -%></value>
+  <value><%= @hive_psql_password -%></value>
 </property>
 
 <property>

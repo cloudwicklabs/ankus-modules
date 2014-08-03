@@ -10,6 +10,7 @@ class hadoop::params::hive inherits hadoop::params::default {
     $hbase_master           = $hbase_deploy['hbase_master']
     $hbase_zookeeper_quorum = hiera('zookeeper_quorum')
   }
-  $hive_pqsl_username       = 'hiveuser'
-  $hive_psql_password       = 'hiveuser'
+  $hive_psql_dbname         = 'hive'
+  $hive_pqsl_username       = 'hive'
+  $hive_psql_password       = 'hive'
 }
