@@ -13,7 +13,7 @@
 #	Valid values: true and false.
 #
 # [*ensure*]
-#	Whether to run the NTP service. Defaults to running. 
+#	Whether to run the NTP service. Defaults to running.
 #	Valid values: running and stopped
 #
 # === Requires
@@ -37,7 +37,7 @@ class ntp ($servers = undef, $enable = true, $ensure = running) {
 	case $operatingsystem {
 		centos, redhat: {
 			$service_name = 'ntpd'
-			#$conf_file = 'ntp.conf.el' 
+			#$conf_file = 'ntp.conf.el'
 			$conf_template = 'ntp.conf.el.erb'
 			$default_servers = [ "0.centos.pool.ntp.org",
 								 "1.centos.pool.ntp.org",
@@ -50,7 +50,7 @@ class ntp ($servers = undef, $enable = true, $ensure = running) {
 			$default_servers = [ "0.debian.pool.ntp.org iburst",
 								 "1.debian.pool.ntp.org iburst",
 								 "2.debian.pool.ntp.org iburst",
-								 "3.debian.pool.ntp.org iburst", ]			
+								 "3.debian.pool.ntp.org iburst", ]
 		}
 	}
 
@@ -61,12 +61,12 @@ class ntp ($servers = undef, $enable = true, $ensure = running) {
 		$servers_real = $servers
 	}
 
-	package { 'ntp': 
+	package { 'ntp':
 		ensure => installed,
 	}
 
 	service { 'ntp':
-		name => $service_name, 
+		name => $service_name,
 		ensure => running,
 		enable => true,
 		subscribe => File['ntp.conf'],
@@ -78,5 +78,5 @@ class ntp ($servers = undef, $enable = true, $ensure = running) {
 		require => Package['ntp'],
 		#source => "puppet:///modules/ntp/${conf_file}",
 		content => template("ntp/${conf_template}"),
-	} 
+	}
 }
